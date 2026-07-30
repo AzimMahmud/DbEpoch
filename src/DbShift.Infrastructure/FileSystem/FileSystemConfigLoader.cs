@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DbShift.Core.Exceptions;
 using DbShift.Core.Interfaces;
 using DbShift.Core.ValueObjects;
 
@@ -35,12 +36,12 @@ public sealed class FileSystemConfigLoader : IConfigLoader
         var path = Path.Combine(root, "Database", "Config", "migration.json");
         if (!File.Exists(path))
         {
-            throw new FileNotFoundException(
-                $"Migration configuration not found at '{path}'. Run the CLI from the repository root or pass --config.", path);
+            throw new MigrationConfigurationException(
+                $"Migration configuration not found at '{path}'. Run the CLI from the repository root or pass --config.");
         }
 
         var dto = JsonSerializer.Deserialize<MigrationConfigDto>(File.ReadAllText(path), JsonOptions)
-                  ?? throw new InvalidDataException($"Migration configuration at '{path}' is empty or invalid.");
+                  ?? throw new MigrationConfigurationException($"Migration configuration at '{path}' is empty or invalid.");
         var migration = dto.Migration ?? new MigrationConfigDto.MigrationDto();
 
         return new MigrationConfiguration
@@ -49,41 +50,50 @@ public sealed class FileSystemConfigLoader : IConfigLoader
             Provider = migration.Database?.Provider ?? "postgresql",
             ConnectionString = Expand(migration.Database?.ConnectionString),
             ScriptsPath = migration.Scripts?.Path ?? "./Database/Migrations",
-            Pattern = migration.Scripts?.Pattern ?? "V*__*.sql",
-            RollbackPattern = migration.Scripts?.RollbackPattern ?? "U*__*.sql",
             TrackingSchema = migration.Tracking?.Schema ?? "public",
             TrackingTable = migration.Tracking?.TableName ?? "__migration_history",
             LockTimeoutSeconds = migration.Execution?.LockTimeoutSeconds ?? 300,
             CommandTimeoutSeconds = migration.Execution?.CommandTimeoutSeconds ?? 3600,
             BatchSize = migration.Execution?.BatchSize ?? 10,
             StopOnFailure = migration.Execution?.StopOnFailure ?? true,
-            RequireApprovalEnvironments = migration.Approval?.RequireApproval ?? new List<string>(),
-            Approvers = migration.Approval?.Approvers ?? new List<string>()
+            RequireApprovalEnvironments = migration.Approval?.RequireApproval ?? new List<string>()
         };
     }
 
     public EnvironmentConfiguration LoadEnvironment(string name, string? basePath = null)
     {
         var root = ResolveBase(basePath ?? _baseDirectory);
-        var path = Path.Combine(root, "Database", "Config", "environments", $"{name}.json");
-        if (!File.Exists(path))
+        var safeName = ValidateEnvironmentName(name);
+        var environmentsDir = Path.GetFullPath(Path.Combine(root, "Database", "Config", "environments"));
+        var resolvedPath = Path.GetFullPath(Path.Combine(environmentsDir, $"{safeName}.json"));
+
+        // Defense-in-depth: reject any name that escapes the environments directory,
+        // including absolute paths and parent-traversal sequences.
+        var isContained = resolvedPath.Length >= environmentsDir.Length
+                          && resolvedPath.StartsWith(environmentsDir + Path.DirectorySeparatorChar, StringComparison.Ordinal);
+        if (!isContained && !string.Equals(resolvedPath, environmentsDir, StringComparison.Ordinal))
         {
-            throw new FileNotFoundException(
-                $"Environment '{name}' is not configured. Expected file at '{path}'.", path);
+            throw new MigrationConfigurationException(
+                $"Environment name '{name}' is not allowed. Use only letters, digits, '.', '_' or '-'.");
         }
 
-        var dto = JsonSerializer.Deserialize<EnvironmentDto>(File.ReadAllText(path), JsonOptions)
-                  ?? throw new InvalidDataException($"Environment configuration at '{path}' is empty or invalid.");
+        if (!File.Exists(resolvedPath))
+        {
+            throw new MigrationConfigurationException(
+                $"Environment '{safeName}' is not configured. Expected file at '{resolvedPath}'.");
+        }
 
-        var allowedRoles = dto.Migration?.AllowedRoles;
+        var dto = JsonSerializer.Deserialize<EnvironmentDto>(File.ReadAllText(resolvedPath), JsonOptions)
+                  ?? throw new MigrationConfigurationException($"Environment configuration at '{resolvedPath}' is empty or invalid.");
+
         return new EnvironmentConfiguration
         {
-            Name = dto.Name ?? name,
+            Name = dto.Name ?? safeName,
             Database = new DatabaseEndpoint
             {
                 Host = Expand(dto.Database?.Host) ?? "localhost",
                 Port = dto.Database?.Port ?? 5432,
-                Name = dto.Database?.Name ?? $"{name}_db",
+                Name = Expand(dto.Database?.Name) ?? $"{safeName}_db",
                 Schema = dto.Database?.Schema ?? "public",
                 ConnectionString = Expand(dto.Database?.ConnectionString)
             },
@@ -92,8 +102,7 @@ public sealed class FileSystemConfigLoader : IConfigLoader
                 RequireApproval = dto.Migration?.RequireApproval ?? false,
                 AllowRollback = dto.Migration?.AllowRollback ?? true,
                 LockTimeoutSeconds = dto.Migration?.LockTimeoutSeconds ?? 300,
-                MaxBatchSize = dto.Migration?.MaxBatchSize ?? 10,
-                AllowedRoles = allowedRoles
+                MaxBatchSize = dto.Migration?.MaxBatchSize ?? 10
             },
             DeploymentWindow = dto.DeploymentWindow is null
                 ? null
@@ -125,6 +134,29 @@ public sealed class FileSystemConfigLoader : IConfigLoader
     private static string ResolveBase(string? baseDirectory) =>
         string.IsNullOrWhiteSpace(baseDirectory) ? Directory.GetCurrentDirectory() : baseDirectory;
 
+    /// <summary>
+    /// Validates that <paramref name="name"/> is a safe environment file stem (no path separators,
+    /// no parent traversal, no absolute paths) and rejects names longer than 64 characters.
+    /// Combined with the canonical-path containment check in <see cref="LoadEnvironment"/> this
+    /// prevents local-file-disclosure via the <c>--environment</c> CLI flag.
+    /// </summary>
+    private static string ValidateEnvironmentName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name) || name.Length > 64)
+        {
+            throw new MigrationConfigurationException(
+                $"Environment name '{name}' is invalid. Use 1-64 characters from [A-Za-z0-9._-].");
+        }
+
+        if (!System.Text.RegularExpressions.Regex.IsMatch(name, @"^[A-Za-z0-9._-]+$"))
+        {
+            throw new MigrationConfigurationException(
+                $"Environment name '{name}' contains invalid characters. Allowed: letters, digits, '.', '_', '-'.");
+        }
+
+        return name;
+    }
+
     private static string Expand(string? value)
     {
         if (string.IsNullOrEmpty(value))
@@ -155,10 +187,10 @@ public sealed class FileSystemConfigLoader : IConfigLoader
         }
 
         public sealed class DatabaseDto { public string? Provider { get; set; } public string? ConnectionString { get; set; } }
-        public sealed class ScriptsDto { public string? Path { get; set; } public string? Pattern { get; set; } public string? RollbackPattern { get; set; } }
+        public sealed class ScriptsDto { public string? Path { get; set; } }
         public sealed class TrackingDto { public string? Schema { get; set; } public string? TableName { get; set; } }
         public sealed class ExecutionDto { public int? LockTimeoutSeconds { get; set; } public int? CommandTimeoutSeconds { get; set; } public int? BatchSize { get; set; } public bool? StopOnFailure { get; set; } }
-        public sealed class ApprovalDto { public List<string>? RequireApproval { get; set; } public List<string>? Approvers { get; set; } }
+        public sealed class ApprovalDto { public List<string>? RequireApproval { get; set; } }
     }
 
     private sealed class EnvironmentDto
@@ -169,7 +201,7 @@ public sealed class FileSystemConfigLoader : IConfigLoader
         public DeploymentWindowDto? DeploymentWindow { get; set; }
 
         public sealed class DatabaseDto { public string? Host { get; set; } public int? Port { get; set; } public string? Name { get; set; } public string? Schema { get; set; } public string? ConnectionString { get; set; } }
-        public sealed class MigrationDto { public bool? RequireApproval { get; set; } public bool? AllowRollback { get; set; } public int? LockTimeoutSeconds { get; set; } public int? MaxBatchSize { get; set; } public List<string>? AllowedRoles { get; set; } }
+        public sealed class MigrationDto { public bool? RequireApproval { get; set; } public bool? AllowRollback { get; set; } public int? LockTimeoutSeconds { get; set; } public int? MaxBatchSize { get; set; } }
         public sealed class DeploymentWindowDto { public bool Enabled { get; set; } public string? StartTime { get; set; } public string? EndTime { get; set; } public List<string>? AllowedDays { get; set; } }
     }
 }

@@ -4,7 +4,7 @@ using DbShift.Core.Enums;
 using DbShift.Core.Interfaces;
 using DbShift.Core.ValueObjects;
 
-namespace DbShift.Engine.Execution;
+namespace DbShift.Engine.InMemory;
 
 /// <summary>In-memory <see cref="IMigrationTracker"/> used for tests and offline workflows.</summary>
 public sealed class InMemoryMigrationTracker : IMigrationTracker
@@ -66,44 +66,79 @@ public sealed class InMemoryMigrationTracker : IMigrationTracker
 /// <summary>In-memory <see cref="IMigrationLockManager"/> used for tests and offline workflows.</summary>
 public sealed class InMemoryMigrationLockManager : IMigrationLockManager
 {
-    private readonly ConcurrentDictionary<(string Env, string Key), MigrationLock> _locks = new();
+    private readonly object _gate = new();
+    private readonly Dictionary<(string Env, string Key), MigrationLock> _locks = new();
 
     public Task<bool> AcquireAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
         var key = (environment, lockKey);
-        if (_locks.TryGetValue(key, out var existing) && existing.IsActive && existing.ExpiresAtUtc > now)
+
+        lock (_gate)
+        {
+            if (_locks.TryGetValue(key, out var existing) && existing.IsActive && existing.ExpiresAtUtc > now)
+            {
+                return Task.FromResult(false);
+            }
+
+            _locks[key] = new MigrationLock
+            {
+                LockKey = lockKey,
+                LockedBy = lockedBy,
+                LockedAtUtc = now,
+                ExpiresAtUtc = now.AddSeconds(Math.Max(1, timeoutSeconds)),
+                Environment = environment,
+                IsActive = true
+            };
+            return Task.FromResult(true);
+        }
+    }
+
+    public Task ReleaseAsync(string environment, string lockKey, string? lockedBy = null, CancellationToken cancellationToken = default)
+    {
+        lock (_gate)
+        {
+            if (_locks.TryGetValue((environment, lockKey), out var existing) && existing.IsActive)
+            {
+                if (string.IsNullOrEmpty(lockedBy) || string.Equals(existing.LockedBy, lockedBy, StringComparison.Ordinal))
+                {
+                    existing.IsActive = false;
+                }
+            }
+        }
+        return Task.CompletedTask;
+    }
+
+    public Task<bool> RenewAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(lockedBy))
         {
             return Task.FromResult(false);
         }
 
-        _locks[key] = new MigrationLock
+        lock (_gate)
         {
-            LockKey = lockKey,
-            LockedBy = lockedBy,
-            LockedAtUtc = now,
-            ExpiresAtUtc = now.AddSeconds(Math.Max(1, timeoutSeconds)),
-            Environment = environment,
-            IsActive = true
-        };
-        return Task.FromResult(true);
-    }
-
-    public Task ReleaseAsync(string environment, string lockKey, CancellationToken cancellationToken = default)
-    {
-        if (_locks.TryGetValue((environment, lockKey), out var existing))
-        {
-            existing.IsActive = false;
+            if (_locks.TryGetValue((environment, lockKey), out var existing)
+                && existing.IsActive
+                && string.Equals(existing.LockedBy, lockedBy, StringComparison.Ordinal))
+            {
+                existing.ExpiresAtUtc = DateTime.UtcNow.AddSeconds(Math.Max(1, timeoutSeconds));
+                return Task.FromResult(true);
+            }
         }
-        return Task.CompletedTask;
+
+        return Task.FromResult(false);
     }
 
     public Task<bool> IsActiveAsync(string environment, string lockKey, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
-        return Task.FromResult(_locks.TryGetValue((environment, lockKey), out var existing)
-                               && existing.IsActive
-                               && existing.ExpiresAtUtc > now);
+        lock (_gate)
+        {
+            return Task.FromResult(_locks.TryGetValue((environment, lockKey), out var existing)
+                                   && existing.IsActive
+                                   && existing.ExpiresAtUtc > now);
+        }
     }
 }
 

@@ -24,6 +24,7 @@ public sealed class MigrationContext
 {
     public string Environment { get; set; } = string.Empty;
     public string ExecutedBy { get; set; } = string.Empty;
+    public string? Approver { get; set; }
     public int? BatchSize { get; set; }
     public bool StopOnFailure { get; set; } = true;
     public bool Force { get; set; }
@@ -87,8 +88,10 @@ public sealed class DeployResult
     public bool IsSuccess { get; set; }
     public string? ErrorMessage { get; set; }
     public int TotalApplied { get; set; }
-    public List<string> AppliedMigrations { get; } = new();
-    public List<string> FailedMigrations { get; } = new();
+    public List<string> AppliedMigrations { get; set; } = new();
+    public List<string> FailedMigrations { get; set; } = new();
+    public List<string> DriftedMigrations { get; set; } = new();
+    public List<string> PendingRepeatables { get; set; } = new();
     public TimeSpan Elapsed { get; set; }
 }
 
@@ -116,27 +119,10 @@ public sealed class StatusResult
     public int Total { get; set; }
     public int Applied { get; set; }
     public int Pending { get; set; }
+    public int InProgress { get; set; }
     public int Failed { get; set; }
-}
-
-/// <summary>Request to scaffold a new migration file from a template.</summary>
-public sealed class CreateMigrationRequest
-{
-    public string Name { get; set; } = string.Empty;
-    public MigrationType Type { get; set; } = MigrationType.Schema;
-    public string? Author { get; set; }
-    public string? Description { get; set; }
-    public string OutputDirectory { get; set; } = string.Empty;
-    public bool UseTimestamp { get; set; } = true;
-}
-
-/// <summary>Result of scaffolding a new migration file.</summary>
-public sealed class CreateMigrationResult
-{
-    public bool IsSuccess { get; set; }
-    public string? CreatedFilePath { get; set; }
-    public string? CreatedVersion { get; set; }
-    public string? ErrorMessage { get; set; }
+    public int RolledBack { get; set; }
+    public List<string> DriftedMigrations { get; set; } = new();
 }
 
 /// <summary>Result of initialising the tracking schema.</summary>

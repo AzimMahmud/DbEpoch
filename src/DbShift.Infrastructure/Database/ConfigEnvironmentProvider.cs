@@ -1,3 +1,4 @@
+using DbShift.Core.Exceptions;
 using DbShift.Core.Interfaces;
 using DbShift.Core.ValueObjects;
 
@@ -26,7 +27,7 @@ public sealed class ConfigEnvironmentProvider : IEnvironmentProvider
             _configLoader.LoadEnvironment(name);
             return Task.FromResult(true);
         }
-        catch (FileNotFoundException)
+        catch (MigrationConfigurationException)
         {
             return Task.FromResult(false);
         }

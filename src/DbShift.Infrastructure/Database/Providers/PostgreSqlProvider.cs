@@ -31,19 +31,16 @@ public sealed class PostgreSqlProvider : IDatabaseProvider
             rollback_available   BOOLEAN      NOT NULL DEFAULT FALSE,
             rollback_script_name VARCHAR(500),
             error_message        TEXT,
-            execution_plan       TEXT,
             batch_number         INTEGER      NOT NULL DEFAULT 1,
-            approved_by          VARCHAR(255),
-            approved_at_utc      TIMESTAMP,
             checksum             VARCHAR(64)  NOT NULL,
             created_at_utc       TIMESTAMP    NOT NULL DEFAULT NOW(),
             CONSTRAINT uk_migration_version_env  UNIQUE (version, environment),
             CONSTRAINT uk_migration_script_name  UNIQUE (script_name, environment)
         );
-        CREATE INDEX IF NOT EXISTS idx_migration_history_env        ON __migration_history(environment);
-        CREATE INDEX IF NOT EXISTS idx_migration_history_status     ON __migration_history(status);
-        CREATE INDEX IF NOT EXISTS idx_migration_history_executed   ON __migration_history(executed_at_utc);
-        CREATE INDEX IF NOT EXISTS idx_migration_history_version    ON __migration_history(version);
+        CREATE INDEX IF NOT EXISTS idx_migration_history_env      ON __migration_history(environment);
+        CREATE INDEX IF NOT EXISTS idx_migration_history_status   ON __migration_history(status);
+        CREATE INDEX IF NOT EXISTS idx_migration_history_executed ON __migration_history(executed_at_utc);
+        CREATE INDEX IF NOT EXISTS idx_migration_history_version  ON __migration_history(version);
 
         CREATE TABLE IF NOT EXISTS __migration_lock (
             id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -58,40 +55,26 @@ public sealed class PostgreSqlProvider : IDatabaseProvider
 
         CREATE TABLE IF NOT EXISTS __migration_audit (
             id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            migration_id     UUID REFERENCES __migration_history(id),
             action           VARCHAR(50)  NOT NULL,
             performed_by     VARCHAR(255) NOT NULL,
             performed_at_utc TIMESTAMP    NOT NULL DEFAULT NOW(),
             environment      VARCHAR(50)  NOT NULL,
-            details          TEXT,
-            ip_address       VARCHAR(45),
-            user_agent       VARCHAR(500),
-            request_id       UUID
+            details          TEXT
         );
-        CREATE INDEX IF NOT EXISTS idx_migration_audit_mid   ON __migration_audit(migration_id);
-        CREATE INDEX IF NOT EXISTS idx_migration_audit_date  ON __migration_audit(performed_at_utc);
-        CREATE INDEX IF NOT EXISTS idx_migration_audit_env   ON __migration_audit(environment);
+        CREATE INDEX IF NOT EXISTS idx_migration_audit_date ON __migration_audit(performed_at_utc);
+        CREATE INDEX IF NOT EXISTS idx_migration_audit_env  ON __migration_audit(environment);
+        """;
 
-        CREATE TABLE IF NOT EXISTS __migration_release (
-            id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            release_version    VARCHAR(50)  NOT NULL UNIQUE,
-            name               VARCHAR(255) NOT NULL,
-            description        TEXT,
-            created_by         VARCHAR(255) NOT NULL,
-            created_at_utc     TIMESTAMP    NOT NULL DEFAULT NOW(),
-            status             VARCHAR(20)  NOT NULL,
-            target_environment VARCHAR(50)  NOT NULL,
-            migration_ids      TEXT         NOT NULL,
-            approved_by        VARCHAR(255),
-            approved_at_utc    TIMESTAMP,
-            deployed_by        VARCHAR(255),
-            deployed_at_utc    TIMESTAMP,
-            rolled_back_by     VARCHAR(255),
-            rolled_back_at_utc TIMESTAMP,
-            checksum           VARCHAR(64)  NOT NULL
-        );
-        CREATE INDEX IF NOT EXISTS idx_migration_release_status ON __migration_release(status);
-        CREATE INDEX IF NOT EXISTS idx_migration_release_env    ON __migration_release(target_environment);
-        CREATE INDEX IF NOT EXISTS idx_migration_release_ver    ON __migration_release(release_version);
+    public string GetAcquireLockSql() => """
+        INSERT INTO __migration_lock (id, lock_key, locked_by, locked_at_utc, expires_at_utc, environment, is_active)
+        VALUES (@id, @lock_key, @locked_by, @locked_at_utc, @expires_at_utc, @environment, @true)
+        ON CONFLICT (lock_key) DO UPDATE
+        SET id            = EXCLUDED.id,
+            locked_by     = EXCLUDED.locked_by,
+            locked_at_utc = EXCLUDED.locked_at_utc,
+            expires_at_utc= EXCLUDED.expires_at_utc,
+            environment   = EXCLUDED.environment,
+            is_active     = EXCLUDED.is_active
+        WHERE __migration_lock.is_active = @false OR __migration_lock.expires_at_utc <= @now
         """;
 }

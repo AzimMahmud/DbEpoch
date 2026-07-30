@@ -1,27 +1,33 @@
+using System.ComponentModel;
 using System.Text.Json;
 using DbShift.CLI.Helpers;
 using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
 
-public sealed class NewCommand : CommandBase
+public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
 {
     private static readonly JsonSerializerOptions JsonPretty = new() { WriteIndented = true };
 
-    public override string Name => "new";
-    public override string Description => "Scaffold a complete DbShift project structure in the current directory.";
-    public override string Category => "Setup";
-    public override string? UsageExample => "dbshift new --name MyApp -p postgresql";
-    public override IReadOnlyList<CommandOption> Options => new[]
+    public sealed class Settings : GlobalSettings
     {
-        new CommandOption("name", 'n', "Project name (used in example migrations and CI)", false, "NAME"),
-        new CommandOption("output", 'o', "Output directory (default: current directory)", false, "PATH"),
-        new CommandOption("force", 'f', "Overwrite existing files", true, null),
-    };
+        [CommandOption("-n|--name")]
+        [Description("Project name (used in example migrations and CI)")]
+        public string? Name { get; set; }
 
-    public override Task<int> ExecuteAsync(CommandContext context)
+        [CommandOption("-o|--output")]
+        [Description("Output directory (default: current directory)")]
+        public string? Output { get; set; }
+
+        [CommandOption("-f|--force")]
+        [Description("Overwrite existing files")]
+        public bool Force { get; set; }
+    }
+
+    public override Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var isInteractive = !context.Json && !context.HasOption("name") && !context.HasOption("output") && !context.HasOption("provider");
+        var isInteractive = !settings.Json && string.IsNullOrWhiteSpace(settings.Name) && string.IsNullOrWhiteSpace(settings.Output) && string.IsNullOrWhiteSpace(settings.Provider);
 
         string projectName;
         string provider;
@@ -69,10 +75,10 @@ public sealed class NewCommand : CommandBase
         }
         else
         {
-            projectName = context.GetOption("name", "MyApp");
-            provider = context.GetOption("provider", "postgresql");
-            outputDir = context.GetOption("output") ?? Directory.GetCurrentDirectory();
-            force = context.GetFlag("force");
+            projectName = settings.Name ?? "MyApp";
+            provider = settings.Provider ?? "postgresql";
+            outputDir = settings.Output ?? Directory.GetCurrentDirectory();
+            force = settings.Force;
         }
 
         outputDir = Path.GetFullPath(outputDir);
@@ -336,7 +342,24 @@ public sealed class NewCommand : CommandBase
                       DB_CONNECTION_STRING: ${{ secrets.PROD_DB_CONNECTION_STRING }}
             """.Replace("\r\n", "\n"));
 
-        if (context.Json)
+        // .NET local tool manifest so `dotnet tool restore` resolves the `dbshift` command
+        // referenced by the generated workflow above. Pairs with the published NuGet package.
+        WriteFile(".config/dotnet-tools.json", $$"""
+            {
+              "version": 1,
+              "isRoot": true,
+              "tools": {
+                "dbshift": {
+                  "version": "1.0.0",
+                  "commands": [
+                    "dbshift"
+                  ]
+                }
+              }
+            }
+            """.Replace("\r\n", "\n"));
+
+        if (settings.Json)
         {
             var allFiles = new List<object>();
             foreach (var f in created) allFiles.Add(new { file = f, skipped = false });
@@ -387,58 +410,11 @@ public sealed class NewCommand : CommandBase
         return Task.FromResult(0);
     }
 
-    // ── Provider-specific SQL helpers ───────────────────────────────────
-    private static string IdType(string provider) => provider.ToLowerInvariant() switch
-    {
-        "sqlserver" => "UNIQUEIDENTIFIER",
-        "mysql" => "CHAR(36)",
-        "sqlite" => "TEXT",
-        _ => "UUID"
-    };
-
-    private static string DefaultId(string provider) => provider.ToLowerInvariant() switch
-    {
-        "sqlserver" => "DEFAULT NEWID()",
-        "mysql" => "",
-        "sqlite" => "DEFAULT (lower(hex(randomblob(16))))",
-        _ => "DEFAULT gen_random_uuid()"
-    };
-
-    private static string BoolType(string provider) => provider.ToLowerInvariant() switch
-    {
-        "sqlserver" => "BIT",
-        "mysql" => "TINYINT(1)",
-        "sqlite" => "INTEGER",
-        _ => "BOOLEAN"
-    };
-
-    private static string BoolTrue(string provider) => provider.ToLowerInvariant() switch
-    {
-        "sqlserver" => "1",
-        "mysql" => "1",
-        "sqlite" => "1",
-        _ => "TRUE"
-    };
-
-    private static string TimestampType(string provider) => provider.ToLowerInvariant() switch
-    {
-        "sqlserver" => "DATETIME2",
-        "mysql" => "DATETIME",
-        "sqlite" => "TEXT",
-        _ => "TIMESTAMPTZ"
-    };
-
-    private static string DefaultNow(string provider) => provider.ToLowerInvariant() switch
-    {
-        "sqlserver" => "DEFAULT GETUTCDATE()",
-        "mysql" => "DEFAULT UTC_TIMESTAMP",
-        "sqlite" => "",
-        _ => "DEFAULT NOW()"
-    };
-
-    private static string UniqueIndex(string provider) => provider.ToLowerInvariant() switch
-    {
-        "sqlserver" => "UNIQUE NONCLUSTERED INDEX",
-        _ => "UNIQUE INDEX"
-    };
+    private static string IdType(string provider) => ProviderSqlHelper.IdType(provider);
+    private static string DefaultId(string provider) => ProviderSqlHelper.DefaultId(provider);
+    private static string BoolType(string provider) => ProviderSqlHelper.BoolType(provider);
+    private static string BoolTrue(string provider) => ProviderSqlHelper.BoolTrue(provider);
+    private static string TimestampType(string provider) => ProviderSqlHelper.TimestampType(provider);
+    private static string DefaultNow(string provider) => ProviderSqlHelper.DefaultNow(provider);
+    private static string UniqueIndex(string provider) => ProviderSqlHelper.UniqueIndex(provider);
 }

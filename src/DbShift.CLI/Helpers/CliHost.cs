@@ -1,7 +1,7 @@
-using DbShift.CLI.Commands;
 using DbShift.Core.Interfaces;
 using DbShift.Core.ValueObjects;
 using DbShift.Engine.Execution;
+using DbShift.Engine.InMemory;
 using DbShift.Engine.Parsing;
 using DbShift.Infrastructure.Database;
 using DbShift.Infrastructure.Database.Providers;
@@ -40,11 +40,11 @@ public sealed class CliHost
         BasePath = basePath;
     }
 
-    public static CliHost Create(CommandContext context)
+    public static CliHost Create(CliHostOptions options)
     {
-        var basePath = string.IsNullOrWhiteSpace(context.ConfigBasePath)
+        var basePath = string.IsNullOrWhiteSpace(options.ConfigBasePath)
             ? Directory.GetCurrentDirectory()
-            : Path.GetFullPath(context.ConfigBasePath);
+            : Path.GetFullPath(options.ConfigBasePath);
 
         var configLoader = new FileSystemConfigLoader(basePath);
 
@@ -58,15 +58,15 @@ public sealed class CliHost
             // Some commands (create, info, help) work fine without a config file.
         }
 
-        var environment = string.IsNullOrWhiteSpace(context.EnvironmentName) ? "local" : context.EnvironmentName;
+        var environment = string.IsNullOrWhiteSpace(options.EnvironmentName) ? "local" : options.EnvironmentName;
 
-        var connectionString = ResolveConnectionString(context, config, configLoader, environment);
-        var providerName = !string.IsNullOrWhiteSpace(context.Provider) ? context.Provider : (config?.Provider ?? "postgresql");
+        var connectionString = ResolveConnectionString(options.ConnectionString, config, configLoader, environment);
+        var providerName = !string.IsNullOrWhiteSpace(options.Provider) ? options.Provider : (config?.Provider ?? "postgresql");
         var scriptsPath = ResolveScriptsPath(basePath, config);
         var commandTimeout = config?.CommandTimeoutSeconds ?? 3600;
 
-        var preferInMemory = context.UseInMemory || string.IsNullOrWhiteSpace(connectionString);
-        var logger = new NoOpLogger<MigrationExecutor>();
+        var preferInMemory = options.UseInMemory || string.IsNullOrWhiteSpace(connectionString);
+        var logger = new SpectreLogger<MigrationExecutor>(options.Verbose);
 
         IMigrationTracker tracker;
         IMigrationLockManager lockManager;
@@ -100,11 +100,11 @@ public sealed class CliHost
         return new CliHost(executor, configLoader, config, environment, !preferInMemory, connectionString, providerName, scriptsPath, basePath);
     }
 
-    private static string? ResolveConnectionString(CommandContext context, MigrationConfiguration? config, IConfigLoader configLoader, string environment)
+    private static string? ResolveConnectionString(string? cliOverride, MigrationConfiguration? config, IConfigLoader configLoader, string environment)
     {
-        if (!string.IsNullOrWhiteSpace(context.ConnectionString))
+        if (!string.IsNullOrWhiteSpace(cliOverride))
         {
-            return context.ConnectionString;
+            return cliOverride;
         }
 
         var fromEnv = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
@@ -142,11 +142,49 @@ public sealed class CliHost
             : Path.GetFullPath(Path.Combine(basePath, configured));
     }
 
-    /// <summary>A minimal no-op logger so the CLI has no hard dependency on a logging framework.</summary>
-    private sealed class NoOpLogger<T> : ILogger<T>
+    /// <summary>
+    /// Routes engine log output through Spectre.Console. Warnings and errors are surfaced
+    /// via <see cref="ConsoleHelper"/>; informational messages are shown only in verbose mode.
+    /// All output is suppressed when <see cref="ConsoleHelper.UiSuppressed"/> is set (JSON mode).
+    /// </summary>
+    private sealed class SpectreLogger<T> : ILogger<T>
     {
+        private readonly bool _verbose;
+
+        public SpectreLogger(bool verbose = false)
+        {
+            _verbose = verbose;
+        }
+
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
-        public bool IsEnabled(LogLevel logLevel) => false;
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) { }
+
+        public bool IsEnabled(LogLevel logLevel) =>
+            !ConsoleHelper.UiSuppressed && (logLevel >= LogLevel.Warning || (_verbose && logLevel >= LogLevel.Information));
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            if (ConsoleHelper.UiSuppressed)
+            {
+                return;
+            }
+
+            var message = formatter(state, exception);
+
+            switch (logLevel)
+            {
+                case LogLevel.Information:
+                    if (_verbose)
+                    {
+                        ConsoleHelper.PrintInfo(message);
+                    }
+                    break;
+                case LogLevel.Warning:
+                    ConsoleHelper.PrintWarning(message);
+                    break;
+                case LogLevel.Error or LogLevel.Critical:
+                    ConsoleHelper.PrintError(message);
+                    break;
+            }
+        }
     }
 }

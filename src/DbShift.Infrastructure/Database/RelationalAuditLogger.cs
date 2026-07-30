@@ -26,20 +26,16 @@ public sealed class RelationalAuditLogger : IAuditLogger
         await using var command = connection.CreateCommand();
         command.CommandText = """
             INSERT INTO __migration_audit
-                (id, migration_id, action, performed_by, performed_at_utc, environment, details, ip_address, user_agent, request_id)
+                (id, action, performed_by, performed_at_utc, environment, details)
             VALUES
-                (@id, @migration_id, @action, @performed_by, @performed_at_utc, @environment, @details, @ip_address, @user_agent, @request_id)
+                (@id, @action, @performed_by, @performed_at_utc, @environment, @details)
             """;
         command.Parameters.Add(_provider.CreateParameter("id", entry.Id));
-        command.Parameters.Add(_provider.CreateParameter("migration_id", (object?)entry.MigrationId ?? DBNull.Value));
         command.Parameters.Add(_provider.CreateParameter("action", entry.Action.ToString()));
         command.Parameters.Add(_provider.CreateParameter("performed_by", entry.PerformedBy));
         command.Parameters.Add(_provider.CreateParameter("performed_at_utc", entry.PerformedAtUtc));
         command.Parameters.Add(_provider.CreateParameter("environment", entry.Environment));
         command.Parameters.Add(_provider.CreateParameter("details", (object?)entry.Details ?? DBNull.Value));
-        command.Parameters.Add(_provider.CreateParameter("ip_address", (object?)entry.IpAddress ?? DBNull.Value));
-        command.Parameters.Add(_provider.CreateParameter("user_agent", (object?)entry.UserAgent ?? DBNull.Value));
-        command.Parameters.Add(_provider.CreateParameter("request_id", (object?)entry.RequestId ?? DBNull.Value));
 
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
@@ -61,7 +57,6 @@ public sealed class RelationalAuditLogger : IAuditLogger
             entries.Add(new MigrationAuditEntry
             {
                 Id = reader.GetGuid(reader.GetOrdinal("id")),
-                MigrationId = reader.IsDBNull(reader.GetOrdinal("migration_id")) ? null : reader.GetGuid(reader.GetOrdinal("migration_id")),
                 Action = Enum.TryParse<AuditAction>(reader.GetString(reader.GetOrdinal("action")), true, out var a) ? a : AuditAction.Validate,
                 PerformedBy = reader.GetString(reader.GetOrdinal("performed_by")),
                 PerformedAtUtc = reader.GetDateTime(reader.GetOrdinal("performed_at_utc")),

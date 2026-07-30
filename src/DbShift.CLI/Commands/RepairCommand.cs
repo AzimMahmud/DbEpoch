@@ -1,38 +1,38 @@
+using System.ComponentModel;
 using DbShift.CLI.Helpers;
+using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
 
-public sealed class RepairCommand : CommandBase
+public sealed class RepairCommand : CliCommandBase<RepairCommand.Settings>
 {
-    public override string Name => "repair";
-    public override string Description => "Repair the migration history (re-queue a failed migration).";
-    public override string Category => "Execution";
-    public override string? UsageExample => "dbshift repair --environment local";
-    public override IReadOnlyList<CommandOption> Options => new[]
+    public sealed class Settings : GlobalSettings
     {
-        new CommandOption("version", 'V', "Specific version to repair (omit to repair all failed migrations)", false, "VERSION")
-    };
+        [CommandOption("-V|--version")]
+        [Description("Specific version to repair (omit to repair all failed migrations)")]
+        public string? Version { get; set; }
+    }
 
-    public override async Task<int> ExecuteAsync(CommandContext context)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var host = CreateHost(context);
-        var live = RequireLive(context, host);
+        var host = CreateHost(settings);
+        var live = RequireLive(settings, host);
         if (live != 0)
         {
             return live;
         }
 
-        var version = context.GetOption("version");
+        var version = settings.Version;
         var label = string.IsNullOrWhiteSpace(version) ? "all failed migrations" : $"migration {version}";
 
-        if (!context.Json)
+        if (!settings.Json)
         {
             ConsoleHelper.PrintHeader($"Repairing '{host.EnvironmentName}'");
         }
 
         var result = await ConsoleHelper.RunWithSpinner($"Repairing {label}", () => host.Executor.RepairAsync(host.EnvironmentName, version));
 
-        if (context.Json)
+        if (settings.Json)
         {
             WriteJson(new { success = result.IsSuccess, repaired = result.RepairedMigrations, error = result.ErrorMessage });
             return result.IsSuccess ? 0 : 1;

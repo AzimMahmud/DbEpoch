@@ -27,18 +27,36 @@ public sealed class RelationalMigrationExecutor : IMigrationScriptExecutor
             await connection.OpenAsync(cancellationToken);
 
             await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
-            await using var command = connection.CreateCommand();
-            command.Transaction = transaction;
-            command.CommandTimeout = Math.Max(1, timeoutSeconds);
-            command.CommandText = sql;
-            await command.ExecuteNonQueryAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
+            try
+            {
+                await using var command = connection.CreateCommand();
+                command.Transaction = transaction;
+                command.CommandTimeout = Math.Max(1, timeoutSeconds);
+                command.CommandText = sql;
+                await command.ExecuteNonQueryAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                // Explicit rollback is more defensive than relying on transaction-dispose semantics,
+                // which are subtle on some providers when the connection is in a faulted state.
+                try { await transaction.RollbackAsync(cancellationToken); }
+                catch { /* rollback failure is not interesting compared to the original error */ }
+                throw;
+            }
 
             return new ScriptExecutionResult { IsSuccess = true, ElapsedMs = stopwatch.ElapsedMilliseconds };
         }
-        catch (Exception ex)
+        catch (DbException ex)
         {
-            return new ScriptExecutionResult { IsSuccess = false, ElapsedMs = stopwatch.ElapsedMilliseconds, ErrorMessage = ex.Message };
+            // Include the exception type so callers and logs can distinguish e.g. a timeout from
+            // a constraint violation without losing information the way ex.Message alone would.
+            return new ScriptExecutionResult
+            {
+                IsSuccess = false,
+                ElapsedMs = stopwatch.ElapsedMilliseconds,
+                ErrorMessage = $"{ex.GetType().Name}: {ex.Message}"
+            };
         }
     }
 

@@ -23,34 +23,9 @@ public enum MigrationType
 /// <summary>Auditable operations recorded against the migration history.</summary>
 public enum AuditAction
 {
-    Init,
     Validate,
     DryRun,
     Deploy,
     Rollback,
-    Repair,
-    Create,
-    Lock,
-    Unlock,
-    Approve
-}
-
-/// <summary>Supported database providers.</summary>
-public enum DatabaseProvider
-{
-    PostgreSql,
-    SqlServer,
-    MySql,
-    Sqlite
-}
-
-/// <summary>State machine for a coordinated migration release.</summary>
-public enum ReleaseStatus
-{
-    Draft,
-    PendingApproval,
-    Approved,
-    Deployed,
-    RolledBack,
-    Failed
+    Repair
 }

@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\DbShift.Core\DbShift.Core.csproj" />
     <ProjectReference Include="..\..\src\DbShift.Engine\DbShift.Engine.csproj" />
+    <ProjectReference Include="..\..\src\DbShift.Infrastructure\DbShift.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

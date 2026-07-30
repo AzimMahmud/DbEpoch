@@ -1,64 +1,73 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using DbShift.CLI.Helpers;
 using DbShift.Core.ValueObjects;
 using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
 
-public sealed class MigrateCommand : CommandBase
+public sealed class MigrateCommand : CliCommandBase<MigrateCommand.Settings>
 {
-    public override string Name => "migrate";
-    public override string Description => "Apply pending migrations to the target environment.";
-    public override string Category => "Execution";
-    public override string? UsageExample => "dbshift migrate --environment production --approver jane@corp.com";
-    public override IReadOnlyList<CommandOption> Options => new[]
+    public sealed class Settings : GlobalSettings
     {
-        new CommandOption("executed-by", 'u', "User performing the deployment", false, "NAME"),
-        new CommandOption("approver", null, "Approver identity (required for approval-gated environments)", false, "EMAIL"),
-        new CommandOption("batch-size", 'b', "Override the migration batch size", false, "N"),
-        new CommandOption("force", 'f', "Proceed even outside the deployment window", true, null)
-    };
+        [CommandOption("-u|--executed-by")]
+        [Description("User performing the deployment")]
+        public string? ExecutedBy { get; set; }
 
-    public override async Task<int> ExecuteAsync(CommandContext context)
+        [CommandOption("--approver")]
+        [Description("Approver identity (required for approval-gated environments)")]
+        public string? Approver { get; set; }
+
+        [CommandOption("-b|--batch-size")]
+        [Description("Override the migration batch size")]
+        public int? BatchSize { get; set; }
+
+        [CommandOption("-f|--force")]
+        [Description("Proceed even outside the deployment window")]
+        public bool Force { get; set; }
+    }
+
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var host = CreateHost(context);
-        var live = RequireLive(context, host);
+        var host = CreateHost(settings);
+        var live = RequireLive(settings, host);
         if (live != 0)
         {
             return live;
         }
 
-        if (!TryResolveEnvironment(context, host, out var environment))
+        if (!TryResolveEnvironment(settings, host, out var environment))
         {
-            return Fail(context, $"Environment '{host.EnvironmentName}' is not configured.");
+            return Fail(settings, $"Environment '{host.EnvironmentName}' is not configured.");
         }
 
-        if (!context.Json)
+        if (!settings.Json)
         {
             ConsoleHelper.PrintHeader($"Deploying migrations to '{host.EnvironmentName}'");
         }
 
-        if (!context.GetFlag("force") && environment.DeploymentWindow is { Enabled: true } window)
+        if (!settings.Force && environment.DeploymentWindow is { Enabled: true } window)
         {
             if (!IsWithinDeploymentWindow(window, out var reason))
             {
-                return Fail(context, $"Outside the configured deployment window. {reason} (override with --force)");
+                return Fail(settings, $"Outside the configured deployment window. {reason} (override with --force)");
             }
         }
 
-        var executedBy = context.GetOption("executed-by") ?? Environment.UserName;
+        var executedBy = settings.ExecutedBy ?? Environment.UserName;
 
         var planningContext = new MigrationContext { Environment = host.EnvironmentName, ExecutedBy = executedBy };
         var dryRun = await ConsoleHelper.RunWithSpinner("Computing pending migrations", () => host.Executor.DryRunAsync(planningContext));
         if (!dryRun.IsSuccess)
         {
-            return Fail(context, dryRun.ErrorMessage ?? "Failed to compute the execution plan.");
+            return Fail(settings, dryRun.ErrorMessage ?? "Failed to compute the execution plan.");
         }
 
         var plan = dryRun.ExecutionPlan!;
         if (plan.TotalCount == 0)
         {
-            if (context.Json)
+            if (settings.Json)
             {
                 WriteJson(new { success = true, applied = 0, message = "up to date" });
             }
@@ -69,19 +78,19 @@ public sealed class MigrateCommand : CommandBase
             return 0;
         }
 
-        if (!context.Json)
+        if (!settings.Json)
         {
             ConsoleHelper.PrintMigrationTable("Pending migrations",
                 plan.Items.Select(i => (i.Version, i.Name, i.Type.ToString(), "Pending", i.HasRollback ? "rollback available" : "no rollback")));
         }
 
-        var approver = await ResolveApproverAsync(context, environment);
+        var approver = await ResolveApproverAsync(settings, environment);
         if (environment.Migration.RequireApproval && string.IsNullOrWhiteSpace(approver))
         {
-            return Fail(context, "This environment requires approval. Provide --approver or confirm interactively.");
+            return Fail(settings, "This environment requires approval. Provide --approver or confirm interactively.");
         }
 
-        if (!context.Json && !context.AssumeYes)
+        if (!settings.Json && !settings.AssumeYes)
         {
             if (!ConsoleHelper.Confirm($"Apply {plan.TotalCount} migration(s) to '{host.EnvironmentName}'?", false))
             {
@@ -94,16 +103,18 @@ public sealed class MigrateCommand : CommandBase
         {
             Environment = host.EnvironmentName,
             ExecutedBy = executedBy,
-            BatchSize = context.HasOption("batch-size") ? context.GetIntOption("batch-size", 10) : null,
+            Approver = approver,
+            BatchSize = settings.BatchSize,
             StopOnFailure = true,
-            Force = context.GetFlag("force")
+            Force = settings.Force,
+            SkipApproval = settings.AssumeYes
         };
 
         var stopwatch = Stopwatch.StartNew();
         var result = await ConsoleHelper.RunWithSpinner($"Applying {plan.TotalCount} migration(s)", () => host.Executor.DeployAsync(deployContext));
         stopwatch.Stop();
 
-        if (context.Json)
+        if (settings.Json)
         {
             WriteJson(new
             {
@@ -146,25 +157,24 @@ public sealed class MigrateCommand : CommandBase
         return 1;
     }
 
-    private async Task<string?> ResolveApproverAsync(CommandContext context, EnvironmentConfiguration environment)
+    private async Task<string?> ResolveApproverAsync(Settings settings, EnvironmentConfiguration environment)
     {
         if (!environment.Migration.RequireApproval)
         {
             return null;
         }
 
-        var approver = context.GetOption("approver");
-        if (!string.IsNullOrWhiteSpace(approver))
+        if (!string.IsNullOrWhiteSpace(settings.Approver))
         {
-            return approver;
+            return settings.Approver;
         }
 
-        if (context.Json || context.AssumeYes)
+        if (settings.Json || settings.AssumeYes)
         {
             return null;
         }
 
-        approver = AnsiConsole.Ask<string>($"[bold {Theme.Primary}]Approver identity:[/] ");
+        var approver = AnsiConsole.Ask<string>($"[bold {Theme.Primary}]Approver identity:[/] ");
         await Task.CompletedTask;
         return approver;
     }

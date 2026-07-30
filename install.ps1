@@ -26,11 +26,15 @@ $arch = switch ([Environment]::ProcessorArchitecture) {
 $platform = "windows-$arch"
 
 # ── download URL ──────────────────────────────────────────────────────────
+# Strip an optional leading "v" so "v1.0.0" and "1.0.0" both work.
+$Version = $Version.TrimStart("v", "V")
 if ($Version -eq "latest") {
-    $url = "https://github.com/$Repo/releases/latest/download/dbshift-$platform.zip"
+    $base = "https://github.com/$Repo/releases/latest/download"
 } else {
-    $url = "https://github.com/$Repo/releases/download/v$Version/dbshift-$platform.zip"
+    $base = "https://github.com/$Repo/releases/download/v$Version"
 }
+$url = "$base/dbshift-$platform.zip"
+$sumsUrl = "$base/SHA256SUMS"
 
 # ── download ──────────────────────────────────────────────────────────────
 Write-Host ""
@@ -49,6 +53,31 @@ try {
     Err "Download failed: $url`n  $_"
 }
 Ok "Downloaded"
+
+# ── integrity check ──────────────────────────────────────────────────────
+$assetName = "dbshift-$platform.zip"
+$expectedHash = $null
+try {
+    $sums = Invoke-WebRequest -Uri $sumsUrl -UseBasicParsing
+    foreach ($line in ($sums.Content -split "`n")) {
+        if ($line -match "^\s*([0-9a-fA-F]{64})\s+\*?$([regex]::Escape($assetName))\s*$") {
+            $expectedHash = $matches[1].ToLowerInvariant()
+            break
+        }
+    }
+} catch {
+    # SHA256SUMS not published for this release; warn and continue.
+}
+if ($expectedHash) {
+    $actualHash = (Get-FileHash -Path $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actualHash -ne $expectedHash) {
+        Remove-Item -LiteralPath $zip -Force -ErrorAction SilentlyContinue
+        Err "Checksum mismatch for $assetName`n  expected: $expectedHash`n  actual:   $actualHash"
+    }
+    Ok "Checksum verified"
+} else {
+    Warn "SHA256SUMS not found at $sumsUrl; skipping integrity verification."
+}
 
 # ── extract ───────────────────────────────────────────────────────────────
 Info "Extracting..."

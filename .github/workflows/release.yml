@@ -167,6 +167,23 @@ jobs:
           merge-multiple: true
           path: ./release-artifacts
 
+      - name: Generate SHA256SUMS
+        working-directory: ./release-artifacts
+        run: |
+          # Build a SHA256SUMS file that covers every shipped archive plus the
+          # install scripts so consumers can verify integrity end-to-end.
+          (
+            shopt -s nullglob
+            for f in dbshift-*.zip dbshift-*.tar.gz; do
+              [ -f "$f" ] && sha256sum "$f"
+            done
+          ) > ./SHA256SUMS
+          # Include the install scripts too — they are referenced from the same release.
+          cp ../install.sh .
+          cp ../install.ps1 .
+          sha256sum install.sh install.ps1 >> ./SHA256SUMS
+          sort -o ./SHA256SUMS ./SHA256SUMS -k2
+
       - name: Generate release notes
         id: notes
         run: |
@@ -184,7 +201,16 @@ jobs:
           powershell -c "iwr -Uri https://github.com/${{ github.repository }}/releases/download/$TAG/install.ps1 | iex"
           \`\`\`
 
+          The install scripts automatically verify the downloaded archive against
+          \`SHA256SUMS\` published alongside this release.
+
           > **.NET global tool** (\`dotnet tool install --global DbShift\`) will be available once the package is published to NuGet.
+
+          > **macOS users:** the first time you run \`dbshift\`, Gatekeeper may
+          > quarantine the binary. Remove the quarantine attribute with:
+          > \`\`\`bash
+          > xattr -d com.apple.quarantine "$(which dbshift)"
+          > \`\`\`
 
           ## Downloads
 
@@ -195,6 +221,16 @@ jobs:
           | Linux arm64 | \`dbshift-linux-arm64.tar.gz\` |
           | macOS x64 | \`dbshift-macos-x64.tar.gz\` |
           | macOS arm64 | \`dbshift-macos-arm64.tar.gz\` |
+
+          ## Verifying integrity
+
+          Every archive is checksummed in \`SHA256SUMS\` (attached to this release).
+          The install scripts download and verify it automatically; to verify
+          manually:
+
+          \`\`\`bash
+          curl -fsSL https://github.com/${{ github.repository }}/releases/download/$TAG/SHA256SUMS | sha256sum -c -
+          \`\`\`
 
           ---
 
@@ -216,3 +252,4 @@ jobs:
             ./install.ps1
             ./release-artifacts/dbshift-*.zip
             ./release-artifacts/dbshift-*.tar.gz
+            ./release-artifacts/SHA256SUMS

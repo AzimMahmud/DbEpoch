@@ -67,5 +67,5 @@ body:
     id: logs
     attributes:
       label: Verbose output
-      description: Run with `--verbose` and paste the output.
+      description: Run the failing command and paste the console output.
       render: shell

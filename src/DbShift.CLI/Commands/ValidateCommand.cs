@@ -1,20 +1,18 @@
+using System.ComponentModel;
 using DbShift.CLI.Helpers;
 using DbShift.Core.ValueObjects;
+using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
 
-public sealed class ValidateCommand : CommandBase
+public sealed class ValidateCommand : CliCommandBase<ValidateCommand.Settings>
 {
-    public override string Name => "validate";
-    public override string Description => "Validate migration scripts (naming, syntax, duplicates, dependencies).";
-    public override string Category => "Validation";
-    public override string? UsageExample => "dbshift validate --environment local";
-    public override IReadOnlyList<CommandOption> Options => Array.Empty<CommandOption>();
+    public sealed class Settings : GlobalSettings { }
 
-    public override async Task<int> ExecuteAsync(CommandContext context)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var host = CreateHost(context);
-        if (!context.Json)
+        var host = CreateHost(settings);
+        if (!settings.Json)
         {
             ConsoleHelper.PrintHeader($"Validating migrations for '{host.EnvironmentName}'");
         }
@@ -27,10 +25,10 @@ public sealed class ValidateCommand : CommandBase
         }
         catch (Exception ex)
         {
-            return Fail(context, ex.Message);
+            return Fail(settings, ex.Message);
         }
 
-        if (context.Json)
+        if (settings.Json)
         {
             WriteJson(new
             {

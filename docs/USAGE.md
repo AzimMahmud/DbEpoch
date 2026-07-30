@@ -167,7 +167,7 @@ Create `Database/Config/migration.json`:
 ```json
 {
   "migration": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "database": {
       "provider": "postgresql",
       "connectionString": "${DB_CONNECTION_STRING}"
@@ -415,14 +415,13 @@ Before your first deploy, create the tracking tables:
 dbshift init --connection-string "Host=localhost;Database=myapp;Username=postgres;Password=secret"
 ```
 
-This creates four tables in your database:
+This creates three tables in your database:
 
 | Table | What it tracks |
 | --- | --- |
 | `__migration_history` | Every applied migration per environment |
 | `__migration_lock` | Distributed lock preventing concurrent deploys |
 | `__migration_audit` | Append-only audit trail |
-| `__migration_release` | Coordinated release bundles |
 
 If the tables already exist (from a previous run), `init` is idempotent — it won't change them.
 
@@ -655,8 +654,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4 with: { dotnet-version: '8.0.x' }
-      - run: dotnet build DbShift.sln -c Release
-      - run: dotnet test DbShift.sln -c Release --no-build
+      - run: dotnet build DbShift.slnx -c Release
+      - run: dotnet test DbShift.slnx -c Release --no-build
       - run: dotnet run --project src/DbShift.CLI -- validate
 
   deploy-dev:

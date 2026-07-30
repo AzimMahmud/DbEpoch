@@ -1,26 +1,23 @@
 using DbShift.CLI.Helpers;
 using DbShift.Core.Enums;
+using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
 
-public sealed class StatusCommand : CommandBase
+public sealed class StatusCommand : CliCommandBase<StatusCommand.Settings>
 {
-    public override string Name => "status";
-    public override string Description => "Show the migration status for an environment.";
-    public override string Category => "Inspection";
-    public override string? UsageExample => "dbshift status --environment local";
-    public override IReadOnlyList<CommandOption> Options => Array.Empty<CommandOption>();
+    public sealed class Settings : GlobalSettings { }
 
-    public override async Task<int> ExecuteAsync(CommandContext context)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var host = CreateHost(context);
-        var live = RequireLive(context, host);
+        var host = CreateHost(settings);
+        var live = RequireLive(settings, host);
         if (live != 0)
         {
             return live;
         }
 
-        if (!context.Json)
+        if (!settings.Json)
         {
             ConsoleHelper.PrintHeader($"Migration status for '{host.EnvironmentName}'");
         }
@@ -28,7 +25,7 @@ public sealed class StatusCommand : CommandBase
         var status = await ConsoleHelper.RunWithSpinner("Querying migration history",
             () => host.Executor.GetStatusAsync(host.EnvironmentName));
 
-        if (context.Json)
+        if (settings.Json)
         {
             WriteJson(new
             {

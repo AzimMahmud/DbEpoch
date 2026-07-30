@@ -18,6 +18,18 @@ public interface IDatabaseProvider
     /// <summary>Creates a parameter, converting null values to <see cref="DBNull.Value"/>.</summary>
     DbParameter CreateParameter(string name, object? value);
 
-    /// <summary>Returns the complete DDL that creates all four tracking tables, idempotently.</summary>
+    /// <summary>Returns the complete DDL that creates all three tracking tables, idempotently.</summary>
     string GetTrackingSchemaDdl();
+
+    /// <summary>
+    /// Provider-specific atomic UPSERT used to acquire a distributed lock. The statement must
+    /// reference these bind parameters (names are stable across providers):
+    /// <list type="bullet">
+    /// <item><c>@id</c>, <c>@lock_key</c>, <c>@locked_by</c>, <c>@locked_at_utc</c>, <c>@expires_at_utc</c>, <c>@environment</c>, <c>@true</c>, <c>@false</c>, <c>@now</c>.</item>
+    /// </list>
+    /// The statement must atomically INSERT a new lease when none exists, or UPDATE the existing
+    /// row <em>only when it is inactive or expired</em>. Affected rows must be <c>1</c> when the
+    /// lease was acquired and <c>0</c> when an active, non-expired lease already exists for the key.
+    /// </summary>
+    string GetAcquireLockSql();
 }

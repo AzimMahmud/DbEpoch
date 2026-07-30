@@ -113,7 +113,7 @@ FRAMEWORK=net10.0 ./publish.sh linux-x64          # Linux/macOS
 
 ```bash
 dbshift --version
-# → DbShift v1.0.0
+# → DbShift v1.1.0
 # → database migrations for .NET
 ```
 
@@ -163,7 +163,6 @@ These apply to every command:
     --config <PATH>           Path to the repository root
     --in-memory               Force offline mode (no database)
 -y, --yes                     Skip interactive confirmation prompts
--v, --verbose                 Verbose logging
     --no-color                Disable colored output
     --json                    Emit machine-readable JSON
 -h, --help                    Show help
@@ -323,7 +322,7 @@ Optional metadata headers:
 ```jsonc
 {
   "migration": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "database": {
       "provider": "postgresql",          // postgresql | sqlserver | mysql | sqlite
       "connectionString": "${DB_CONNECTION_STRING}"
@@ -481,8 +480,7 @@ Every command supports `--json` for machine-readable output and non-zero exit co
 | `Core` | Pure domain model — entities, enums, value objects, interfaces. Zero dependencies. |
 | `Engine` | `ScriptParser`, `MigrationExecutor`, in-memory test doubles. |
 | `Infrastructure` | Provider implementations for all 4 databases + file-system config loading. |
-| `Reports` | Plain-text status and audit report generation. |
-| `CLI` | The `dbshift` executable — argument parsing, Spectre.Console TUI, commands. |
+| `CLI` | The `dbshift` executable — argument parsing, Spectre.Console.Cli TUI, commands. |
 
 ### Multi-database design
 
@@ -498,14 +496,13 @@ four engines. Adding a new provider is a single class.
 
 ## Tracking tables
 
-`dbshift init` creates four tables, all in the configured schema:
+`dbshift init` creates three tables, all in the configured schema:
 
 | Table | Purpose |
 |-------|---------|
 | `__migration_history` | One row per applied migration per environment |
 | `__migration_lock` | Distributed lock to prevent concurrent deploys |
 | `__migration_audit` | Append-only audit trail of every action |
-| `__migration_release` | Coordinated release bundles |
 
 DDL is idempotent and engine-specific (UUID, boolean, and timestamp types differ
 between PostgreSQL, SQL Server, MySQL, and SQLite).
@@ -515,14 +512,14 @@ between PostgreSQL, SQL Server, MySQL, and SQLite).
 ## Build & test
 
 ```bash
-dotnet build DbShift.sln
-dotnet test  DbShift.sln
+dotnet build DbShift.slnx
+dotnet test  DbShift.slnx
 ```
 
 Conditions:
 - Compiled with `TreatWarningsAsErrors` — zero warnings required.
 - Target frameworks: `net6.0`, `net8.0`, `net10.0` (LTS span — runs on any .NET 6+ runtime). SDK resolved by `global.json` with `latestMajor` roll-forward.
-- Test suite: 15 tests covering `ScriptParser` and `MigrationExecutor`, executed across all three target frameworks.
+- Test suite: 89 tests covering `ScriptParser`, `MigrationExecutor`, `FileSystemConfigLoader`, lock management, and exception hierarchy, executed across all three target frameworks.
 
 ---
 
@@ -538,7 +535,6 @@ DbShift/
 │   ├── DbShift.Core/
 │   ├── DbShift.Engine/
 │   ├── DbShift.Infrastructure/
-│   ├── DbShift.Reports/
 │   └── DbShift.CLI/
 ├── tests/
 │   └── DbShift.Engine.Tests/
@@ -548,7 +544,7 @@ DbShift/
 ├── install.ps1                Windows one-liner installer
 ├── publish.sh                 Linux/macOS build script
 ├── publish.ps1                Windows build script
-├── DbShift.sln
+├── DbShift.slnx
 ├── Directory.Build.props
 ├── global.json
 ├── README.md

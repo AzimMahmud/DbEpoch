@@ -31,17 +31,16 @@ public sealed class SqliteProvider : IDatabaseProvider
             rollback_available   INTEGER NOT NULL DEFAULT 0,
             rollback_script_name TEXT,
             error_message        TEXT,
-            execution_plan       TEXT,
             batch_number         INTEGER NOT NULL DEFAULT 1,
-            approved_by          TEXT,
-            approved_at_utc      TEXT,
             checksum             TEXT NOT NULL,
             created_at_utc       TEXT NOT NULL
         );
         CREATE UNIQUE INDEX IF NOT EXISTS uk_migration_version_env ON __migration_history(version, environment);
         CREATE UNIQUE INDEX IF NOT EXISTS uk_migration_script_name ON __migration_history(script_name, environment);
-        CREATE INDEX IF NOT EXISTS idx_migration_history_env    ON __migration_history(environment);
-        CREATE INDEX IF NOT EXISTS idx_migration_history_status ON __migration_history(status);
+        CREATE INDEX IF NOT EXISTS idx_migration_history_env      ON __migration_history(environment);
+        CREATE INDEX IF NOT EXISTS idx_migration_history_status   ON __migration_history(status);
+        CREATE INDEX IF NOT EXISTS idx_migration_history_executed ON __migration_history(executed_at_utc);
+        CREATE INDEX IF NOT EXISTS idx_migration_history_version  ON __migration_history(version);
 
         CREATE TABLE IF NOT EXISTS __migration_lock (
             id              TEXT NOT NULL PRIMARY KEY,
@@ -57,40 +56,26 @@ public sealed class SqliteProvider : IDatabaseProvider
 
         CREATE TABLE IF NOT EXISTS __migration_audit (
             id               TEXT NOT NULL PRIMARY KEY,
-            migration_id     TEXT,
             action           TEXT NOT NULL,
             performed_by     TEXT NOT NULL,
             performed_at_utc TEXT NOT NULL,
             environment      TEXT NOT NULL,
-            details          TEXT,
-            ip_address       TEXT,
-            user_agent       TEXT,
-            request_id       TEXT,
-            FOREIGN KEY (migration_id) REFERENCES __migration_history(id)
+            details          TEXT
         );
-        CREATE INDEX IF NOT EXISTS idx_migration_audit_mid  ON __migration_audit(migration_id);
         CREATE INDEX IF NOT EXISTS idx_migration_audit_date ON __migration_audit(performed_at_utc);
+        CREATE INDEX IF NOT EXISTS idx_migration_audit_env  ON __migration_audit(environment);
+        """;
 
-        CREATE TABLE IF NOT EXISTS __migration_release (
-            id                 TEXT NOT NULL PRIMARY KEY,
-            release_version    TEXT NOT NULL,
-            name               TEXT NOT NULL,
-            description        TEXT,
-            created_by         TEXT NOT NULL,
-            created_at_utc     TEXT NOT NULL,
-            status             TEXT NOT NULL,
-            target_environment TEXT NOT NULL,
-            migration_ids      TEXT NOT NULL,
-            approved_by        TEXT,
-            approved_at_utc    TEXT,
-            deployed_by        TEXT,
-            deployed_at_utc    TEXT,
-            rolled_back_by     TEXT,
-            rolled_back_at_utc TEXT,
-            checksum           TEXT NOT NULL
-        );
-        CREATE UNIQUE INDEX IF NOT EXISTS uk_migration_release_ver ON __migration_release(release_version);
-        CREATE INDEX IF NOT EXISTS idx_migration_release_status ON __migration_release(status);
-        CREATE INDEX IF NOT EXISTS idx_migration_release_env    ON __migration_release(target_environment);
+    public string GetAcquireLockSql() => """
+        INSERT INTO __migration_lock (id, lock_key, locked_by, locked_at_utc, expires_at_utc, environment, is_active)
+        VALUES (@id, @lock_key, @locked_by, @locked_at_utc, @expires_at_utc, @environment, @true)
+        ON CONFLICT(lock_key) DO UPDATE
+        SET id            = excluded.id,
+            locked_by     = excluded.locked_by,
+            locked_at_utc = excluded.locked_at_utc,
+            expires_at_utc= excluded.expires_at_utc,
+            environment   = excluded.environment,
+            is_active     = excluded.is_active
+        WHERE __migration_lock.is_active = @false OR __migration_lock.expires_at_utc <= @now
         """;
 }

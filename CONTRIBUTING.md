@@ -23,10 +23,9 @@ src/
 ├── DbShift.Core/          domain model, no dependencies
 ├── DbShift.Engine/        script parser, migration executor, in-memory doubles
 ├── DbShift.Infrastructure/ providers, relational implementations, config loading
-├── DbShift.Reports/       status/audit report generation
-└── DbShift.CLI/           executable, argument parsing, Spectre.Console UI
+└── DbShift.CLI/           executable, argument parsing, Spectre.Console.Cli UI
 tests/
-└── DbShift.Engine.Tests/  15+ tests for ScriptParser + MigrationExecutor
+└── DbShift.Engine.Tests/  89 tests: parser, executor, config loader, locks, exceptions
 ```
 
 ## Code conventions

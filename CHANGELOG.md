@@ -4,51 +4,27 @@ All notable changes to the DbShift project will be documented in this file.
 
 ## [Unreleased]
 
-### Added
-
-- **.NET 6 → .NET 10 compatibility.** All projects now multi-target `net6.0`, `net8.0`, and `net10.0` (the LTS span). The NuGet tool package ships all three TFMs so `dotnet tool install` resolves to whatever runtime a user has installed — STS runtimes (7, 9) fall back to the nearest LTS via NuGet's runtime graph. Self-contained binaries are unaffected (no .NET required on the host).
-
-### Security
-
-- **SQLite CVE-2025-6965** ([GHSA-2m69-gcr7-jv3q](https://github.com/advisories/GHSA-2m69-gcr7-jv3q), high): pinned `SQLitePCLRaw.lib.e_sqlite3` to `3.50.3` (bundles SQLite 3.50.3, which is ≥ the fixed 3.50.2). The entire `2.1.x` line bundles a vulnerable SQLite; `Microsoft.Data.Sqlite` (even 10.0.x) still resolves a vulnerable `2.1.x` transitively, so the native lib is pinned explicitly in `DbShift.Infrastructure`.
+## [1.1.0] — 2026-07-30
 
 ### Added
 
-- **PolySharp polyfill** for `net6.0`, so the latest C# features (`required`, `init`, `record`) compile on the oldest supported runtime. Source-only generator, no runtime dependency.
-
-### Fixed
-
-- `net6.0` build: the `[GeneratedRegex]` source generators (.NET 7+) are now guarded by `#if NET7_0_OR_GREATER` with a `RegexOptions.Compiled` fallback on `net6.0`.
-- **`.NET global tool` package was broken.** The CLI project carried `SelfContained`, `PublishSingleFile`, and a default `win-x64` `RuntimeIdentifier`, which leaked a RID into the package (`tools/any/win-x64/...`, NU5118) and made the tool effectively Windows-only. Removed those properties (self-contained binaries set them via the publish command line) so `dotnet tool install --global DbShift` now ships RID-agnostic `tools/net6.0|net8.0|net10.0/any/...` and installs cross-platform.
-- **Release asset naming.** `release.yml` produced `dbshift-win-x64.zip` / `dbshift-osx-x64.tar.gz` (raw .NET RIDs) while `install.ps1`, `install.sh`, and the README expected `dbshift-windows-x64.zip` / `dbshift-macos-x64.tar.gz`, so the one-liner installers would 404 on Windows and macOS. The workflow now emits the friendly names.
-- `dbshift new --output <dir>` now creates the target directory instead of erroring when it does not exist, matching the documented Quick Start.
-
-### Changed
-
-- `Directory.Build.props` now sets `<TargetFrameworks>net6.0;net8.0;net10.0</TargetFrameworks>` instead of a single `net8.0`.
-- `global.json` uses `rollForward: latestMajor` with a `6.0.100` baseline, so any installed .NET SDK (6 through 10) is accepted.
-- `publish.sh` / `publish.ps1` accept a `FRAMEWORK` / `-Framework` parameter (default `net8.0` LTS) for the self-contained bundled runtime.
-- CI installs the 6.0.x, 8.0.x, and 10.0.x SDKs and runs the test suite against all three target frameworks.
-- Release workflow publishes self-contained binaries with an explicit `--framework` (`net8.0` by default) and installs all three SDKs to build the multi-targeted NuGet package.
-- `.NET global tool` README section updated to reflect .NET 6/8/10 support.
-
-- **Per-environment connection strings** — `environments/<name>.json` can now specify `database.connectionString`, resolved as step 3 in the connection string lookup chain (CLI flag → env var → environment file → global config).
-- **Repeatable migration creation** — `dbshift create --type repeatable` generates `R__Name.sql` scripts (the parser already supported them).
-- **`repeatable_migration.sql` template** — included in the scaffolded `Database/Templates/` directory.
-- **`repair` without `--version`** — running `dbshift repair` with no version now re-queues all failed migrations at once.
+- **`--verbose` flag** — `dbshift migrate/rollback/status/create/repair --verbose` shows `Information`-level log messages (script execution, checksums, lock acquisition). Propagated via `GlobalSettings.Verbose` → `CliHostOptions.Verbose` → `SpectreLogger<T>`.
+- **`strictAudit` mode** — `MigrationExecutor` constructor accepts a `strictAudit` parameter; when `true`, `AuditSafe()` re-throws audit failures instead of silently swallowing them.
+- **`InvalidateCache()`** — `MigrationExecutor.InvalidateCache()` forces re-reading migration scripts from disk on the next operation.
+- **`ParseAsync(string, CancellationToken)`** — `ScriptParser.ParseAsync(filePath, ct)` for async file I/O with cancellation support.
+- **`DiscoverAllCoreAsync(CancellationToken)`** — `MigrationExecutor.DiscoverAllCoreAsync(ct)` for async script discovery.
+- **`ProviderSqlHelper`** — extracted 7 provider-specific SQL template methods from `NewCommand.cs` (~467→~372 lines), reducing duplication.
+- **SQLite integration tests** — 16 new tests in `SqliteRelationalTests.cs` covering `RelationalMigrationTracker`, `RelationalMigrationLockManager`, and `RelationalAuditLogger` against a real SQLite file database.
+- **Enhanced test doubles** — `FakeScriptExecutor` now supports configurable delay, `failOnSqlContaining` trigger, `ExecutionCount` and `ExecutedSql` tracking. `FailingScriptExecutor` tracks `ExecutionCount`.
 
 ### Changed
 
-- Connection string resolution is now a 4-step chain: `--connection-string` → `DB_CONNECTION_STRING` env var → `environments/<name>.json` → `migration.json`.
-- `repair --version` is now optional (was previously required).
-- Removed redundant global-option redeclarations (`environment`, `json`, `yes`) from individual command definitions — they are already parsed globally.
-- Removed redundant `GetFlag("yes")` checks in `migrate` and `rollback` commands (duplicated `AssumeYes`).
+- **`OrderKey` doc comment** — added explanation of zero-padded version ordering safety.
+- **Self-contained binary framework** — release builds now target `net10.0` (was `net8.0`).
 
 ### Fixed
 
-- Per-environment `connectionString` fields are no longer silently ignored during deserialization.
-- User-facing strings that incorrectly used "dbshift" instead of "migration" (create, migrate, rollback, repair commands).
-- Grammar: "No failed migrations needed repair" → "No failed migrations need repair".
+- **SQLite lock manager** — `RelationalMigrationLockManager.ReleaseAsync` and `RenewAsync` were missing the `@true` parameter binding, causing `SqliteException` at runtime. Only SQLite was affected; other providers ignored the unused parameter.
 
 ## [1.0.0] — 2026-06-17
 
@@ -105,7 +81,7 @@ All notable changes to the DbShift project will be documented in this file.
 
 #### Renamed from "DatabaseMigrationPlatform" (dbpilot) to "DbShift"
 - Solution: `DbShift.sln`
-- Source projects: `DbShift.Core`, `DbShift.Engine`, `DbShift.Infrastructure`, `DbShift.Reports`, `DbShift.CLI`
+- Source projects: `DbShift.Core`, `DbShift.Engine`, `DbShift.Infrastructure`, `DbShift.CLI`
 - Test project: `DbShift.Engine.Tests`
 - Tool command: `dbshift` (was `migration`)
 - Package: `DbShift` (was `dbpilot`)

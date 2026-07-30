@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="src/DbShift.Core/DbShift.Core.csproj" />
+  <Project Path="src/DbShift.Engine/DbShift.Engine.csproj" />
+  <Project Path="src/DbShift.Infrastructure/DbShift.Infrastructure.csproj" />
+  <Project Path="src/DbShift.CLI/DbShift.CLI.csproj" />
+  <Project Path="tests/DbShift.Engine.Tests/DbShift.Engine.Tests.csproj" />
+</Solution>

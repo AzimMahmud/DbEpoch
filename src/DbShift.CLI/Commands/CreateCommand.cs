@@ -1,36 +1,51 @@
+using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 using DbShift.CLI.Helpers;
 using DbShift.Core.Enums;
+using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
 
-public sealed class CreateCommand : CommandBase
+public sealed class CreateCommand : CliCommandBase<CreateCommand.Settings>
 {
-    public override string Name => "create";
-    public override string Description => "Scaffold a new migration script from a template.";
-    public override string Category => "Setup";
-    public override string? UsageExample => "dbshift create --name AddOrders --type schema --author jane";
-    public override IReadOnlyList<CommandOption> Options => new[]
+    public sealed class Settings : GlobalSettings
     {
-        new CommandOption("name", null, "Migration name (PascalCase)", false, "NAME"),
-        new CommandOption("type", 't', "Migration type: schema | data | patch | rollback | repeatable", false, "TYPE"),
-        new CommandOption("author", 'a', "Author name to embed in the header", false, "NAME"),
-        new CommandOption("description", 'd', "Short description to embed in the header", false, "TEXT"),
-        new CommandOption("dir", null, "Override the output directory", false, "PATH"),
-        new CommandOption("sequence", null, "Use a sequence version instead of a timestamp", true, null)
-    };
+        [CommandOption("--name")]
+        [Description("Migration name (PascalCase)")]
+        public string? Name { get; set; }
 
-    public override Task<int> ExecuteAsync(CommandContext context)
+        [CommandOption("-t|--type")]
+        [Description("Migration type: schema | data | patch | rollback | repeatable")]
+        public string Type { get; set; } = "schema";
+
+        [CommandOption("-a|--author")]
+        [Description("Author name to embed in the header")]
+        public string? Author { get; set; }
+
+        [CommandOption("-d|--description")]
+        [Description("Short description to embed in the header")]
+        public string? Description { get; set; }
+
+        [CommandOption("--dir")]
+        [Description("Override the output directory")]
+        public string? Dir { get; set; }
+
+        [CommandOption("--sequence")]
+        [Description("Use a sequence version instead of a timestamp")]
+        public bool Sequence { get; set; }
+    }
+
+    public override Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var host = CreateHost(context);
-        var name = context.GetOption("name");
+        var host = CreateHost(settings);
+        var name = settings.Name;
         if (string.IsNullOrWhiteSpace(name))
         {
-            return Task.FromResult(Fail(context, "The --name option is required."));
+            return Task.FromResult(Fail(settings, "The --name option is required."));
         }
 
-        var (type, folder, prefix, templateName) = ResolveType(context.GetOption("type", "schema"));
+        var (type, folder, prefix, templateName) = ResolveType(settings.Type);
 
         string version;
         string fileName;
@@ -42,7 +57,7 @@ public sealed class CreateCommand : CommandBase
         }
         else
         {
-            var useTimestamp = !context.GetFlag("sequence");
+            var useTimestamp = !settings.Sequence;
             version = useTimestamp
                 ? DateTime.UtcNow.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture)
                 : NextSequence(host, folder, prefix);
@@ -53,25 +68,25 @@ public sealed class CreateCommand : CommandBase
 
         var displayFileName = type == MigrationType.Repeatable ? $"R__{name}" : $"{prefix}{version}__{(type == MigrationType.Rollback ? $"Rollback_{name}" : name)}";
 
-        var outputDir = context.GetOption("dir") ?? Path.Combine(host.ScriptsPath, folder);
+        var outputDir = settings.Dir ?? Path.Combine(host.ScriptsPath, folder);
         Directory.CreateDirectory(outputDir);
         var fullPath = Path.Combine(outputDir, fileName);
 
         if (File.Exists(fullPath))
         {
-            return Task.FromResult(Fail(context, $"A file already exists at '{fullPath}'."));
+            return Task.FromResult(Fail(settings, $"A file already exists at '{fullPath}'."));
         }
 
         var templatePath = Path.Combine(host.BasePath, "Database", "Templates", templateName);
+        var author = settings.Author ?? Environment.UserName;
+        var description = settings.Description ?? name;
         var content = File.Exists(templatePath)
-            ? RenderTemplate(File.ReadAllText(templatePath), name, context.GetOption("author") ?? Environment.UserName,
-                context.GetOption("description") ?? name)
-            : DefaultContent(name, context.GetOption("author") ?? Environment.UserName,
-                context.GetOption("description") ?? name, type);
+            ? RenderTemplate(File.ReadAllText(templatePath), name, author, description)
+            : DefaultContent(name, author, description, type);
 
         File.WriteAllText(fullPath, content);
 
-        if (context.Json)
+        if (settings.Json)
         {
             WriteJson(new { success = true, version, path = fullPath, type = type.ToString() });
         }

@@ -1,3 +1,5 @@
+using DbShift.Core.Exceptions;
+
 namespace DbShift.Infrastructure.Database.Providers;
 
 /// <summary>
@@ -17,12 +19,9 @@ public static class DatabaseProviderFactory
             "mysql" or "mariadb" or "maria" => new MySqlProvider(),
             "sqlite" => new SqliteProvider(),
             "" => new PostgreSqlProvider(),
-            _ => throw new ArgumentException(
+            _ => throw new UnsupportedProviderException(
                 $"Unknown database provider '{providerName}'. " +
                 "Supported providers: postgresql, sqlserver, mysql, sqlite.")
         };
     }
-
-    /// <summary>Returns the list of supported provider identifiers.</summary>
-    public static readonly string[] SupportedProviders = { "postgresql", "sqlserver", "mysql", "sqlite" };
 }

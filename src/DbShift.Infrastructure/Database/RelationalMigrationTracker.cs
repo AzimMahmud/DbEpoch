@@ -27,25 +27,26 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
-        // Delete-then-insert gives us cross-database upsert semantics without
-        // engine-specific ON CONFLICT / MERGE syntax.
+        // The DELETE+INSERT pair must be atomic: if INSERT fails (e.g. constraint
+        // violation) we must not have already destroyed the prior history row.
+        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
         command.CommandText = """
             DELETE FROM __migration_history WHERE environment = @environment AND version = @version;
 
             INSERT INTO __migration_history
                 (id, version, name, script_name, script_hash, migration_type, category, executed_by,
                  executed_at_utc, execution_time_ms, environment, status, rollback_available,
-                 rollback_script_name, error_message, execution_plan, batch_number, approved_by,
-                 approved_at_utc, checksum, created_at_utc)
+                 rollback_script_name, error_message, batch_number, checksum, created_at_utc)
             VALUES
                 (@id, @version, @name, @script_name, @script_hash, @migration_type, @category, @executed_by,
                  @executed_at_utc, @execution_time_ms, @environment, @status, @rollback_available,
-                 @rollback_script_name, @error_message, @execution_plan, @batch_number, @approved_by,
-                 @approved_at_utc, @checksum, @created_at_utc)
+                 @rollback_script_name, @error_message, @batch_number, @checksum, @created_at_utc)
             """;
         AddParameters(command, record);
         await command.ExecuteNonQueryAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     public async Task<MigrationRecord?> GetByVersionAsync(string environment, string version, CancellationToken cancellationToken = default)
@@ -155,10 +156,7 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
         command.Parameters.Add(_provider.CreateParameter("rollback_available", r.RollbackAvailable));
         command.Parameters.Add(_provider.CreateParameter("rollback_script_name", (object?)r.RollbackScriptName ?? DBNull.Value));
         command.Parameters.Add(_provider.CreateParameter("error_message", (object?)r.ErrorMessage ?? DBNull.Value));
-        command.Parameters.Add(_provider.CreateParameter("execution_plan", (object?)r.ExecutionPlan ?? DBNull.Value));
         command.Parameters.Add(_provider.CreateParameter("batch_number", r.BatchNumber));
-        command.Parameters.Add(_provider.CreateParameter("approved_by", (object?)r.ApprovedBy ?? DBNull.Value));
-        command.Parameters.Add(_provider.CreateParameter("approved_at_utc", (object?)r.ApprovedAtUtc ?? DBNull.Value));
         command.Parameters.Add(_provider.CreateParameter("checksum", r.Checksum));
         command.Parameters.Add(_provider.CreateParameter("created_at_utc", r.CreatedAtUtc));
     }
@@ -181,10 +179,7 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
         RollbackAvailable = r.GetBoolean(r.GetOrdinal("rollback_available")),
         RollbackScriptName = r.IsDBNull(r.GetOrdinal("rollback_script_name")) ? null : r.GetString(r.GetOrdinal("rollback_script_name")),
         ErrorMessage = r.IsDBNull(r.GetOrdinal("error_message")) ? null : r.GetString(r.GetOrdinal("error_message")),
-        ExecutionPlan = r.IsDBNull(r.GetOrdinal("execution_plan")) ? null : r.GetString(r.GetOrdinal("execution_plan")),
         BatchNumber = r.GetInt32(r.GetOrdinal("batch_number")),
-        ApprovedBy = r.IsDBNull(r.GetOrdinal("approved_by")) ? null : r.GetString(r.GetOrdinal("approved_by")),
-        ApprovedAtUtc = r.IsDBNull(r.GetOrdinal("approved_at_utc")) ? null : r.GetDateTime(r.GetOrdinal("approved_at_utc")),
         Checksum = r.GetString(r.GetOrdinal("checksum")),
         CreatedAtUtc = r.GetDateTime(r.GetOrdinal("created_at_utc"))
     };

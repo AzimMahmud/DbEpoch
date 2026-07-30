@@ -19,8 +19,22 @@ public interface IMigrationTracker
 /// <summary>Manages distributed locks to serialise concurrent migration runs.</summary>
 public interface IMigrationLockManager
 {
+    /// <summary>
+    /// Atomically acquire a lease on <paramref name="lockKey"/> for <paramref name="environment"/>.
+    /// Returns <langword="false"/> if an active, non-expired lease is held by another owner.
+    /// Re-acquisition after release (or after expiry of a prior lease for the same key) is supported.
+    /// </summary>
     Task<bool> AcquireAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, CancellationToken cancellationToken = default);
-    Task ReleaseAsync(string environment, string lockKey, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Release the lease on <paramref name="lockKey"/>. Only the owner recorded by <see cref="AcquireAsync"/>
+    /// (or any caller when <paramref name="lockedBy"/> is null/empty for backwards compatibility) may release it.
+    /// </summary>
+    Task ReleaseAsync(string environment, string lockKey, string? lockedBy = null, CancellationToken cancellationToken = default);
+
+    /// <summary>Extend the lease on <paramref name="lockKey"/> by <paramref name="timeoutSeconds"/>. Only the recorded owner may renew. Returns <langword="false"/> if the lease is not held by <paramref name="lockedBy"/>.</summary>
+    Task<bool> RenewAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, CancellationToken cancellationToken = default);
+
     Task<bool> IsActiveAsync(string environment, string lockKey, CancellationToken cancellationToken = default);
 }
 

@@ -1,20 +1,17 @@
 using DbShift.CLI.Helpers;
+using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
 
-public sealed class InfoCommand : CommandBase
+public sealed class InfoCommand : CliCommandBase<InfoCommand.Settings>
 {
-    public override string Name => "info";
-    public override string Description => "Show configuration, environments and repository details.";
-    public override string Category => "Inspection";
-    public override string? UsageExample => "dbshift info";
-    public override IReadOnlyList<CommandOption> Options => Array.Empty<CommandOption>();
+    public sealed class Settings : GlobalSettings { }
 
-    public override Task<int> ExecuteAsync(CommandContext context)
+    public override Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var host = CreateHost(context);
+        var host = CreateHost(settings);
 
-        if (context.Json)
+        if (settings.Json)
         {
             WriteJson(new
             {

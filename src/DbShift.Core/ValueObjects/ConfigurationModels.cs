@@ -10,8 +10,6 @@ public sealed class MigrationConfiguration
 
     public string ConnectionString { get; set; } = string.Empty;
     public string ScriptsPath { get; set; } = "./Database/Migrations";
-    public string Pattern { get; set; } = "V*__*.sql";
-    public string RollbackPattern { get; set; } = "U*__*.sql";
     public string TrackingSchema { get; set; } = "public";
     public string TrackingTable { get; set; } = "__migration_history";
     public int LockTimeoutSeconds { get; set; } = 300;
@@ -19,7 +17,6 @@ public sealed class MigrationConfiguration
     public int BatchSize { get; set; } = 10;
     public bool StopOnFailure { get; set; } = true;
     public IReadOnlyList<string> RequireApprovalEnvironments { get; set; } = Array.Empty<string>();
-    public IReadOnlyList<string> Approvers { get; set; } = Array.Empty<string>();
 }
 
 /// <summary>Database endpoint resolved for a specific environment.</summary>
@@ -39,7 +36,6 @@ public sealed class MigrationEnvironmentSettings
     public bool AllowRollback { get; set; } = true;
     public int LockTimeoutSeconds { get; set; } = 300;
     public int MaxBatchSize { get; set; } = 10;
-    public IReadOnlyList<string>? AllowedRoles { get; set; }
 }
 
 /// <summary>Optional deployment window restriction for an environment.</summary>
@@ -58,5 +54,4 @@ public sealed class EnvironmentConfiguration
     public DatabaseEndpoint Database { get; set; } = new();
     public MigrationEnvironmentSettings Migration { get; set; } = new();
     public DeploymentWindow? DeploymentWindow { get; set; }
-    public IReadOnlyList<string>? AllowedRoles => Migration.AllowedRoles;
 }

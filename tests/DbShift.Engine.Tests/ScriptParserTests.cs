@@ -1,4 +1,5 @@
 using DbShift.Core.Enums;
+using DbShift.Core.Exceptions;
 using DbShift.Engine.Parsing;
 using Xunit;
 
@@ -76,14 +77,14 @@ public class ScriptParserTests
     }
 
     [Fact]
-    public void Parse_InvalidFileName_ThrowsFormatException()
+    public void Parse_InvalidFileName_ThrowsScriptParseException()
     {
         // Arrange
         var filePath = "/Database/Migrations/Schema/InvalidFormat.sql";
         var content = "-- Invalid";
 
         // Act & Assert
-        Assert.Throws<FormatException>(() => _parser.Parse(filePath, content));
+        Assert.Throws<ScriptParseException>(() => _parser.Parse(filePath, content));
     }
 
     [Fact]
@@ -116,19 +117,25 @@ public class ScriptParserTests
     }
 
     [Fact]
-    public void ValidateSyntax_EmptyContent_ReturnsFalse()
+    public void HasExecutableContent_EmptyContent_ReturnsFalse()
     {
-        // Arrange & Act & Assert
-        Assert.False(_parser.ValidateSyntax(""));
-        Assert.False(_parser.ValidateSyntax("   "));
+        Assert.False(_parser.HasExecutableContent(""));
+        Assert.False(_parser.HasExecutableContent("   "));
     }
 
     [Fact]
-    public void ValidateSyntax_NonEmptyContent_ReturnsTrue()
+    public void HasExecutableContent_CommentOnlyContent_ReturnsFalse()
     {
-        // Arrange & Act & Assert
-        Assert.True(_parser.ValidateSyntax("-- SQL comment"));
-        Assert.True(_parser.ValidateSyntax("CREATE TABLE test (id INT);"));
+        // A script containing only comments is a no-op at the database and should be flagged.
+        Assert.False(_parser.HasExecutableContent("-- just a comment"));
+        Assert.False(_parser.HasExecutableContent("-- line one\n-- line two\n"));
+    }
+
+    [Fact]
+    public void HasExecutableContent_WithSql_ReturnsTrue()
+    {
+        Assert.True(_parser.HasExecutableContent("CREATE TABLE test (id INT);"));
+        Assert.True(_parser.HasExecutableContent("-- header\nCREATE TABLE test (id INT);"));
     }
 
     [Fact]

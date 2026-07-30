@@ -1,36 +1,35 @@
+using System.ComponentModel;
 using DbShift.CLI.Helpers;
+using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
 
-public sealed class HistoryCommand : CommandBase
+public sealed class HistoryCommand : CliCommandBase<HistoryCommand.Settings>
 {
-    public override string Name => "history";
-    public override string Description => "Show the audit history for an environment.";
-    public override string Category => "Inspection";
-    public override string? UsageExample => "dbshift history --environment local --limit 25";
-    public override IReadOnlyList<CommandOption> Options => new[]
+    public sealed class Settings : GlobalSettings
     {
-        new CommandOption("limit", 'n', "Maximum entries to display", false, "N")
-    };
+        [CommandOption("-n|--limit")]
+        [Description("Maximum entries to display")]
+        public int Limit { get; set; } = 25;
+    }
 
-    public override async Task<int> ExecuteAsync(CommandContext context)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var host = CreateHost(context);
-        var live = RequireLive(context, host);
+        var host = CreateHost(settings);
+        var live = RequireLive(settings, host);
         if (live != 0)
         {
             return live;
         }
 
-        if (!context.Json)
+        if (!settings.Json)
         {
             ConsoleHelper.PrintHeader($"Audit history for '{host.EnvironmentName}'");
         }
 
-        var limit = context.GetIntOption("limit", 25);
-        var entries = await ConsoleHelper.RunWithSpinner("Querying audit log", () => host.Executor.GetHistoryAsync(host.EnvironmentName, limit));
+        var entries = await ConsoleHelper.RunWithSpinner("Querying audit log", () => host.Executor.GetHistoryAsync(host.EnvironmentName, settings.Limit));
 
-        if (context.Json)
+        if (settings.Json)
         {
             WriteJson(new
             {

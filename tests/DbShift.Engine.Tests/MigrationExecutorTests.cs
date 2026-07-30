@@ -2,6 +2,7 @@ using DbShift.Core.Enums;
 using DbShift.Core.Interfaces;
 using DbShift.Core.ValueObjects;
 using DbShift.Engine.Execution;
+using DbShift.Engine.InMemory;
 using DbShift.Engine.Parsing;
 using Xunit;
 

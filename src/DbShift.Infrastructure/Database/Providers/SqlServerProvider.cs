@@ -32,10 +32,7 @@ public sealed class SqlServerProvider : IDatabaseProvider
             rollback_available   BIT             NOT NULL DEFAULT 0,
             rollback_script_name NVARCHAR(500),
             error_message        NVARCHAR(MAX),
-            execution_plan       NVARCHAR(MAX),
             batch_number         INT             NOT NULL DEFAULT 1,
-            approved_by          NVARCHAR(255),
-            approved_at_utc      DATETIME2,
             checksum             NVARCHAR(64)   NOT NULL,
             created_at_utc       DATETIME2       NOT NULL DEFAULT GETUTCDATE(),
             CONSTRAINT uk_migration_version_env UNIQUE (version, environment),
@@ -46,6 +43,10 @@ public sealed class SqlServerProvider : IDatabaseProvider
         CREATE INDEX idx_migration_history_env ON __migration_history(environment);
         IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'idx_migration_history_status' AND object_id = OBJECT_ID('__migration_history'))
         CREATE INDEX idx_migration_history_status ON __migration_history(status);
+        IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'idx_migration_history_executed' AND object_id = OBJECT_ID('__migration_history'))
+        CREATE INDEX idx_migration_history_executed ON __migration_history(executed_at_utc);
+        IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'idx_migration_history_version' AND object_id = OBJECT_ID('__migration_history'))
+        CREATE INDEX idx_migration_history_version ON __migration_history(version);
 
         IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '__migration_lock')
         CREATE TABLE __migration_lock (
@@ -61,36 +62,32 @@ public sealed class SqlServerProvider : IDatabaseProvider
         IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '__migration_audit')
         CREATE TABLE __migration_audit (
             id               UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-            migration_id     UNIQUEIDENTIFIER,
             action           NVARCHAR(50)   NOT NULL,
             performed_by     NVARCHAR(255)  NOT NULL,
             performed_at_utc DATETIME2       NOT NULL DEFAULT GETUTCDATE(),
             environment      NVARCHAR(50)   NOT NULL,
-            details          NVARCHAR(MAX),
-            ip_address       NVARCHAR(45),
-            user_agent       NVARCHAR(500),
-            request_id       UNIQUEIDENTIFIER,
-            CONSTRAINT fk_migration_audit FOREIGN KEY (migration_id) REFERENCES __migration_history(id)
+            details          NVARCHAR(MAX)
         );
 
-        IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '__migration_release')
-        CREATE TABLE __migration_release (
-            id                 UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-            release_version    NVARCHAR(50)   NOT NULL UNIQUE,
-            name               NVARCHAR(255)  NOT NULL,
-            description        NVARCHAR(MAX),
-            created_by         NVARCHAR(255)  NOT NULL,
-            created_at_utc     DATETIME2       NOT NULL DEFAULT GETUTCDATE(),
-            status             NVARCHAR(20)   NOT NULL,
-            target_environment NVARCHAR(50)   NOT NULL,
-            migration_ids      NVARCHAR(MAX)  NOT NULL,
-            approved_by        NVARCHAR(255),
-            approved_at_utc    DATETIME2,
-            deployed_by        NVARCHAR(255),
-            deployed_at_utc    DATETIME2,
-            rolled_back_by     NVARCHAR(255),
-            rolled_back_at_utc DATETIME2,
-            checksum           NVARCHAR(64)   NOT NULL
-        );
+        IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'idx_migration_audit_date' AND object_id = OBJECT_ID('__migration_audit'))
+        CREATE INDEX idx_migration_audit_date ON __migration_audit(performed_at_utc);
+        IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'idx_migration_audit_env' AND object_id = OBJECT_ID('__migration_audit'))
+        CREATE INDEX idx_migration_audit_env ON __migration_audit(environment);
+        """;
+
+    public string GetAcquireLockSql() => """
+        MERGE __migration_lock WITH (HOLDLOCK) AS target
+        USING (SELECT @lock_key AS lock_key) AS source
+        ON (target.lock_key = source.lock_key)
+        WHEN MATCHED AND (target.is_active = 0 OR target.expires_at_utc <= @now) THEN
+            UPDATE SET id            = @id,
+                       locked_by     = @locked_by,
+                       locked_at_utc = @locked_at_utc,
+                       expires_at_utc= @expires_at_utc,
+                       environment   = @environment,
+                       is_active     = 1
+        WHEN NOT MATCHED THEN
+            INSERT (id, lock_key, locked_by, locked_at_utc, expires_at_utc, environment, is_active)
+            VALUES (@id, @lock_key, @locked_by, @locked_at_utc, @expires_at_utc, @environment, 1);
         """;
 }

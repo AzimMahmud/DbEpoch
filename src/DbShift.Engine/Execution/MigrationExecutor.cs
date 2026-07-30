@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using DbShift.Core.Entities;
 using DbShift.Core.Enums;
+using DbShift.Core.Exceptions;
 using DbShift.Core.Interfaces;
 using DbShift.Core.ValueObjects;
 using DbShift.Engine.Parsing;
@@ -26,7 +27,9 @@ public sealed class MigrationExecutor
     private readonly string _scriptsPath;
     private readonly string? _connectionString;
     private readonly int _commandTimeoutSeconds;
+    private readonly bool _strictAudit;
     private List<ParsedMigration>? _discoveryCache;
+    private List<string>? _discoveryErrors;
 
     public MigrationExecutor(
         IMigrationTracker tracker,
@@ -38,7 +41,8 @@ public sealed class MigrationExecutor
         IMigrationScriptExecutor? scriptExecutor = null,
         string? connectionString = null,
         int commandTimeoutSeconds = 3600,
-        string? scriptsPath = null)
+        string? scriptsPath = null,
+        bool strictAudit = false)
     {
         _tracker = tracker;
         _lockManager = lockManager;
@@ -50,6 +54,7 @@ public sealed class MigrationExecutor
         _connectionString = connectionString;
         _commandTimeoutSeconds = commandTimeoutSeconds;
         _scriptsPath = scriptsPath ?? ResolveDefaultScriptsPath();
+        _strictAudit = strictAudit;
     }
 
     /// <summary>Validates every script under the scripts path: naming, syntax, uniqueness and dependencies.</summary>
@@ -74,7 +79,7 @@ public sealed class MigrationExecutor
                 result.Errors.Add($"Duplicate migration version '{migration.Version}' ({migration.FileName} conflicts with {byVersion[migration.Version].FileName}).");
             }
 
-            if (!_parser.ValidateSyntax(migration.Content))
+            if (!_parser.HasExecutableContent(migration.Content))
             {
                 result.Errors.Add($"Migration '{migration.FileName}' has no executable content.");
             }
@@ -103,7 +108,16 @@ public sealed class MigrationExecutor
     {
         try
         {
+            // Fail fast on parse errors so they cannot be silently dropped on the deploy path.
+            var discoveryErrors = GetCachedDiscoveryErrors();
+            if (discoveryErrors.Count > 0)
+            {
+                return DryRunResult.Failure(
+                    $"{discoveryErrors.Count} script(s) failed to parse:\n - " + string.Join("\n - ", discoveryErrors));
+            }
+
             var pending = await ComputePendingAsync(context.Environment, cancellationToken);
+            var drift = await ComputeChecksumDriftAsync(context.Environment, cancellationToken);
             var plan = new MigrationExecutionPlan
             {
                 Environment = context.Environment,
@@ -120,7 +134,12 @@ public sealed class MigrationExecutor
                 }).ToArray()
             };
 
-            await AuditSafe(context.Environment, AuditAction.DryRun, context.ExecutedBy, $"{plan.TotalCount} migration(s) planned");
+            var driftNote = drift.Count > 0
+                ? $"; WARNING: {drift.Count} applied migration(s) have checksum drift: {string.Join(", ", drift.Select(d => d.Version))}"
+                : string.Empty;
+
+            await AuditSafe(context.Environment, AuditAction.DryRun, context.ExecutedBy,
+                $"{plan.TotalCount} migration(s) planned{driftNote}");
             return DryRunResult.Success(plan);
         }
         catch (Exception ex)
@@ -144,6 +163,29 @@ public sealed class MigrationExecutor
         }
 
         var env = await _environmentProvider.GetEnvironmentAsync(context.Environment, cancellationToken);
+
+        // Approval gate: an environment flagged RequireApproval may not be deployed without an
+        // approver unless the caller explicitly force-skips (e.g. via --yes on a CI recovery).
+        if (env.Migration.RequireApproval
+            && !context.SkipApproval
+            && !context.Force
+            && string.IsNullOrWhiteSpace(context.Approver))
+        {
+            result.ErrorMessage = $"Environment '{context.Environment}' requires an approver. " +
+                                  "Pass --approver <name> (or set SkipApproval/Force from an authorised caller).";
+            return result;
+        }
+
+        // Fail fast on parse errors: silently skipping malformed scripts during deploy would
+        // leave the database in an inconsistent state relative to the source tree.
+        var discoveryErrors = GetCachedDiscoveryErrors();
+        if (discoveryErrors.Count > 0)
+        {
+            result.ErrorMessage = $"{discoveryErrors.Count} script(s) failed to parse:\n - "
+                                  + string.Join("\n - ", discoveryErrors);
+            return result;
+        }
+
         var locked = await _lockManager.AcquireAsync(context.Environment, lockKey, context.ExecutedBy, env.Migration.LockTimeoutSeconds, cancellationToken);
         if (!locked)
         {
@@ -153,6 +195,21 @@ public sealed class MigrationExecutor
 
         try
         {
+            // Refuse to deploy when a previously-applied script has been edited in place.
+            // The caller must repair the history (via `dbshift repair`) or explicitly set Force.
+            var drift = await ComputeChecksumDriftAsync(context.Environment, cancellationToken);
+            if (drift.Count > 0 && !context.Force)
+            {
+                foreach (var (version, fileName) in drift)
+                {
+                    result.DriftedMigrations.Add(version);
+                }
+                result.ErrorMessage = $"Checksum drift detected for {drift.Count} migration(s): " +
+                                      string.Join(", ", drift.Select(d => $"{d.Version} ({d.FileName})")) +
+                                      ". Run 'dbshift repair' or pass --force to override.";
+                return result;
+            }
+
             var pending = await ComputePendingAsync(context.Environment, cancellationToken);
             if (pending.Count == 0)
             {
@@ -167,14 +224,22 @@ public sealed class MigrationExecutor
                 return result;
             }
 
+            // Surface the pending repeatable count separately so callers can report it.
+            foreach (var p in pending.Where(p => p.IsRepeatable))
+            {
+                result.PendingRepeatables.Add(p.FileName);
+            }
+
             var batchSize = context.BatchSize ?? env.Migration.MaxBatchSize;
             var batchNumber = 1;
             foreach (var batch in pending.Chunk(Math.Max(1, batchSize)))
             {
+                // Renew the lease before each batch so a long-running deploy cannot have its
+                // lock silently expire while work is still in flight.
+                await _lockManager.RenewAsync(context.Environment, lockKey, context.ExecutedBy, env.Migration.LockTimeoutSeconds, cancellationToken);
+
                 foreach (var migration in batch)
                 {
-                    await _tracker.UpdateStatusAsync(context.Environment, migration.Version, MigrationStatus.InProgress, null, cancellationToken);
-
                     var record = new MigrationRecord
                     {
                         Version = migration.Version,
@@ -215,6 +280,8 @@ public sealed class MigrationExecutor
                         if (context.StopOnFailure)
                         {
                             result.ErrorMessage = $"Migration '{migration.Version}' failed: {execution.ErrorMessage}";
+                            await AuditSafe(context.Environment, AuditAction.Deploy, context.ExecutedBy,
+                                $"stopped at {migration.Version}: applied {result.TotalApplied}, failed {result.FailedMigrations.Count}");
                             return result;
                         }
                     }
@@ -229,7 +296,7 @@ public sealed class MigrationExecutor
         }
         finally
         {
-            await _lockManager.ReleaseAsync(context.Environment, lockKey, cancellationToken);
+            await _lockManager.ReleaseAsync(context.Environment, lockKey, context.ExecutedBy, cancellationToken);
             stopwatch.Stop();
             result.Elapsed = stopwatch.Elapsed;
         }
@@ -285,6 +352,15 @@ public sealed class MigrationExecutor
     {
         var result = new RollbackResult();
 
+        // Surface parse errors so a malformed U-script is never silently ignored.
+        var discoveryErrors = GetCachedDiscoveryErrors();
+        if (discoveryErrors.Count > 0)
+        {
+            result.ErrorMessage = $"{discoveryErrors.Count} script(s) failed to parse:\n - "
+                                  + string.Join("\n - ", discoveryErrors);
+            return result;
+        }
+
         var applied = await _tracker.GetAppliedAsync(request.Environment, cancellationToken);
         if (applied.Count == 0)
         {
@@ -305,46 +381,78 @@ public sealed class MigrationExecutor
             return result;
         }
 
-        var rollbacks = DiscoverRollbacks();
-        foreach (var target in targets)
+        var env = await _environmentProvider.GetEnvironmentAsync(request.Environment, cancellationToken);
+
+        var lockKey = $"migration:{request.Environment}";
+        // Rollback is just as destructive as deploy; serialise it with the same lock.
+        var locked = await _lockManager.AcquireAsync(request.Environment, lockKey, request.ExecutedBy, env.Migration.LockTimeoutSeconds, cancellationToken);
+        if (!locked)
         {
-            var rollback = rollbacks.FirstOrDefault(r => r.Version.Equals(target.Version, StringComparison.OrdinalIgnoreCase));
-            if (rollback is null)
-            {
-                result.ErrorMessage = $"No rollback script found for migration '{target.Version}'.";
-                return result;
-            }
-
-            var execution = await _scriptExecutor.ExecuteAsync(_connectionString, rollback.Content, _commandTimeoutSeconds, cancellationToken);
-            if (!execution.IsSuccess)
-            {
-                result.ErrorMessage = $"Rollback of '{target.Version}' failed: {execution.ErrorMessage}";
-                return result;
-            }
-
-            await _tracker.UpdateStatusAsync(request.Environment, target.Version, MigrationStatus.RolledBack, null, cancellationToken);
-            result.RolledBackMigrations.Add(target.Version);
+            result.ErrorMessage = $"Could not acquire migration lock for environment '{request.Environment}'. Another deployment may be in progress.";
+            return result;
         }
 
-        result.IsSuccess = true;
-        await AuditSafe(request.Environment, AuditAction.Rollback, request.ExecutedBy,
-            $"rolled back {result.RolledBackMigrations.Count}");
-        return result;
+        try
+        {
+            var rollbacks = DiscoverRollbacks();
+            foreach (var target in targets)
+            {
+                var rollback = rollbacks.FirstOrDefault(r => r.Version.Equals(target.Version, StringComparison.OrdinalIgnoreCase));
+                if (rollback is null)
+                {
+                    result.ErrorMessage = $"No rollback script found for migration '{target.Version}'.";
+                    await AuditSafe(request.Environment, AuditAction.Rollback, request.ExecutedBy,
+                        $"rollback incomplete: missing script for {target.Version}; rolled back {result.RolledBackMigrations.Count}");
+                    return result;
+                }
+
+                var execution = await _scriptExecutor.ExecuteAsync(_connectionString!, rollback.Content, _commandTimeoutSeconds, cancellationToken);
+                if (!execution.IsSuccess)
+                {
+                    result.ErrorMessage = $"Rollback of '{target.Version}' failed: {execution.ErrorMessage}";
+                    await AuditSafe(request.Environment, AuditAction.Rollback, request.ExecutedBy,
+                        $"rollback incomplete: {target.Version} failed ({execution.ErrorMessage}); rolled back {result.RolledBackMigrations.Count}");
+                    return result;
+                }
+
+                await _tracker.UpdateStatusAsync(request.Environment, target.Version, MigrationStatus.RolledBack, null, cancellationToken);
+                result.RolledBackMigrations.Add(target.Version);
+            }
+
+            result.IsSuccess = true;
+            await AuditSafe(request.Environment, AuditAction.Rollback, request.ExecutedBy,
+                $"rolled back {result.RolledBackMigrations.Count}");
+            return result;
+        }
+        finally
+        {
+            await _lockManager.ReleaseAsync(request.Environment, lockKey, request.ExecutedBy, cancellationToken);
+        }
     }
 
     /// <summary>Returns the migration status summary for an environment.</summary>
     public async Task<StatusResult> GetStatusAsync(string environment, CancellationToken cancellationToken = default)
     {
         var records = await _tracker.GetAllAsync(environment, cancellationToken);
-        return new StatusResult
+        var status = new StatusResult
         {
             Environment = environment,
             Records = records,
             Total = records.Count,
             Applied = records.Count(r => r.Status == MigrationStatus.Completed),
-            Pending = records.Count(r => r.Status is MigrationStatus.Pending or MigrationStatus.InProgress),
-            Failed = records.Count(r => r.Status == MigrationStatus.Failed)
+            Pending = records.Count(r => r.Status == MigrationStatus.Pending),
+            InProgress = records.Count(r => r.Status == MigrationStatus.InProgress),
+            Failed = records.Count(r => r.Status == MigrationStatus.Failed),
+            RolledBack = records.Count(r => r.Status == MigrationStatus.RolledBack)
         };
+
+        var drift = await ComputeChecksumDriftAsync(environment, cancellationToken);
+        foreach (var (version, _) in drift)
+        {
+            status.DriftedMigrations.Add(version);
+        }
+
+        return status;
     }
 
     /// <summary>Returns recent audit entries for an environment.</summary>
@@ -360,24 +468,71 @@ public sealed class MigrationExecutor
         }
 
         await _scriptExecutor.EnsureTrackingSchemaAsync(_connectionString, cancellationToken);
-        return new InitResult { IsSuccess = true, CreatedObjects = { "__migration_history", "__migration_lock", "__migration_audit", "__migration_release" } };
+        return new InitResult { IsSuccess = true, CreatedObjects = { "__migration_history", "__migration_lock", "__migration_audit" } };
     }
 
     private async Task<List<ParsedMigration>> ComputePendingAsync(string environment, CancellationToken cancellationToken)
     {
         var versioned = DiscoverVersioned();
-        if (versioned.Count == 0)
+        if (versioned.Count == 0 && DiscoverRepeatables().Count == 0)
         {
             return new List<ParsedMigration>();
         }
 
         var applied = await _tracker.GetAppliedAsync(environment, cancellationToken);
-        var appliedVersions = applied.Select(r => r.Version).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var appliedByVersion = applied
+            .Where(r => !string.Equals(r.Version, "R", StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(r => r.Version, r => r, StringComparer.OrdinalIgnoreCase);
 
-        return versioned
-            .Where(m => !appliedVersions.Contains(m.Version))
+        // Pending versioned migrations = those whose version has never been applied.
+        var pending = versioned
+            .Where(m => !appliedByVersion.ContainsKey(m.Version))
             .OrderBy(m => OrderKey(m.Version))
             .ToList();
+
+        // Pending repeatable migrations = those whose checksum changed since last apply
+        // (or have never been applied). Repeatables always run after versioned ones.
+        var appliedRepeatables = applied
+            .Where(r => string.Equals(r.Version, "R", StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(r => r.ScriptName, r => r.ScriptHash, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var repeatable in DiscoverRepeatables())
+        {
+            if (!appliedRepeatables.TryGetValue(repeatable.FileName, out var storedHash)
+                || !string.Equals(storedHash, repeatable.Hash, StringComparison.OrdinalIgnoreCase))
+            {
+                pending.Add(repeatable);
+            }
+        }
+
+        return pending;
+    }
+
+    /// <summary>
+    /// Computes the set of already-applied versioned migrations whose on-disk hash no longer
+    /// matches the hash recorded in <c>__migration_history</c>. A non-empty result means a
+    /// previously-applied script has been edited in place, which is unsafe to silently ignore.
+    /// </summary>
+    private async Task<List<(string Version, string FileName)>> ComputeChecksumDriftAsync(
+        string environment, CancellationToken cancellationToken)
+    {
+        var drift = new List<(string, string)>();
+        var applied = await _tracker.GetAppliedAsync(environment, cancellationToken);
+        var versioned = DiscoverVersioned();
+
+        foreach (var migration in versioned)
+        {
+            var record = applied.FirstOrDefault(r =>
+                r.Version.Equals(migration.Version, StringComparison.OrdinalIgnoreCase));
+            if (record is null) continue;
+
+            if (!string.Equals(record.ScriptHash, migration.Hash, StringComparison.OrdinalIgnoreCase))
+            {
+                drift.Add((migration.Version, migration.FileName));
+            }
+        }
+
+        return drift;
     }
 
     private (List<ParsedMigration> Migrations, List<string> Errors) DiscoverAllCore()
@@ -397,7 +552,39 @@ public sealed class MigrationExecutor
                 var content = File.ReadAllText(file);
                 migrations.Add(_parser.Parse(file, content));
             }
-            catch (FormatException ex)
+            catch (ScriptParseException ex)
+            {
+                errors.Add(ex.Message);
+            }
+            catch (IOException ex)
+            {
+                errors.Add($"Could not read '{file}': {ex.Message}");
+            }
+        }
+
+        return (migrations, errors);
+    }
+
+    private async Task<(List<ParsedMigration> Migrations, List<string> Errors)> DiscoverAllCoreAsync(CancellationToken cancellationToken = default)
+    {
+        var migrations = new List<ParsedMigration>();
+        var errors = new List<string>();
+
+        if (!Directory.Exists(_scriptsPath))
+        {
+            return (migrations, errors);
+        }
+
+        foreach (var file in Directory.EnumerateFiles(_scriptsPath, "*.sql", SearchOption.AllDirectories).OrderBy(f => f))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                var content = await File.ReadAllTextAsync(file, cancellationToken);
+                migrations.Add(_parser.Parse(file, content));
+            }
+            catch (ScriptParseException ex)
             {
                 errors.Add(ex.Message);
             }
@@ -415,17 +602,40 @@ public sealed class MigrationExecutor
             .Where(m => m.Type != MigrationType.Rollback && !m.IsRepeatable)
             .ToList();
 
+    private List<ParsedMigration> DiscoverRepeatables() =>
+        GetCachedDiscovered()
+            .Where(m => m.IsRepeatable)
+            .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
     private List<ParsedMigration> DiscoverRollbacks() =>
         GetCachedDiscovered().Where(m => m.Type == MigrationType.Rollback).ToList();
 
     private List<ParsedMigration> GetCachedDiscovered()
     {
-        if (_discoveryCache is null)
-        {
-            var (migrations, _) = DiscoverAllCore();
-            _discoveryCache = migrations;
-        }
-        return _discoveryCache;
+        EnsureDiscovered();
+        return _discoveryCache!;
+    }
+
+    private List<string> GetCachedDiscoveryErrors()
+    {
+        EnsureDiscovered();
+        return _discoveryErrors!;
+    }
+
+    private void EnsureDiscovered()
+    {
+        if (_discoveryCache is not null) return;
+        var (migrations, errors) = DiscoverAllCore();
+        _discoveryCache = migrations;
+        _discoveryErrors = errors;
+    }
+
+    /// <summary>Invalidates the discovery cache so the next operation re-reads scripts from disk.</summary>
+    public void InvalidateCache()
+    {
+        _discoveryCache = null;
+        _discoveryErrors = null;
     }
 
     private bool HasRollbackFor(string version) => DiscoverRollbacks().Any(r => r.Version.Equals(version, StringComparison.OrdinalIgnoreCase));
@@ -458,10 +668,19 @@ public sealed class MigrationExecutor
         }
         catch (Exception ex)
         {
+            if (_strictAudit)
+            {
+                throw;
+            }
             _logger.LogWarning(ex, "Failed to write audit entry for {Action}", action);
         }
     }
 
+    /// <summary>
+    /// Produces a zero-padded sort key for versioned migrations so that "2" sorts after "10"
+    /// when compared as strings. Safe because IsValidVersion() in ScriptParser guarantees
+    /// all version tokens contain only digit characters.
+    /// </summary>
     private static string OrderKey(string version) => version.PadLeft(20, '0');
 
     private static string ResolveDefaultScriptsPath()

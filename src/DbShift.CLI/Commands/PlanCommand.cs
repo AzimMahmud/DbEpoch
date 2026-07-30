@@ -1,22 +1,22 @@
+using System.ComponentModel;
 using DbShift.CLI.Helpers;
+using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
 
-public sealed class PlanCommand : CommandBase
+public sealed class PlanCommand : CliCommandBase<PlanCommand.Settings>
 {
-    public override string Name => "plan";
-    public override string Description => "Compute and display the pending migration execution plan (dry-run).";
-    public override string Category => "Inspection";
-    public override string? UsageExample => "dbshift plan --environment local";
-    public override IReadOnlyList<CommandOption> Options => new[]
+    public sealed class Settings : GlobalSettings
     {
-        new CommandOption("executed-by", 'u', "User performing the run", false, "NAME")
-    };
+        [CommandOption("-u|--executed-by")]
+        [Description("User performing the run")]
+        public string? ExecutedBy { get; set; }
+    }
 
-    public override async Task<int> ExecuteAsync(CommandContext context)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var host = CreateHost(context);
-        if (!context.Json)
+        var host = CreateHost(settings);
+        if (!settings.Json)
         {
             ConsoleHelper.PrintHeader($"Execution plan for '{host.EnvironmentName}'");
         }
@@ -24,7 +24,7 @@ public sealed class PlanCommand : CommandBase
         var contextObj = new Core.ValueObjects.MigrationContext
         {
             Environment = host.EnvironmentName,
-            ExecutedBy = context.GetOption("executed-by") ?? Environment.UserName
+            ExecutedBy = settings.ExecutedBy ?? Environment.UserName
         };
 
         var dryRun = await ConsoleHelper.RunWithSpinner("Computing pending migrations",
@@ -32,12 +32,12 @@ public sealed class PlanCommand : CommandBase
 
         if (!dryRun.IsSuccess)
         {
-            return Fail(context, dryRun.ErrorMessage ?? "Failed to compute execution plan.");
+            return Fail(settings, dryRun.ErrorMessage ?? "Failed to compute execution plan.");
         }
 
         var plan = dryRun.ExecutionPlan!;
 
-        if (context.Json)
+        if (settings.Json)
         {
             WriteJson(new
             {

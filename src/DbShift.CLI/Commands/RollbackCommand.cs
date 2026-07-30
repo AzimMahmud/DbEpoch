@@ -1,31 +1,37 @@
+using System.ComponentModel;
 using DbShift.CLI.Helpers;
 using DbShift.Core.ValueObjects;
+using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
 
-public sealed class RollbackCommand : CommandBase
+public sealed class RollbackCommand : CliCommandBase<RollbackCommand.Settings>
 {
-    public override string Name => "rollback";
-    public override string Description => "Roll back one or more previously applied migrations.";
-    public override string Category => "Execution";
-    public override string? UsageExample => "dbshift rollback --environment local --count 1";
-    public override IReadOnlyList<CommandOption> Options => new[]
+    public sealed class Settings : GlobalSettings
     {
-        new CommandOption("version", 'V', "Specific version to roll back (default: last)", false, "VERSION"),
-        new CommandOption("count", 'n', "Number of recent migrations to roll back", false, "N"),
-        new CommandOption("executed-by", 'u', "User performing the rollback", false, "NAME")
-    };
+        [CommandOption("-V|--version")]
+        [Description("Specific version to roll back (default: last)")]
+        public string? Version { get; set; }
 
-    public override async Task<int> ExecuteAsync(CommandContext context)
+        [CommandOption("-n|--count")]
+        [Description("Number of recent migrations to roll back")]
+        public int Count { get; set; } = 1;
+
+        [CommandOption("-u|--executed-by")]
+        [Description("User performing the rollback")]
+        public string? ExecutedBy { get; set; }
+    }
+
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var host = CreateHost(context);
-        var live = RequireLive(context, host);
+        var host = CreateHost(settings);
+        var live = RequireLive(settings, host);
         if (live != 0)
         {
             return live;
         }
 
-        if (!context.Json)
+        if (!settings.Json)
         {
             ConsoleHelper.PrintHeader($"Rolling back migrations on '{host.EnvironmentName}'");
         }
@@ -33,7 +39,7 @@ public sealed class RollbackCommand : CommandBase
         var status = await host.Executor.GetStatusAsync(host.EnvironmentName);
         if (status.Applied == 0)
         {
-            if (context.Json)
+            if (settings.Json)
             {
                 WriteJson(new { success = true, rolledBack = 0 });
             }
@@ -46,19 +52,19 @@ public sealed class RollbackCommand : CommandBase
 
         var request = new RollbackRequest
         {
-            Version = context.GetOption("version", "last"),
-            Count = context.GetIntOption("count", 1),
+            Version = string.IsNullOrWhiteSpace(settings.Version) ? "last" : settings.Version,
+            Count = settings.Count,
             Environment = host.EnvironmentName,
-            ExecutedBy = context.GetOption("executed-by") ?? Environment.UserName
+            ExecutedBy = settings.ExecutedBy ?? Environment.UserName
         };
 
-        if (!context.Json)
+        if (!settings.Json)
         {
             var label = request.Version.Equals("last", StringComparison.OrdinalIgnoreCase)
                 ? $"the last {request.Count} migration(s)"
                 : $"migration '{request.Version}'";
             ConsoleHelper.PrintWarning($"This will roll back {label} on '{host.EnvironmentName}'.");
-            if (!context.AssumeYes && !ConsoleHelper.Confirm("Proceed with rollback?", false))
+            if (!settings.AssumeYes && !ConsoleHelper.Confirm("Proceed with rollback?", false))
             {
                 ConsoleHelper.PrintWarning("Rollback cancelled.");
                 return 1;
@@ -67,7 +73,7 @@ public sealed class RollbackCommand : CommandBase
 
         var result = await ConsoleHelper.RunWithSpinner("Rolling back migrations", () => host.Executor.RollbackAsync(request));
 
-        if (context.Json)
+        if (settings.Json)
         {
             WriteJson(new { success = result.IsSuccess, rolledBack = result.RolledBackMigrations, error = result.ErrorMessage });
             return result.IsSuccess ? 0 : 1;
