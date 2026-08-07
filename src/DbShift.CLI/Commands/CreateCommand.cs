@@ -11,7 +11,7 @@ public sealed class CreateCommand : CliCommandBase<CreateCommand.Settings>
 {
     public sealed class Settings : GlobalSettings
     {
-        [CommandOption("--name")]
+        [CommandOption("-n|--name")]
         [Description("Migration name (PascalCase)")]
         public string? Name { get; set; }
 
@@ -27,11 +27,11 @@ public sealed class CreateCommand : CliCommandBase<CreateCommand.Settings>
         [Description("Short description to embed in the header")]
         public string? Description { get; set; }
 
-        [CommandOption("--dir")]
+        [CommandOption("-o|--dir")]
         [Description("Override the output directory")]
         public string? Dir { get; set; }
 
-        [CommandOption("--sequence")]
+        [CommandOption("-s|--sequence")]
         [Description("Use a sequence version instead of a timestamp")]
         public bool Sequence { get; set; }
     }

@@ -12,10 +12,12 @@ namespace DbShift.Infrastructure.Database;
 public sealed class RelationalMigrationExecutor : IMigrationScriptExecutor
 {
     private readonly IDatabaseProvider _provider;
+    private readonly string? _module;
 
-    public RelationalMigrationExecutor(IDatabaseProvider provider)
+    public RelationalMigrationExecutor(IDatabaseProvider provider, string? module = null)
     {
         _provider = provider;
+        _module = module;
     }
 
     public async Task<ScriptExecutionResult> ExecuteAsync(string connectionString, string sql, int timeoutSeconds, CancellationToken cancellationToken = default)
@@ -60,14 +62,14 @@ public sealed class RelationalMigrationExecutor : IMigrationScriptExecutor
         }
     }
 
-    public async Task EnsureTrackingSchemaAsync(string connectionString, CancellationToken cancellationToken = default)
+    public async Task EnsureTrackingSchemaAsync(string connectionString, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
         command.CommandTimeout = 300;
-        command.CommandText = _provider.GetTrackingSchemaDdl();
+        command.CommandText = _provider.GetTrackingSchemaDdl(module ?? _module);
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 }

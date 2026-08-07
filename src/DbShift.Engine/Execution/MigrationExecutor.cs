@@ -28,6 +28,7 @@ public sealed class MigrationExecutor
     private readonly string? _connectionString;
     private readonly int _commandTimeoutSeconds;
     private readonly bool _strictAudit;
+    private readonly string? _module;
     private List<ParsedMigration>? _discoveryCache;
     private List<string>? _discoveryErrors;
 
@@ -42,7 +43,8 @@ public sealed class MigrationExecutor
         string? connectionString = null,
         int commandTimeoutSeconds = 3600,
         string? scriptsPath = null,
-        bool strictAudit = false)
+        bool strictAudit = false,
+        string? module = null)
     {
         _tracker = tracker;
         _lockManager = lockManager;
@@ -53,7 +55,8 @@ public sealed class MigrationExecutor
         _scriptExecutor = scriptExecutor;
         _connectionString = connectionString;
         _commandTimeoutSeconds = commandTimeoutSeconds;
-        _scriptsPath = scriptsPath ?? ResolveDefaultScriptsPath();
+        _module = module;
+        _scriptsPath = ResolveScriptsPath(scriptsPath);
         _strictAudit = strictAudit;
     }
 
@@ -154,7 +157,9 @@ public sealed class MigrationExecutor
     {
         var stopwatch = Stopwatch.StartNew();
         var result = new DeployResult();
-        var lockKey = $"migration:{context.Environment}";
+        var lockKey = string.IsNullOrEmpty(_module)
+            ? $"migration:{context.Environment}"
+            : $"migration:{_module}:{context.Environment}";
 
         if (string.IsNullOrWhiteSpace(_connectionString))
         {
@@ -186,7 +191,7 @@ public sealed class MigrationExecutor
             return result;
         }
 
-        var locked = await _lockManager.AcquireAsync(context.Environment, lockKey, context.ExecutedBy, env.Migration.LockTimeoutSeconds, cancellationToken);
+        var locked = await _lockManager.AcquireAsync(context.Environment, lockKey, context.ExecutedBy, env.Migration.LockTimeoutSeconds, _module, cancellationToken);
         if (!locked)
         {
             result.ErrorMessage = $"Could not acquire migration lock for environment '{context.Environment}'. Another deployment may be in progress.";
@@ -236,7 +241,7 @@ public sealed class MigrationExecutor
             {
                 // Renew the lease before each batch so a long-running deploy cannot have its
                 // lock silently expire while work is still in flight.
-                await _lockManager.RenewAsync(context.Environment, lockKey, context.ExecutedBy, env.Migration.LockTimeoutSeconds, cancellationToken);
+                await _lockManager.RenewAsync(context.Environment, lockKey, context.ExecutedBy, env.Migration.LockTimeoutSeconds, _module, cancellationToken);
 
                 foreach (var migration in batch)
                 {
@@ -253,8 +258,7 @@ public sealed class MigrationExecutor
                         Status = MigrationStatus.InProgress,
                         RollbackAvailable = HasRollbackFor(migration.Version),
                         RollbackScriptName = FindRollbackName(migration.Version),
-                        BatchNumber = batchNumber,
-                        Checksum = migration.Hash
+                        BatchNumber = batchNumber
                     };
 
                     var execution = await _scriptExecutor.ExecuteAsync(_connectionString!, migration.Content, _commandTimeoutSeconds, cancellationToken);
@@ -264,7 +268,7 @@ public sealed class MigrationExecutor
                     {
                         record.Status = MigrationStatus.Completed;
                         record.ExecutedAtUtc = DateTime.UtcNow;
-                        await _tracker.AddAsync(record, cancellationToken);
+                        await _tracker.AddAsync(record, _module, cancellationToken);
                         result.AppliedMigrations.Add(migration.Version);
                         result.TotalApplied++;
                         _logger.LogInformation("Applied {Version} {Name} in {Ms}ms", migration.Version, migration.Name, execution.ElapsedMs);
@@ -273,7 +277,7 @@ public sealed class MigrationExecutor
                     {
                         record.Status = MigrationStatus.Failed;
                         record.ErrorMessage = execution.ErrorMessage;
-                        await _tracker.AddAsync(record, cancellationToken);
+                        await _tracker.AddAsync(record, _module, cancellationToken);
                         result.FailedMigrations.Add(migration.Version);
                         _logger.LogError("Migration {Version} failed: {Error}", migration.Version, execution.ErrorMessage);
 
@@ -296,7 +300,7 @@ public sealed class MigrationExecutor
         }
         finally
         {
-            await _lockManager.ReleaseAsync(context.Environment, lockKey, context.ExecutedBy, cancellationToken);
+            await _lockManager.ReleaseAsync(context.Environment, lockKey, context.ExecutedBy, _module, cancellationToken);
             stopwatch.Stop();
             result.Elapsed = stopwatch.Elapsed;
         }
@@ -309,10 +313,10 @@ public sealed class MigrationExecutor
 
         if (string.IsNullOrWhiteSpace(version))
         {
-            var all = await _tracker.GetAllAsync(environment, cancellationToken);
+            var all = await _tracker.GetAllAsync(environment, _module, cancellationToken);
             foreach (var failed in all.Where(r => r.Status == MigrationStatus.Failed))
             {
-                await _tracker.DeleteAsync(environment, failed.Version, cancellationToken);
+                await _tracker.DeleteAsync(environment, failed.Version, _module, cancellationToken);
                 result.RepairedMigrations.Add(failed.Version);
             }
 
@@ -324,7 +328,7 @@ public sealed class MigrationExecutor
             return result;
         }
 
-        var record = await _tracker.GetByVersionAsync(environment, version, cancellationToken);
+        var record = await _tracker.GetByVersionAsync(environment, version, _module, cancellationToken);
 
         if (record is null)
         {
@@ -334,12 +338,12 @@ public sealed class MigrationExecutor
 
         if (record.Status == MigrationStatus.Failed)
         {
-            await _tracker.DeleteAsync(environment, version, cancellationToken);
+            await _tracker.DeleteAsync(environment, version, _module, cancellationToken);
             result.RepairedMigrations.Add(version);
         }
         else
         {
-            await _tracker.UpdateStatusAsync(environment, version, record.Status, null, cancellationToken);
+            await _tracker.UpdateStatusAsync(environment, version, record.Status, null, _module, cancellationToken);
         }
 
         result.IsSuccess = true;
@@ -361,7 +365,7 @@ public sealed class MigrationExecutor
             return result;
         }
 
-        var applied = await _tracker.GetAppliedAsync(request.Environment, cancellationToken);
+        var applied = await _tracker.GetAppliedAsync(request.Environment, _module, cancellationToken);
         if (applied.Count == 0)
         {
             result.IsSuccess = true;
@@ -383,9 +387,12 @@ public sealed class MigrationExecutor
 
         var env = await _environmentProvider.GetEnvironmentAsync(request.Environment, cancellationToken);
 
-        var lockKey = $"migration:{request.Environment}";
+        var module = _module ?? request.Module;
+        var lockKey = string.IsNullOrEmpty(module)
+            ? $"migration:{request.Environment}"
+            : $"migration:{module}:{request.Environment}";
         // Rollback is just as destructive as deploy; serialise it with the same lock.
-        var locked = await _lockManager.AcquireAsync(request.Environment, lockKey, request.ExecutedBy, env.Migration.LockTimeoutSeconds, cancellationToken);
+        var locked = await _lockManager.AcquireAsync(request.Environment, lockKey, request.ExecutedBy, env.Migration.LockTimeoutSeconds, module, cancellationToken);
         if (!locked)
         {
             result.ErrorMessage = $"Could not acquire migration lock for environment '{request.Environment}'. Another deployment may be in progress.";
@@ -415,7 +422,7 @@ public sealed class MigrationExecutor
                     return result;
                 }
 
-                await _tracker.UpdateStatusAsync(request.Environment, target.Version, MigrationStatus.RolledBack, null, cancellationToken);
+                await _tracker.UpdateStatusAsync(request.Environment, target.Version, MigrationStatus.RolledBack, null, module, cancellationToken);
                 result.RolledBackMigrations.Add(target.Version);
             }
 
@@ -426,14 +433,14 @@ public sealed class MigrationExecutor
         }
         finally
         {
-            await _lockManager.ReleaseAsync(request.Environment, lockKey, request.ExecutedBy, cancellationToken);
+            await _lockManager.ReleaseAsync(request.Environment, lockKey, request.ExecutedBy, module, cancellationToken);
         }
     }
 
     /// <summary>Returns the migration status summary for an environment.</summary>
     public async Task<StatusResult> GetStatusAsync(string environment, CancellationToken cancellationToken = default)
     {
-        var records = await _tracker.GetAllAsync(environment, cancellationToken);
+        var records = await _tracker.GetAllAsync(environment, _module, cancellationToken);
         var status = new StatusResult
         {
             Environment = environment,
@@ -457,7 +464,7 @@ public sealed class MigrationExecutor
 
     /// <summary>Returns recent audit entries for an environment.</summary>
     public Task<IReadOnlyList<MigrationAuditEntry>> GetHistoryAsync(string environment, int limit, CancellationToken cancellationToken = default)
-        => _auditLogger.GetHistoryAsync(environment, limit, cancellationToken);
+        => _auditLogger.GetHistoryAsync(environment, limit, _module, cancellationToken);
 
     /// <summary>Creates the tracking schema on the target database.</summary>
     public async Task<InitResult> InitAsync(CancellationToken cancellationToken = default)
@@ -467,7 +474,7 @@ public sealed class MigrationExecutor
             return new InitResult { ErrorMessage = "No database connection is configured. A connection is required to initialise." };
         }
 
-        await _scriptExecutor.EnsureTrackingSchemaAsync(_connectionString, cancellationToken);
+        await _scriptExecutor.EnsureTrackingSchemaAsync(_connectionString, _module, cancellationToken);
         return new InitResult { IsSuccess = true, CreatedObjects = { "__migration_history", "__migration_lock", "__migration_audit" } };
     }
 
@@ -479,7 +486,7 @@ public sealed class MigrationExecutor
             return new List<ParsedMigration>();
         }
 
-        var applied = await _tracker.GetAppliedAsync(environment, cancellationToken);
+        var applied = await _tracker.GetAppliedAsync(environment, _module, cancellationToken);
         var appliedByVersion = applied
             .Where(r => !string.Equals(r.Version, "R", StringComparison.OrdinalIgnoreCase))
             .ToDictionary(r => r.Version, r => r, StringComparer.OrdinalIgnoreCase);
@@ -517,7 +524,7 @@ public sealed class MigrationExecutor
         string environment, CancellationToken cancellationToken)
     {
         var drift = new List<(string, string)>();
-        var applied = await _tracker.GetAppliedAsync(environment, cancellationToken);
+        var applied = await _tracker.GetAppliedAsync(environment, _module, cancellationToken);
         var versioned = DiscoverVersioned();
 
         foreach (var migration in versioned)
@@ -664,7 +671,8 @@ public sealed class MigrationExecutor
                 PerformedBy = string.IsNullOrEmpty(performedBy) ? "system" : performedBy,
                 Environment = environment,
                 Details = JsonSerializer.Serialize(new { details })
-            });
+            },
+            _module);
         }
         catch (Exception ex)
         {
@@ -682,6 +690,14 @@ public sealed class MigrationExecutor
     /// all version tokens contain only digit characters.
     /// </summary>
     private static string OrderKey(string version) => version.PadLeft(20, '0');
+
+    private string ResolveScriptsPath(string? configuredPath)
+    {
+        var basePath = configuredPath ?? ResolveDefaultScriptsPath();
+        return string.IsNullOrEmpty(_module)
+            ? basePath
+            : Path.Combine(basePath, _module);
+    }
 
     private static string ResolveDefaultScriptsPath()
     {

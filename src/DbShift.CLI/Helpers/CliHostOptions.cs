@@ -7,4 +7,5 @@ public sealed record CliHostOptions(
     string? ConnectionString,
     string? ConfigBasePath,
     bool UseInMemory,
-    bool Verbose = false);
+    bool Verbose = false,
+    string? Module = null);

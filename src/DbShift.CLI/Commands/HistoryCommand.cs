@@ -24,7 +24,10 @@ public sealed class HistoryCommand : CliCommandBase<HistoryCommand.Settings>
 
         if (!settings.Json)
         {
-            ConsoleHelper.PrintHeader($"Audit history for '{host.EnvironmentName}'");
+            var title = host.Module is null
+                ? $"Audit history for '{host.EnvironmentName}'"
+                : $"Audit history for '{host.EnvironmentName}' (module: {host.Module})";
+            ConsoleHelper.PrintHeader(title);
         }
 
         var entries = await ConsoleHelper.RunWithSpinner("Querying audit log", () => host.Executor.GetHistoryAsync(host.EnvironmentName, settings.Limit));

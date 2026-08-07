@@ -11,20 +11,20 @@ public sealed class InMemoryMigrationTracker : IMigrationTracker
 {
     private readonly ConcurrentDictionary<(string Env, string Version), MigrationRecord> _store = new();
 
-    public Task AddAsync(MigrationRecord record, CancellationToken cancellationToken = default)
+    public Task AddAsync(MigrationRecord record, string? module = null, CancellationToken cancellationToken = default)
     {
         record.Environment ??= string.Empty;
         _store[(record.Environment, record.Version)] = record;
         return Task.CompletedTask;
     }
 
-    public Task<MigrationRecord?> GetByVersionAsync(string environment, string version, CancellationToken cancellationToken = default)
+    public Task<MigrationRecord?> GetByVersionAsync(string environment, string version, string? module = null, CancellationToken cancellationToken = default)
     {
         _store.TryGetValue((environment, version), out var record);
         return Task.FromResult(record);
     }
 
-    public Task<IReadOnlyList<MigrationRecord>> GetAllAsync(string environment, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<MigrationRecord>> GetAllAsync(string environment, string? module = null, CancellationToken cancellationToken = default)
     {
         var items = _store.Values.Where(r => r.Environment == environment)
             .OrderBy(r => r.Version)
@@ -32,7 +32,7 @@ public sealed class InMemoryMigrationTracker : IMigrationTracker
         return Task.FromResult<IReadOnlyList<MigrationRecord>>(items);
     }
 
-    public Task<IReadOnlyList<MigrationRecord>> GetAppliedAsync(string environment, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<MigrationRecord>> GetAppliedAsync(string environment, string? module = null, CancellationToken cancellationToken = default)
     {
         var items = _store.Values
             .Where(r => r.Environment == environment && r.Status == MigrationStatus.Completed)
@@ -41,7 +41,7 @@ public sealed class InMemoryMigrationTracker : IMigrationTracker
         return Task.FromResult<IReadOnlyList<MigrationRecord>>(items);
     }
 
-    public Task UpdateStatusAsync(string environment, string version, MigrationStatus status, string? errorMessage, CancellationToken cancellationToken = default)
+    public Task UpdateStatusAsync(string environment, string version, MigrationStatus status, string? errorMessage, string? module = null, CancellationToken cancellationToken = default)
     {
         if (_store.TryGetValue((environment, version), out var record))
         {
@@ -51,13 +51,13 @@ public sealed class InMemoryMigrationTracker : IMigrationTracker
         return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(string environment, string version, CancellationToken cancellationToken = default)
+    public Task DeleteAsync(string environment, string version, string? module = null, CancellationToken cancellationToken = default)
     {
         _store.TryRemove((environment, version), out _);
         return Task.CompletedTask;
     }
 
-    public Task<bool> ExistsAsync(string environment, string version, CancellationToken cancellationToken = default)
+    public Task<bool> ExistsAsync(string environment, string version, string? module = null, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(_store.ContainsKey((environment, version)));
     }
@@ -69,7 +69,7 @@ public sealed class InMemoryMigrationLockManager : IMigrationLockManager
     private readonly object _gate = new();
     private readonly Dictionary<(string Env, string Key), MigrationLock> _locks = new();
 
-    public Task<bool> AcquireAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, CancellationToken cancellationToken = default)
+    public Task<bool> AcquireAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, string? module = null, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
         var key = (environment, lockKey);
@@ -94,7 +94,7 @@ public sealed class InMemoryMigrationLockManager : IMigrationLockManager
         }
     }
 
-    public Task ReleaseAsync(string environment, string lockKey, string? lockedBy = null, CancellationToken cancellationToken = default)
+    public Task ReleaseAsync(string environment, string lockKey, string? lockedBy = null, string? module = null, CancellationToken cancellationToken = default)
     {
         lock (_gate)
         {
@@ -109,7 +109,7 @@ public sealed class InMemoryMigrationLockManager : IMigrationLockManager
         return Task.CompletedTask;
     }
 
-    public Task<bool> RenewAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, CancellationToken cancellationToken = default)
+    public Task<bool> RenewAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, string? module = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(lockedBy))
         {
@@ -130,7 +130,7 @@ public sealed class InMemoryMigrationLockManager : IMigrationLockManager
         return Task.FromResult(false);
     }
 
-    public Task<bool> IsActiveAsync(string environment, string lockKey, CancellationToken cancellationToken = default)
+    public Task<bool> IsActiveAsync(string environment, string lockKey, string? module = null, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
         lock (_gate)
@@ -147,13 +147,13 @@ public sealed class InMemoryAuditLogger : IAuditLogger
 {
     private readonly ConcurrentQueue<MigrationAuditEntry> _entries = new();
 
-    public Task LogAsync(MigrationAuditEntry entry, CancellationToken cancellationToken = default)
+    public Task LogAsync(MigrationAuditEntry entry, string? module = null, CancellationToken cancellationToken = default)
     {
         _entries.Enqueue(entry);
         return Task.CompletedTask;
     }
 
-    public Task<IReadOnlyList<MigrationAuditEntry>> GetHistoryAsync(string environment, int limit, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<MigrationAuditEntry>> GetHistoryAsync(string environment, int limit, string? module = null, CancellationToken cancellationToken = default)
     {
         var items = _entries
             .Where(e => e.Environment == environment)

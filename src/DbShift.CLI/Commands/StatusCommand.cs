@@ -19,7 +19,10 @@ public sealed class StatusCommand : CliCommandBase<StatusCommand.Settings>
 
         if (!settings.Json)
         {
-            ConsoleHelper.PrintHeader($"Migration status for '{host.EnvironmentName}'");
+            var title = host.Module is null
+                ? $"Migration status for '{host.EnvironmentName}'"
+                : $"Migration status for '{host.EnvironmentName}' (module: {host.Module})";
+            ConsoleHelper.PrintHeader(title);
         }
 
         var status = await ConsoleHelper.RunWithSpinner("Querying migration history",

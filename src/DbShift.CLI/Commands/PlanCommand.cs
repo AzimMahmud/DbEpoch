@@ -18,7 +18,10 @@ public sealed class PlanCommand : CliCommandBase<PlanCommand.Settings>
         var host = CreateHost(settings);
         if (!settings.Json)
         {
-            ConsoleHelper.PrintHeader($"Execution plan for '{host.EnvironmentName}'");
+            var title = host.Module is null
+                ? $"Execution plan for '{host.EnvironmentName}'"
+                : $"Execution plan for '{host.EnvironmentName}' (module: {host.Module})";
+            ConsoleHelper.PrintHeader(title);
         }
 
         var contextObj = new Core.ValueObjects.MigrationContext

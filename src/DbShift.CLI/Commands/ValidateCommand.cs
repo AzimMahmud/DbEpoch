@@ -14,7 +14,10 @@ public sealed class ValidateCommand : CliCommandBase<ValidateCommand.Settings>
         var host = CreateHost(settings);
         if (!settings.Json)
         {
-            ConsoleHelper.PrintHeader($"Validating migrations for '{host.EnvironmentName}'");
+            var title = host.Module is null
+                ? $"Validating migrations for '{host.EnvironmentName}'"
+                : $"Validating migrations for '{host.EnvironmentName}' (module: {host.Module})";
+            ConsoleHelper.PrintHeader(title);
         }
 
         ValidationResult result;

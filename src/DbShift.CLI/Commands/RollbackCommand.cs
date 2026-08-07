@@ -33,7 +33,10 @@ public sealed class RollbackCommand : CliCommandBase<RollbackCommand.Settings>
 
         if (!settings.Json)
         {
-            ConsoleHelper.PrintHeader($"Rolling back migrations on '{host.EnvironmentName}'");
+            var title = host.Module is null
+                ? $"Rolling back migrations on '{host.EnvironmentName}'"
+                : $"Rolling back migrations on '{host.EnvironmentName}' (module: {host.Module})";
+            ConsoleHelper.PrintHeader(title);
         }
 
         var status = await host.Executor.GetStatusAsync(host.EnvironmentName);

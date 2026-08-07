@@ -29,6 +29,7 @@ public sealed class MigrationContext
     public bool StopOnFailure { get; set; } = true;
     public bool Force { get; set; }
     public bool SkipApproval { get; set; }
+    public string? Module { get; set; }
 }
 
 /// <summary>A request to roll back one or more migrations.</summary>
@@ -38,6 +39,7 @@ public sealed class RollbackRequest
     public int Count { get; set; } = 1;
     public string Environment { get; set; } = string.Empty;
     public string ExecutedBy { get; set; } = string.Empty;
+    public string? Module { get; set; }
 }
 
 /// <summary>A single step inside an execution plan.</summary>

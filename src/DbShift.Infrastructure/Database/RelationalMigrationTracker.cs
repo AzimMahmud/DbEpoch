@@ -15,14 +15,16 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
 {
     private readonly IDatabaseProvider _provider;
     private readonly string _connectionString;
+    private readonly string _historyTable;
 
-    public RelationalMigrationTracker(IDatabaseProvider provider, string connectionString)
+    public RelationalMigrationTracker(IDatabaseProvider provider, string connectionString, string? module = null)
     {
         _provider = provider;
         _connectionString = connectionString;
+        _historyTable = provider.GetTableName("__migration_history", module);
     }
 
-    public async Task AddAsync(MigrationRecord record, CancellationToken cancellationToken = default)
+    public async Task AddAsync(MigrationRecord record, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
@@ -32,30 +34,30 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
         command.Transaction = transaction;
-        command.CommandText = """
-            DELETE FROM __migration_history WHERE environment = @environment AND version = @version;
+        command.CommandText = $"""
+            DELETE FROM {_historyTable} WHERE environment = @environment AND version = @version;
 
-            INSERT INTO __migration_history
+            INSERT INTO {_historyTable}
                 (id, version, name, script_name, script_hash, migration_type, category, executed_by,
                  executed_at_utc, execution_time_ms, environment, status, rollback_available,
-                 rollback_script_name, error_message, batch_number, checksum, created_at_utc)
+                 rollback_script_name, error_message, batch_number)
             VALUES
                 (@id, @version, @name, @script_name, @script_hash, @migration_type, @category, @executed_by,
                  @executed_at_utc, @execution_time_ms, @environment, @status, @rollback_available,
-                 @rollback_script_name, @error_message, @batch_number, @checksum, @created_at_utc)
+                 @rollback_script_name, @error_message, @batch_number)
             """;
         AddParameters(command, record);
         await command.ExecuteNonQueryAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
 
-    public async Task<MigrationRecord?> GetByVersionAsync(string environment, string version, CancellationToken cancellationToken = default)
+    public async Task<MigrationRecord?> GetByVersionAsync(string environment, string version, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM __migration_history WHERE environment = @environment AND version = @version";
+        command.CommandText = $"SELECT * FROM {_historyTable} WHERE environment = @environment AND version = @version";
         command.Parameters.Add(_provider.CreateParameter("environment", environment));
         command.Parameters.Add(_provider.CreateParameter("version", version));
 
@@ -63,38 +65,38 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
         return await reader.ReadAsync(cancellationToken) ? Map(reader) : null;
     }
 
-    public async Task<IReadOnlyList<MigrationRecord>> GetAllAsync(string environment, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<MigrationRecord>> GetAllAsync(string environment, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM __migration_history WHERE environment = @environment ORDER BY version";
+        command.CommandText = $"SELECT * FROM {_historyTable} WHERE environment = @environment ORDER BY version";
         command.Parameters.Add(_provider.CreateParameter("environment", environment));
 
         return await ReadListAsync(command, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<MigrationRecord>> GetAppliedAsync(string environment, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<MigrationRecord>> GetAppliedAsync(string environment, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM __migration_history WHERE environment = @environment AND status = @status ORDER BY version DESC";
+        command.CommandText = $"SELECT * FROM {_historyTable} WHERE environment = @environment AND status = @status ORDER BY version DESC";
         command.Parameters.Add(_provider.CreateParameter("environment", environment));
         command.Parameters.Add(_provider.CreateParameter("status", MigrationStatus.Completed.ToString()));
 
         return await ReadListAsync(command, cancellationToken);
     }
 
-    public async Task UpdateStatusAsync(string environment, string version, MigrationStatus status, string? errorMessage, CancellationToken cancellationToken = default)
+    public async Task UpdateStatusAsync(string environment, string version, MigrationStatus status, string? errorMessage, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = "UPDATE __migration_history SET status = @status, error_message = @error_message WHERE environment = @environment AND version = @version";
+        command.CommandText = $"UPDATE {_historyTable} SET status = @status, error_message = @error_message WHERE environment = @environment AND version = @version";
         command.Parameters.Add(_provider.CreateParameter("status", status.ToString()));
         command.Parameters.Add(_provider.CreateParameter("error_message", (object?)errorMessage ?? DBNull.Value));
         command.Parameters.Add(_provider.CreateParameter("environment", environment));
@@ -102,25 +104,25 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(string environment, string version, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(string environment, string version, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM __migration_history WHERE environment = @environment AND version = @version";
+        command.CommandText = $"DELETE FROM {_historyTable} WHERE environment = @environment AND version = @version";
         command.Parameters.Add(_provider.CreateParameter("environment", environment));
         command.Parameters.Add(_provider.CreateParameter("version", version));
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsAsync(string environment, string version, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(string environment, string version, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT CASE WHEN EXISTS (SELECT 1 FROM __migration_history WHERE environment = @environment AND version = @version) THEN 1 ELSE 0 END";
+        command.CommandText = $"SELECT CASE WHEN EXISTS (SELECT 1 FROM {_historyTable} WHERE environment = @environment AND version = @version) THEN 1 ELSE 0 END";
         command.Parameters.Add(_provider.CreateParameter("environment", environment));
         command.Parameters.Add(_provider.CreateParameter("version", version));
 
@@ -157,8 +159,6 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
         command.Parameters.Add(_provider.CreateParameter("rollback_script_name", (object?)r.RollbackScriptName ?? DBNull.Value));
         command.Parameters.Add(_provider.CreateParameter("error_message", (object?)r.ErrorMessage ?? DBNull.Value));
         command.Parameters.Add(_provider.CreateParameter("batch_number", r.BatchNumber));
-        command.Parameters.Add(_provider.CreateParameter("checksum", r.Checksum));
-        command.Parameters.Add(_provider.CreateParameter("created_at_utc", r.CreatedAtUtc));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -179,8 +179,6 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
         RollbackAvailable = r.GetBoolean(r.GetOrdinal("rollback_available")),
         RollbackScriptName = r.IsDBNull(r.GetOrdinal("rollback_script_name")) ? null : r.GetString(r.GetOrdinal("rollback_script_name")),
         ErrorMessage = r.IsDBNull(r.GetOrdinal("error_message")) ? null : r.GetString(r.GetOrdinal("error_message")),
-        BatchNumber = r.GetInt32(r.GetOrdinal("batch_number")),
-        Checksum = r.GetString(r.GetOrdinal("checksum")),
-        CreatedAtUtc = r.GetDateTime(r.GetOrdinal("created_at_utc"))
+        BatchNumber = r.GetInt32(r.GetOrdinal("batch_number"))
     };
 }

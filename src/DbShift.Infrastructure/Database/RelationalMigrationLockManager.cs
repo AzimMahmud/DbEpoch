@@ -14,14 +14,16 @@ public sealed class RelationalMigrationLockManager : IMigrationLockManager
 {
     private readonly IDatabaseProvider _provider;
     private readonly string _connectionString;
+    private readonly string _lockTable;
 
-    public RelationalMigrationLockManager(IDatabaseProvider provider, string connectionString)
+    public RelationalMigrationLockManager(IDatabaseProvider provider, string connectionString, string? module = null)
     {
         _provider = provider;
         _connectionString = connectionString;
+        _lockTable = provider.GetTableName("__migration_lock", module);
     }
 
-    public async Task<bool> AcquireAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, CancellationToken cancellationToken = default)
+    public async Task<bool> AcquireAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, string? module = null, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
         var expiresAt = now.AddSeconds(Math.Max(1, timeoutSeconds));
@@ -30,7 +32,7 @@ public sealed class RelationalMigrationLockManager : IMigrationLockManager
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = _provider.GetAcquireLockSql();
+        command.CommandText = _provider.GetAcquireLockSql(module);
         command.Parameters.Add(_provider.CreateParameter("id", Guid.NewGuid()));
         command.Parameters.Add(_provider.CreateParameter("lock_key", lockKey));
         command.Parameters.Add(_provider.CreateParameter("locked_by", lockedBy));
@@ -58,7 +60,7 @@ public sealed class RelationalMigrationLockManager : IMigrationLockManager
         }
     }
 
-    public async Task ReleaseAsync(string environment, string lockKey, string? lockedBy = null, CancellationToken cancellationToken = default)
+    public async Task ReleaseAsync(string environment, string lockKey, string? lockedBy = null, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
@@ -66,8 +68,8 @@ public sealed class RelationalMigrationLockManager : IMigrationLockManager
         await using var command = connection.CreateCommand();
         if (string.IsNullOrEmpty(lockedBy))
         {
-            command.CommandText = """
-                UPDATE __migration_lock
+            command.CommandText = $"""
+                UPDATE {_lockTable}
                 SET is_active = @false
                 WHERE lock_key = @lock_key AND environment = @environment AND is_active = @true
                 """;
@@ -75,8 +77,8 @@ public sealed class RelationalMigrationLockManager : IMigrationLockManager
         else
         {
             // Owner-scoped release: only the recorded owner may release the lease.
-            command.CommandText = """
-                UPDATE __migration_lock
+            command.CommandText = $"""
+                UPDATE {_lockTable}
                 SET is_active = @false
                 WHERE lock_key = @lock_key AND environment = @environment AND is_active = @true AND locked_by = @locked_by
                 """;
@@ -90,7 +92,7 @@ public sealed class RelationalMigrationLockManager : IMigrationLockManager
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
-    public async Task<bool> RenewAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, CancellationToken cancellationToken = default)
+    public async Task<bool> RenewAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, string? module = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(lockedBy))
         {
@@ -103,8 +105,8 @@ public sealed class RelationalMigrationLockManager : IMigrationLockManager
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = """
-            UPDATE __migration_lock
+        command.CommandText = $"""
+            UPDATE {_lockTable}
             SET expires_at_utc = @expires_at_utc
             WHERE lock_key = @lock_key AND environment = @environment AND is_active = @true AND locked_by = @locked_by
             """;
@@ -118,7 +120,7 @@ public sealed class RelationalMigrationLockManager : IMigrationLockManager
         return affected > 0;
     }
 
-    public async Task<bool> IsActiveAsync(string environment, string lockKey, CancellationToken cancellationToken = default)
+    public async Task<bool> IsActiveAsync(string environment, string lockKey, string? module = null, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
 
@@ -126,9 +128,9 @@ public sealed class RelationalMigrationLockManager : IMigrationLockManager
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = """
+        command.CommandText = $"""
             SELECT CASE WHEN EXISTS (
-                SELECT 1 FROM __migration_lock
+                SELECT 1 FROM {_lockTable}
                 WHERE lock_key = @lock_key AND environment = @environment AND is_active = @true AND expires_at_utc > @now
             ) THEN 1 ELSE 0 END
             """;
@@ -146,7 +148,7 @@ public sealed class RelationalMigrationLockManager : IMigrationLockManager
         try
         {
             await using var command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM __migration_lock WHERE is_active = @false AND expires_at_utc < @cutoff";
+            command.CommandText = $"DELETE FROM {_lockTable} WHERE is_active = @false AND expires_at_utc < @cutoff";
             command.Parameters.Add(_provider.CreateParameter("false", false));
             command.Parameters.Add(_provider.CreateParameter("cutoff", DateTime.UtcNow.AddDays(-30)));
             await command.ExecuteNonQueryAsync(cancellationToken);

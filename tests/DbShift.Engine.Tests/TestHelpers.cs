@@ -70,7 +70,7 @@ public sealed class FakeScriptExecutor : IMigrationScriptExecutor
         return new ScriptExecutionResult { IsSuccess = true, ElapsedMs = _delayMs + 5 };
     }
 
-    public Task EnsureTrackingSchemaAsync(string connectionString, CancellationToken cancellationToken = default)
+    public Task EnsureTrackingSchemaAsync(string connectionString, string? module = null, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }
@@ -113,7 +113,7 @@ public sealed class FailingScriptExecutor : IMigrationScriptExecutor
         return Task.FromResult(new ScriptExecutionResult { IsSuccess = false, ErrorMessage = "Simulated execution failure" });
     }
 
-    public Task EnsureTrackingSchemaAsync(string connectionString, CancellationToken cancellationToken = default)
+    public Task EnsureTrackingSchemaAsync(string connectionString, string? module = null, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }

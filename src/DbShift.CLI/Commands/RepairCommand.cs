@@ -27,7 +27,10 @@ public sealed class RepairCommand : CliCommandBase<RepairCommand.Settings>
 
         if (!settings.Json)
         {
-            ConsoleHelper.PrintHeader($"Repairing '{host.EnvironmentName}'");
+            var title = host.Module is null
+                ? $"Repairing '{host.EnvironmentName}'"
+                : $"Repairing '{host.EnvironmentName}' (module: {host.Module})";
+            ConsoleHelper.PrintHeader(title);
         }
 
         var result = await ConsoleHelper.RunWithSpinner($"Repairing {label}", () => host.Executor.RepairAsync(host.EnvironmentName, version));

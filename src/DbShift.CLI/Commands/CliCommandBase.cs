@@ -18,7 +18,8 @@ public abstract class CliCommandBase<TSettings> : AsyncCommand<TSettings> where 
             settings.ConnectionString,
             settings.Config,
             settings.UseInMemory,
-            settings.Verbose));
+            settings.Verbose,
+            settings.Module));
     }
 
     protected int Fail(GlobalSettings settings, string message)

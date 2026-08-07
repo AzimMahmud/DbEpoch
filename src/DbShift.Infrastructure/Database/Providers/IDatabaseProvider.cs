@@ -18,8 +18,12 @@ public interface IDatabaseProvider
     /// <summary>Creates a parameter, converting null values to <see cref="DBNull.Value"/>.</summary>
     DbParameter CreateParameter(string name, object? value);
 
-    /// <summary>Returns the complete DDL that creates all three tracking tables, idempotently.</summary>
-    string GetTrackingSchemaDdl();
+    /// <summary>
+    /// Returns the complete DDL that creates all three tracking tables, idempotently.
+    /// When <paramref name="module"/> is non-null, tables are created in a module-specific
+    /// schema (PostgreSQL/SQL Server) or with a module prefix (MySQL/SQLite).
+    /// </summary>
+    string GetTrackingSchemaDdl(string? module = null);
 
     /// <summary>
     /// Provider-specific atomic UPSERT used to acquire a distributed lock. The statement must
@@ -30,6 +34,20 @@ public interface IDatabaseProvider
     /// The statement must atomically INSERT a new lease when none exists, or UPDATE the existing
     /// row <em>only when it is inactive or expired</em>. Affected rows must be <c>1</c> when the
     /// lease was acquired and <c>0</c> when an active, non-expired lease already exists for the key.
+    /// When <paramref name="module"/> is non-null, the table reference is schema-qualified or prefixed.
     /// </summary>
-    string GetAcquireLockSql();
+    string GetAcquireLockSql(string? module = null);
+
+    /// <summary>
+    /// Returns the correctly qualified table name for the given <paramref name="baseName"/>
+    /// (e.g. "__migration_history"). When <paramref name="module"/> is non-null, the name
+    /// includes the module schema or prefix. When null, the bare name is returned.
+    /// </summary>
+    string GetTableName(string baseName, string? module = null);
+
+    /// <summary>
+    /// Returns <see langword="true"/> when this provider supports native database schemas
+    /// (PostgreSQL, SQL Server). MySQL and SQLite return <see langword="false"/>.
+    /// </summary>
+    bool SupportsSchemas { get; }
 }

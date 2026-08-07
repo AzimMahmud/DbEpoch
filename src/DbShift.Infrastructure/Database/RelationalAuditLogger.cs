@@ -11,21 +11,23 @@ public sealed class RelationalAuditLogger : IAuditLogger
 {
     private readonly IDatabaseProvider _provider;
     private readonly string _connectionString;
+    private readonly string _auditTable;
 
-    public RelationalAuditLogger(IDatabaseProvider provider, string connectionString)
+    public RelationalAuditLogger(IDatabaseProvider provider, string connectionString, string? module = null)
     {
         _provider = provider;
         _connectionString = connectionString;
+        _auditTable = provider.GetTableName("__migration_audit", module);
     }
 
-    public async Task LogAsync(MigrationAuditEntry entry, CancellationToken cancellationToken = default)
+    public async Task LogAsync(MigrationAuditEntry entry, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = """
-            INSERT INTO __migration_audit
+        command.CommandText = $"""
+            INSERT INTO {_auditTable}
                 (id, action, performed_by, performed_at_utc, environment, details)
             VALUES
                 (@id, @action, @performed_by, @performed_at_utc, @environment, @details)
@@ -40,13 +42,13 @@ public sealed class RelationalAuditLogger : IAuditLogger
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<MigrationAuditEntry>> GetHistoryAsync(string environment, int limit, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<MigrationAuditEntry>> GetHistoryAsync(string environment, int limit, string? module = null, CancellationToken cancellationToken = default)
     {
         await using var connection = _provider.CreateConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = "SELECT * FROM __migration_audit WHERE environment = @environment ORDER BY performed_at_utc DESC";
+        command.CommandText = $"SELECT * FROM {_auditTable} WHERE environment = @environment ORDER BY performed_at_utc DESC";
         command.Parameters.Add(_provider.CreateParameter("environment", environment));
 
         var entries = new List<MigrationAuditEntry>();

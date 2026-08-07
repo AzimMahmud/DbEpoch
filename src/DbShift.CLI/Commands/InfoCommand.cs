@@ -19,6 +19,7 @@ public sealed class InfoCommand : CliCommandBase<InfoCommand.Settings>
                 basePath = host.BasePath,
                 scriptsPath = host.ScriptsPath,
                 isLive = host.IsLive,
+                module = host.Module,
                 config = host.Config is null ? null : new
                 {
                     host.Config.Provider,
@@ -57,7 +58,8 @@ public sealed class InfoCommand : CliCommandBase<InfoCommand.Settings>
             ("base path", host.BasePath, Theme.Muted),
             ("scripts path", host.ScriptsPath, Theme.Muted),
             ("mode", host.IsLive ? $"live ({host.ProviderName})" : "offline (in-memory)", host.IsLive ? Theme.Success : Theme.Warning),
-            ("environment", host.EnvironmentName, Theme.Text)
+            ("environment", host.EnvironmentName, Theme.Text),
+            ("module", host.Module ?? "(default)", host.Module is null ? Theme.Muted : Theme.Text)
         });
 
         var environments = host.ConfigLoader.GetAvailableEnvironments();

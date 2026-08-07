@@ -15,7 +15,7 @@ public sealed class MigrateCommand : CliCommandBase<MigrateCommand.Settings>
         [Description("User performing the deployment")]
         public string? ExecutedBy { get; set; }
 
-        [CommandOption("--approver")]
+        [CommandOption("-A|--approver")]
         [Description("Approver identity (required for approval-gated environments)")]
         public string? Approver { get; set; }
 
@@ -44,7 +44,10 @@ public sealed class MigrateCommand : CliCommandBase<MigrateCommand.Settings>
 
         if (!settings.Json)
         {
-            ConsoleHelper.PrintHeader($"Deploying migrations to '{host.EnvironmentName}'");
+            var title = host.Module is null
+                ? $"Deploying migrations to '{host.EnvironmentName}'"
+                : $"Deploying migrations to '{host.EnvironmentName}' (module: {host.Module})";
+            ConsoleHelper.PrintHeader(title);
         }
 
         if (!settings.Force && environment.DeploymentWindow is { Enabled: true } window)
@@ -57,7 +60,7 @@ public sealed class MigrateCommand : CliCommandBase<MigrateCommand.Settings>
 
         var executedBy = settings.ExecutedBy ?? Environment.UserName;
 
-        var planningContext = new MigrationContext { Environment = host.EnvironmentName, ExecutedBy = executedBy };
+        var planningContext = new MigrationContext { Environment = host.EnvironmentName, ExecutedBy = executedBy, Module = host.Module };
         var dryRun = await ConsoleHelper.RunWithSpinner("Computing pending migrations", () => host.Executor.DryRunAsync(planningContext));
         if (!dryRun.IsSuccess)
         {
@@ -107,7 +110,8 @@ public sealed class MigrateCommand : CliCommandBase<MigrateCommand.Settings>
             BatchSize = settings.BatchSize,
             StopOnFailure = true,
             Force = settings.Force,
-            SkipApproval = settings.AssumeYes
+            SkipApproval = settings.AssumeYes,
+            Module = host.Module
         };
 
         var stopwatch = Stopwatch.StartNew();
