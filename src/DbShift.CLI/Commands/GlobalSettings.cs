@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Text.RegularExpressions;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace DbShift.CLI.Commands;
@@ -18,11 +20,11 @@ public abstract class GlobalSettings : CommandSettings
     [Description("Database connection string override")]
     public string? ConnectionString { get; set; }
 
-    [CommandOption("--config")]
+    [CommandOption("-C|--config")]
     [Description("Path to the repository root (config base)")]
     public string? Config { get; set; }
 
-    [CommandOption("--in-memory")]
+    [CommandOption("-i|--in-memory")]
     [Description("Force offline in-memory mode (no database)")]
     public bool UseInMemory { get; set; }
 
@@ -34,11 +36,34 @@ public abstract class GlobalSettings : CommandSettings
     [Description("Disable colored output")]
     public bool NoColor { get; set; }
 
-    [CommandOption("--json")]
+    [CommandOption("-j|--json")]
     [Description("Emit machine-readable JSON")]
     public bool Json { get; set; }
 
-    [CommandOption("--verbose")]
+    [CommandOption("-v|--verbose")]
     [Description("Show detailed informational output")]
     public bool Verbose { get; set; }
+
+    [CommandOption("-m|--module")]
+    [Description("Module name (subfolder under Database/Migrations/)")]
+    public string? Module { get; set; }
+
+    public override ValidationResult Validate()
+    {
+        if (!string.IsNullOrEmpty(Module) && !IsValidModuleName(Module))
+        {
+            return ValidationResult.Error(
+                "Module name must contain only alphanumeric characters and underscores, " +
+                "and must start with a letter or underscore.");
+        }
+
+        return ValidationResult.Success();
+    }
+
+    private static bool IsValidModuleName(string module)
+    {
+        if (string.IsNullOrEmpty(module))
+            return true;
+        return Regex.IsMatch(module, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
+    }
 }

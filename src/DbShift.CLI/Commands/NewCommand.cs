@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using DbShift.CLI.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -33,6 +34,7 @@ public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
         string provider;
         string outputDir;
         bool force;
+        string modules;
 
         if (isInteractive)
         {
@@ -55,6 +57,9 @@ public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
                     .PageSize(5)
                     .HighlightStyle(Style.Parse(Theme.Primary))
                     .AddChoices("postgresql", "sqlserver", "mysql", "sqlite"));
+
+            modules = AnsiConsole.Ask<string>(
+                $"  [bold {Theme.Primary}]Module names[/] [grey](comma-separated, for modular monolith; empty for single-app)[/]:", "");
 
             var useCurrentDir = AnsiConsole.Confirm($"  [bold {Theme.Primary}]Use current directory?[/]", true);
             outputDir = useCurrentDir
@@ -79,6 +84,7 @@ public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
             provider = settings.Provider ?? "postgresql";
             outputDir = settings.Output ?? Directory.GetCurrentDirectory();
             force = settings.Force;
+            modules = string.Empty;
         }
 
         outputDir = Path.GetFullPath(outputDir);
@@ -177,40 +183,59 @@ public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
                 JsonSerializer.Serialize(env, JsonPretty));
         }
 
-        // ── Migration directories ───────────────────────────────────────
-        WriteFile("Database/Migrations/Schema/.gitkeep", "");
-        WriteFile("Database/Migrations/Data/.gitkeep", "");
-        WriteFile("Database/Migrations/Patch/.gitkeep", "");
-        WriteFile("Database/Migrations/Rollback/.gitkeep", "");
+        // ── Migration directories and example migrations ────────────────
+        var moduleList = string.IsNullOrWhiteSpace(modules)
+            ? new List<string> { "" }
+            : modules.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
 
-        // ── Example migration V001__Example_Users.sql ───────────────────
-        WriteFile("Database/Migrations/Schema/V001__Example_Users.sql", $$"""
-            -- Migration: Example_Users
-            -- Author: {{projectName}}
-            -- Created: {{DateTime.UtcNow:yyyy-MM-dd}}
-            -- Description: Creates the users table (example migration)
+        foreach (var module in moduleList)
+        {
+            if (!string.IsNullOrEmpty(module) && !IsValidModuleName(module))
+            {
+                throw new InvalidOperationException(
+                    $"Invalid module name '{module}'. Module names must contain only alphanumeric characters " +
+                    "and underscores, and must start with a letter or underscore.");
+            }
 
-            CREATE TABLE IF NOT EXISTS users (
-                id              {{IdType(provider)}} PRIMARY KEY {{DefaultId(provider)}},
-                email           VARCHAR(255) NOT NULL,
-                display_name    VARCHAR(100) NOT NULL,
-                is_active       {{BoolType(provider)}} NOT NULL DEFAULT {{BoolTrue(provider)}},
-                created_at      {{TimestampType(provider)}} NOT NULL {{DefaultNow(provider)}},
-                updated_at      {{TimestampType(provider)}} NOT NULL {{DefaultNow(provider)}}
-            );
+            var prefix = string.IsNullOrEmpty(module) ? "" : $"{module}/";
+            var safePath = Path.Combine("Database/Migrations", module ?? string.Empty, "Schema/.gitkeep");
+            if (!IsPathSafe(Path.Combine(outputDir, safePath)))
+            {
+                throw new InvalidOperationException($"Invalid module path: {module}");
+            }
 
-            CREATE {{UniqueIndex(provider)}} idx_users_email ON users (email);
-            """.Replace("\r\n", "\n"));
+            WriteFile($"Database/Migrations/{prefix}Schema/.gitkeep", "");
+            WriteFile($"Database/Migrations/{prefix}Data/.gitkeep", "");
+            WriteFile($"Database/Migrations/{prefix}Patch/.gitkeep", "");
+            WriteFile($"Database/Migrations/{prefix}Rollback/.gitkeep", "");
 
-        // ── Example rollback U001__Example_Users.sql ────────────────────
-        WriteFile("Database/Migrations/Rollback/U001__Example_Users.sql", $$"""
-            -- Rollback: Example_Users
-            -- Author: {{projectName}}
-            -- Created: {{DateTime.UtcNow:yyyy-MM-dd}}
-            -- Description: Drops the users table
+            var moduleName = string.IsNullOrEmpty(module) ? projectName : module;
+            WriteFile($"Database/Migrations/{prefix}Schema/V001__Init_{moduleName}.sql", $$"""
+                -- Migration: Init_{{moduleName}}
+                -- Author: {{projectName}}
+                -- Created: {{DateTime.UtcNow:yyyy-MM-dd}}
+                -- Description: Initial schema for {{moduleName}}
 
-            DROP TABLE IF EXISTS users;
-            """.Replace("\r\n", "\n"));
+                CREATE TABLE IF NOT EXISTS example_{{(module ?? "app").ToLowerInvariant()}} (
+                    id              {{IdType(provider)}} PRIMARY KEY {{DefaultId(provider)}},
+                    name            VARCHAR(255) NOT NULL,
+                    is_active       {{BoolType(provider)}} NOT NULL DEFAULT {{BoolTrue(provider)}},
+                    created_at      {{TimestampType(provider)}} NOT NULL {{DefaultNow(provider)}},
+                    updated_at      {{TimestampType(provider)}} NOT NULL {{DefaultNow(provider)}}
+                );
+
+                CREATE {{UniqueIndex(provider)}} idx_example_name ON example_{{(module ?? "app").ToLowerInvariant()}} (name);
+                """.Replace("\r\n", "\n"));
+
+            WriteFile($"Database/Migrations/{prefix}Rollback/U001__Init_{moduleName}.sql", $$"""
+                -- Rollback: Init_{{moduleName}}
+                -- Author: {{projectName}}
+                -- Created: {{DateTime.UtcNow:yyyy-MM-dd}}
+                -- Description: Drops the {{moduleName}} example table
+
+                DROP TABLE IF EXISTS example_{{(module ?? "app").ToLowerInvariant()}};
+                """.Replace("\r\n", "\n"));
+        }
 
         // ── Templates (plain """ with no interpolation — {{NAME}} etc. are literal) ──
         WriteFile("Database/Templates/schema_migration.sql", """
@@ -417,4 +442,25 @@ public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
     private static string TimestampType(string provider) => ProviderSqlHelper.TimestampType(provider);
     private static string DefaultNow(string provider) => ProviderSqlHelper.DefaultNow(provider);
     private static string UniqueIndex(string provider) => ProviderSqlHelper.UniqueIndex(provider);
+
+    private static bool IsValidModuleName(string module)
+    {
+        if (string.IsNullOrEmpty(module))
+            return true;
+        return Regex.IsMatch(module, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
+    }
+
+    private static bool IsPathSafe(string fullPath)
+    {
+        try
+        {
+            var resolvedPath = Path.GetFullPath(fullPath);
+            var basePath = Path.GetFullPath("Database/Migrations");
+            return resolvedPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

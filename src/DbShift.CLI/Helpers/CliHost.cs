@@ -25,9 +25,11 @@ public sealed class CliHost
     public string ProviderName { get; }
     public string ScriptsPath { get; }
     public string BasePath { get; }
+    public string? Module { get; }
 
     private CliHost(MigrationExecutor executor, IConfigLoader configLoader, MigrationConfiguration? config,
-        string environmentName, bool isLive, string? connectionString, string providerName, string scriptsPath, string basePath)
+        string environmentName, bool isLive, string? connectionString, string providerName, string scriptsPath,
+        string basePath, string? module)
     {
         Executor = executor;
         ConfigLoader = configLoader;
@@ -38,6 +40,7 @@ public sealed class CliHost
         ProviderName = providerName;
         ScriptsPath = scriptsPath;
         BasePath = basePath;
+        Module = module;
     }
 
     public static CliHost Create(CliHostOptions options)
@@ -59,10 +62,11 @@ public sealed class CliHost
         }
 
         var environment = string.IsNullOrWhiteSpace(options.EnvironmentName) ? "local" : options.EnvironmentName;
+        var module = string.IsNullOrWhiteSpace(options.Module) ? null : options.Module;
 
         var connectionString = ResolveConnectionString(options.ConnectionString, config, configLoader, environment);
         var providerName = !string.IsNullOrWhiteSpace(options.Provider) ? options.Provider : (config?.Provider ?? "postgresql");
-        var scriptsPath = ResolveScriptsPath(basePath, config);
+        var scriptsPath = ResolveScriptsPath(basePath, config, module);
         var commandTimeout = config?.CommandTimeoutSeconds ?? 3600;
 
         var preferInMemory = options.UseInMemory || string.IsNullOrWhiteSpace(connectionString);
@@ -85,19 +89,27 @@ public sealed class CliHost
         else
         {
             var provider = DatabaseProviderFactory.Create(providerName);
-            tracker = new RelationalMigrationTracker(provider, connectionString!);
-            lockManager = new RelationalMigrationLockManager(provider, connectionString!);
-            auditLogger = new RelationalAuditLogger(provider, connectionString!);
+
+            if (!string.IsNullOrEmpty(module) && !provider.SupportsSchemas)
+            {
+                ConsoleHelper.PrintWarning(
+                    $"{provider.Name} does not support database schemas. " +
+                    $"Tables will be created with prefix naming: `{module}__migration_history`");
+            }
+
+            tracker = new RelationalMigrationTracker(provider, connectionString!, module);
+            lockManager = new RelationalMigrationLockManager(provider, connectionString!, module);
+            auditLogger = new RelationalAuditLogger(provider, connectionString!, module);
             environmentProvider = new ConfigEnvironmentProvider(configLoader);
-            scriptExecutor = new RelationalMigrationExecutor(provider);
+            scriptExecutor = new RelationalMigrationExecutor(provider, module);
             providerName = provider.Name;
         }
 
         var executor = new MigrationExecutor(
             tracker, lockManager, new ScriptParser(), environmentProvider, auditLogger, logger,
-            scriptExecutor, connectionString, commandTimeout, scriptsPath);
+            scriptExecutor, connectionString, commandTimeout, scriptsPath, module: module);
 
-        return new CliHost(executor, configLoader, config, environment, !preferInMemory, connectionString, providerName, scriptsPath, basePath);
+        return new CliHost(executor, configLoader, config, environment, !preferInMemory, connectionString, providerName, scriptsPath, basePath, module);
     }
 
     private static string? ResolveConnectionString(string? cliOverride, MigrationConfiguration? config, IConfigLoader configLoader, string environment)
@@ -129,17 +141,38 @@ public sealed class CliHost
         return string.IsNullOrWhiteSpace(config?.ConnectionString) ? null : config.ConnectionString;
     }
 
-    private static string ResolveScriptsPath(string basePath, MigrationConfiguration? config)
+    private static string ResolveScriptsPath(string basePath, MigrationConfiguration? config, string? module)
     {
+        string resolved;
         if (config is null)
         {
-            return Path.Combine(basePath, "Database", "Migrations");
+            resolved = Path.Combine(basePath, "Database", "Migrations");
+        }
+        else
+        {
+            var configured = config.ScriptsPath;
+            resolved = Path.IsPathRooted(configured)
+                ? configured
+                : Path.GetFullPath(Path.Combine(basePath, configured));
         }
 
-        var configured = config.ScriptsPath;
-        return Path.IsPathRooted(configured)
-            ? configured
-            : Path.GetFullPath(Path.Combine(basePath, configured));
+        if (string.IsNullOrEmpty(module))
+        {
+            return resolved;
+        }
+
+        var fullPath = Path.GetFullPath(Path.Combine(resolved, module));
+        var resolvedBase = Path.GetFullPath(resolved);
+
+        if (!fullPath.StartsWith(resolvedBase + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) &&
+            fullPath != resolvedBase)
+        {
+            throw new InvalidOperationException(
+                $"Module path '{module}' is not within the allowed migrations directory. " +
+                "Module names must contain only alphanumeric characters and underscores.");
+        }
+
+        return fullPath;
     }
 
     /// <summary>
