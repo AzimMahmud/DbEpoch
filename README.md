@@ -126,7 +126,7 @@ dbshift --version
 | Command | Aliases | Description | DB required |
 |---------|---------|-------------|-------------|
 | `new` | `scaffold`, `init-project` | Scaffold a complete DbShift project (config, migrations, templates, CI, gitignore). Supports interactive mode when called without flags. | no |
-| `init` | | Create the migration tracking schema (4 tables) on the target database. | yes |
+| `init` | | Create the migration tracking schema (3 tables) on the target database. | yes |
 | `create` | | Scaffold a new migration script from a template. | no |
 
 ### Validation
@@ -160,7 +160,7 @@ These apply to every command:
 -e, --environment <NAME>      Target environment (default: local)
 -p, --provider <NAME>         Database provider (postgresql | sqlserver | mysql | sqlite)
 -c, --connection-string <CONN> Override connection string
-    --config <PATH>           Path to the repository root
+    -C, --base-path <PATH>        Path to the repository root
     --in-memory               Force offline mode (no database)
 -y, --yes                     Skip interactive confirmation prompts
     --no-color                Disable colored output
@@ -279,7 +279,7 @@ dbshift migrate --environment production
 
 ```bash
 dbshift rollback --count 1                     # undo the last migration
-dbshift rollback --version 002                 # roll back a specific version
+dbshift rollback --target-version 002           # roll back a specific version
 ```
 
 Requires a matching `U` script in `Database/Migrations/Rollback/`.
@@ -519,7 +519,7 @@ dotnet test  DbShift.slnx
 Conditions:
 - Compiled with `TreatWarningsAsErrors` — zero warnings required.
 - Target frameworks: `net6.0`, `net8.0`, `net10.0` (LTS span — runs on any .NET 6+ runtime). SDK resolved by `global.json` with `latestMajor` roll-forward.
-- Test suite: 89 tests covering `ScriptParser`, `MigrationExecutor`, `FileSystemConfigLoader`, lock management, and exception hierarchy, executed across all three target frameworks.
+- Test suite: 116 tests covering `ScriptParser`, `MigrationExecutor`, `FileSystemConfigLoader`, deployment windows, lock management, and exception hierarchy, executed across all three target frameworks.
 
 ---
 

@@ -186,8 +186,7 @@ Create `Database/Config/migration.json`:
       "stopOnFailure": true
     },
     "approval": {
-      "requireApproval": ["production"],
-      "approvers": ["admin@company.com"]
+      "requireApproval": ["production"]
     }
   }
 }
@@ -337,7 +336,7 @@ dbshift create --name CreateUsersTable --type rollback
 dbshift create --name RefreshUserView --type repeatable
 
 # Specify output directory
-dbshift create --name AddColumns --type schema --dir ./Database/Migrations/Schema
+dbshift create --name AddColumns --type schema --output ./Database/Migrations/Schema
 
 # Include metadata
 dbshift create --name CreateOrders --type schema --author jane --description "Orders and order_items tables"
@@ -493,7 +492,7 @@ If a migration fails (e.g. because of a syntax error), fix the SQL, then:
 
 ```bash
 # Repair a specific failed migration
-dbshift repair --version 005
+dbshift repair --target-version 005
 
 # Repair all failed migrations at once
 dbshift repair
@@ -535,7 +534,7 @@ Rolls back the 3 most recent completed migrations, in reverse order.
 ### 5.4 Roll back by version
 
 ```bash
-dbshift rollback --environment production --version 003
+dbshift rollback --environment production --target-version 003
 ```
 
 Rolls back the migration with version `003` (if it's completed).
@@ -643,7 +642,7 @@ dbshift status --json
 # → { "success": true, "applied": 3, "pending": 1, "failed": 0, ... }
 ```
 
-Exit codes: `0` = success, `1` = error, `2` = parse error.
+Exit codes: `0` = success, `1` = error.
 
 ### 7.2 GitHub Actions
 
@@ -724,6 +723,8 @@ The deployment window checks:
 - **Allowed days**: current day of week must be in `allowedDays`
 - **Override**: `--force` bypasses both checks
 
+Times and day names are evaluated against the **local time** of the machine running `dbshift`, using an invariant culture — `Mon`, `Tuesday`, or `TUESDAY` all match `allowedDays` regardless of the host language/locale.
+
 ### 8.3 Combining gates
 
 Approval gating and deployment windows work together:
@@ -748,7 +749,7 @@ dbshift migrate --environment production --approver deploy-bot --force --yes
 **Fix**:
 1. Fix the SQL in the file
 2. Revert any partial changes the failed script made to the database
-3. Run `dbshift repair --version 005` (or just `dbshift repair` to fix all failures) to remove the failed record
+3. Run `dbshift repair --target-version 005` (or just `dbshift repair` to fix all failures) to remove the failed record
 4. Run `dbshift migrate` again
 
 ### 9.2 Validation errors
@@ -794,10 +795,10 @@ Could not acquire migration lock for environment 'production'. Another deploymen
 
 ```
 Migration configuration not found at 'C:\projects\app\Database\Config\migration.json'.
-Run the CLI from the repository root or pass --config.
+Run the CLI from the repository root or pass --base-path.
 ```
 
-**Fix**: Run `dbshift` from the repository root, or use `--config <path>`.
+**Fix**: Run `dbshift` from the repository root, or use `--base-path <path>`.
 
 ### 9.7 JSON output has text mixed in
 
@@ -831,10 +832,10 @@ If you see spinner text or markdown mixed in with JSON output, you may be using 
 | Deploy | `dbshift migrate -c "..."` |
 | Check what's deployed | `dbshift status` |
 | Roll back | `dbshift rollback` |
-| Fix a failed migration | `dbshift repair` or `dbshift repair --version 003` |
+| Fix a failed migration | `dbshift repair` or `dbshift repair --target-version 003` |
 | See the audit log | `dbshift history` |
 | Run without DB | all commands using `--in-memory` |
 | Switch database engine | `-p sqlserver` or `-p mysql` or `-p sqlite` |
 | Output as JSON | add `--json` to any command |
 | Skip prompts | add `--yes` to any command |
-| Use a different config | `--config /path/to/repo/root` |
+| Use a different config | `--base-path /path/to/repo/root` |

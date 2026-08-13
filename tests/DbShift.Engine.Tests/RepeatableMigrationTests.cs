@@ -92,7 +92,7 @@ public class RepeatableMigrationTests
     public async Task DryRun_VersionedAndRepeatable_VersionedOrderedFirst()
     {
         using var dir = new TempScriptsDirectory();
-        dir.WriteScript("Schema/V001__ CreateTable.sql", "CREATE TABLE t (id INT);");
+        dir.WriteScript("Schema/V001__CreateTable.sql", "CREATE TABLE t (id INT);");
         dir.WriteScript("Schema/R__CreateView.sql", "CREATE OR REPLACE VIEW v AS SELECT 1;");
 
         var executor = CreateExecutor(dir.Path);

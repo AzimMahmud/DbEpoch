@@ -24,7 +24,7 @@ dotnet test
 dotnet test tests/DbShift.Engine.Tests/DbShift.Engine.Tests.csproj --framework net10.0
 ```
 
-Test count: 89 tests across 10 test classes.
+Test count: 116 tests across 12 test classes.
 
 ## Lint / Format
 
