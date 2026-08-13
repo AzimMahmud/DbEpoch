@@ -104,9 +104,9 @@ cd dbshift
 .\publish.ps1          # Windows → dist\dbshift.exe
 ./publish.sh           # Linux/macOS → dist/dbshift
 
-# Optionally bundle a different .NET runtime (default: net8.0 LTS)
-FRAMEWORK=net10.0 ./publish.sh linux-x64          # Linux/macOS
-.\publish.ps1 -Runtime win-x64 -Framework net10.0  # Windows
+# Optionally bundle a different .NET runtime (default: net10.0)
+FRAMEWORK=net8.0 ./publish.sh linux-x64            # Linux/macOS
+.\publish.ps1 -Runtime win-x64 -Framework net8.0   # Windows
 ```
 
 ### Verify

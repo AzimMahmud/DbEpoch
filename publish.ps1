@@ -1,6 +1,6 @@
 param(
     [string]$Runtime = "win-x64",
-    [string]$Framework = "net8.0",
+    [string]$Framework = "net10.0",
     [string]$Output = $(Join-Path $PSScriptRoot "dist"),
     [string]$ExeName = "dbshift.exe",
     [switch]$Clean
@@ -53,5 +53,5 @@ if ($LASTEXITCODE -eq 0) {
 # linux-x64, linux-arm64, linux-musl-x64
 # osx-x64, osx-arm64
 #
-# Override the bundled framework (default net8.0 LTS):
-#   .\publish.ps1 -Runtime win-x64 -Framework net10.0
+# Override the bundled framework (default net10.0):
+#   .\publish.ps1 -Runtime win-x64 -Framework net8.0

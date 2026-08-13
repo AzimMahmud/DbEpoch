@@ -21,7 +21,7 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  PUBLISH_FRAMEWORK: net8.0
+  PUBLISH_FRAMEWORK: net10.0
   # The tag being released: explicit input for manual runs, otherwise the pushed tag.
   RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
 
