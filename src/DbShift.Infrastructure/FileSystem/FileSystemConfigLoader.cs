@@ -36,8 +36,8 @@ public sealed class FileSystemConfigLoader : IConfigLoader
         var path = Path.Combine(root, "Database", "Config", "migration.json");
         if (!File.Exists(path))
         {
-            throw new MigrationConfigurationException(
-                $"Migration configuration not found at '{path}'. Run the CLI from the repository root or pass --config.");
+            throw new FileNotFoundException(
+                $"Migration configuration not found at '{path}'. Run the CLI from the repository root or pass --config.", path);
         }
 
         var dto = JsonSerializer.Deserialize<MigrationConfigDto>(File.ReadAllText(path), JsonOptions)
@@ -50,6 +50,7 @@ public sealed class FileSystemConfigLoader : IConfigLoader
             Provider = migration.Database?.Provider ?? "postgresql",
             ConnectionString = Expand(migration.Database?.ConnectionString),
             ScriptsPath = migration.Scripts?.Path ?? "./Database/Migrations",
+            ScriptsPattern = migration.Scripts?.Pattern ?? "*.sql",
             TrackingSchema = migration.Tracking?.Schema ?? "public",
             TrackingTable = migration.Tracking?.TableName ?? "__migration_history",
             LockTimeoutSeconds = migration.Execution?.LockTimeoutSeconds ?? 300,
@@ -79,8 +80,8 @@ public sealed class FileSystemConfigLoader : IConfigLoader
 
         if (!File.Exists(resolvedPath))
         {
-            throw new MigrationConfigurationException(
-                $"Environment '{safeName}' is not configured. Expected file at '{resolvedPath}'.");
+            throw new FileNotFoundException(
+                $"Environment '{safeName}' is not configured. Expected file at '{resolvedPath}'.", resolvedPath);
         }
 
         var dto = JsonSerializer.Deserialize<EnvironmentDto>(File.ReadAllText(resolvedPath), JsonOptions)
@@ -187,7 +188,7 @@ public sealed class FileSystemConfigLoader : IConfigLoader
         }
 
         public sealed class DatabaseDto { public string? Provider { get; set; } public string? ConnectionString { get; set; } }
-        public sealed class ScriptsDto { public string? Path { get; set; } }
+        public sealed class ScriptsDto { public string? Path { get; set; } public string? Pattern { get; set; } }
         public sealed class TrackingDto { public string? Schema { get; set; } public string? TableName { get; set; } }
         public sealed class ExecutionDto { public int? LockTimeoutSeconds { get; set; } public int? CommandTimeoutSeconds { get; set; } public int? BatchSize { get; set; } public bool? StopOnFailure { get; set; } }
         public sealed class ApprovalDto { public List<string>? RequireApproval { get; set; } }

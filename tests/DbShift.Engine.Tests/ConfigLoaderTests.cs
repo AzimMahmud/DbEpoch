@@ -39,7 +39,15 @@ public class ConfigLoaderTests : IDisposable
     public void LoadMigrationConfig_MissingFile_Throws()
     {
         var loader = new FileSystemConfigLoader(_tempDir);
-        Assert.Throws<MigrationConfigurationException>(() => loader.LoadMigrationConfiguration());
+        Assert.Throws<FileNotFoundException>(() => loader.LoadMigrationConfiguration());
+    }
+
+    [Fact]
+    public void LoadMigrationConfig_MalformedJson_Throws()
+    {
+        WriteMigrationConfig("{ not valid json !!!");
+        var loader = new FileSystemConfigLoader(_tempDir);
+        Assert.Throws<System.Text.Json.JsonException>(() => loader.LoadMigrationConfiguration());
     }
 
     [Fact]
@@ -141,7 +149,7 @@ public class ConfigLoaderTests : IDisposable
     public void LoadEnvironment_MissingFile_Throws()
     {
         var loader = new FileSystemConfigLoader(_tempDir);
-        Assert.Throws<MigrationConfigurationException>(() => loader.LoadEnvironment("staging"));
+        Assert.Throws<FileNotFoundException>(() => loader.LoadEnvironment("staging"));
     }
 
     [Fact]

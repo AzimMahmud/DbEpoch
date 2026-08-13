@@ -48,13 +48,6 @@ public sealed partial class ScriptParser
     private static Regex DescriptionRegex() => _descriptionRegex;
 #endif
 
-    /// <summary>Asynchronously reads and parses a migration script from disk.</summary>
-    public async Task<ParsedMigration> ParseAsync(string filePath, CancellationToken cancellationToken = default)
-    {
-        var content = await File.ReadAllTextAsync(filePath, cancellationToken);
-        return Parse(filePath, content);
-    }
-
     /// <summary>Parses a single migration script from its file path and content.</summary>
     public ParsedMigration Parse(string filePath, string content)
     {

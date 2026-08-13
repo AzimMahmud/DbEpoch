@@ -85,11 +85,11 @@ public sealed class ConfigurableEnvironmentProvider : IEnvironmentProvider
     private readonly InMemoryEnvironmentProvider _inner = new();
     public bool RequireApproval { get; set; }
 
-    public Task<EnvironmentConfiguration> GetEnvironmentAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<EnvironmentConfiguration> GetEnvironmentAsync(string name, CancellationToken cancellationToken = default)
     {
-        var env = _inner.GetEnvironmentAsync(name, cancellationToken).GetAwaiter().GetResult();
+        var env = await _inner.GetEnvironmentAsync(name, cancellationToken);
         env.Migration.RequireApproval = RequireApproval;
-        return Task.FromResult(env);
+        return env;
     }
 
     public Task<bool> EnvironmentExistsAsync(string name, CancellationToken cancellationToken = default)

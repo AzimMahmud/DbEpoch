@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Text.Json;
 using DbShift.Core.Entities;
 using DbShift.Core.Enums;
 using DbShift.Core.Exceptions;
@@ -25,6 +24,7 @@ public sealed class MigrationExecutor
     private readonly ILogger<MigrationExecutor> _logger;
     private readonly IMigrationScriptExecutor? _scriptExecutor;
     private readonly string _scriptsPath;
+    private readonly string _scriptsPattern;
     private readonly string? _connectionString;
     private readonly int _commandTimeoutSeconds;
     private readonly bool _strictAudit;
@@ -43,6 +43,7 @@ public sealed class MigrationExecutor
         string? connectionString = null,
         int commandTimeoutSeconds = 3600,
         string? scriptsPath = null,
+        string? scriptsPattern = null,
         bool strictAudit = false,
         string? module = null)
     {
@@ -57,6 +58,7 @@ public sealed class MigrationExecutor
         _commandTimeoutSeconds = commandTimeoutSeconds;
         _module = module;
         _scriptsPath = ResolveScriptsPath(scriptsPath);
+        _scriptsPattern = string.IsNullOrWhiteSpace(scriptsPattern) ? "*.sql" : scriptsPattern;
         _strictAudit = strictAudit;
     }
 
@@ -552,43 +554,11 @@ public sealed class MigrationExecutor
             return (migrations, errors);
         }
 
-        foreach (var file in Directory.EnumerateFiles(_scriptsPath, "*.sql", SearchOption.AllDirectories).OrderBy(f => f))
+        foreach (var file in Directory.EnumerateFiles(_scriptsPath, _scriptsPattern, SearchOption.AllDirectories).OrderBy(f => f))
         {
             try
             {
                 var content = File.ReadAllText(file);
-                migrations.Add(_parser.Parse(file, content));
-            }
-            catch (ScriptParseException ex)
-            {
-                errors.Add(ex.Message);
-            }
-            catch (IOException ex)
-            {
-                errors.Add($"Could not read '{file}': {ex.Message}");
-            }
-        }
-
-        return (migrations, errors);
-    }
-
-    private async Task<(List<ParsedMigration> Migrations, List<string> Errors)> DiscoverAllCoreAsync(CancellationToken cancellationToken = default)
-    {
-        var migrations = new List<ParsedMigration>();
-        var errors = new List<string>();
-
-        if (!Directory.Exists(_scriptsPath))
-        {
-            return (migrations, errors);
-        }
-
-        foreach (var file in Directory.EnumerateFiles(_scriptsPath, "*.sql", SearchOption.AllDirectories).OrderBy(f => f))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            try
-            {
-                var content = await File.ReadAllTextAsync(file, cancellationToken);
                 migrations.Add(_parser.Parse(file, content));
             }
             catch (ScriptParseException ex)
@@ -670,7 +640,7 @@ public sealed class MigrationExecutor
                 Action = action,
                 PerformedBy = string.IsNullOrEmpty(performedBy) ? "system" : performedBy,
                 Environment = environment,
-                Details = JsonSerializer.Serialize(new { details })
+                Details = details
             },
             _module);
         }

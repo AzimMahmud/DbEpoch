@@ -1,5 +1,7 @@
 namespace DbShift.Core.ValueObjects;
 
+using System.Globalization;
+
 /// <summary>Global migration configuration loaded from <c>migration.json</c>.</summary>
 public sealed class MigrationConfiguration
 {
@@ -10,6 +12,7 @@ public sealed class MigrationConfiguration
 
     public string ConnectionString { get; set; } = string.Empty;
     public string ScriptsPath { get; set; } = "./Database/Migrations";
+    public string ScriptsPattern { get; set; } = "*.sql";
     public string TrackingSchema { get; set; } = "public";
     public string TrackingTable { get; set; } = "__migration_history";
     public int LockTimeoutSeconds { get; set; } = 300;
@@ -45,6 +48,47 @@ public sealed class DeploymentWindow
     public string StartTime { get; set; } = "00:00";
     public string EndTime { get; set; } = "23:59";
     public IReadOnlyList<string> AllowedDays { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Evaluates whether <paramref name="now"/> falls within this window. Supports
+    /// overnight windows (e.g. 22:00-04:00) where the end time is earlier than the
+    /// start time, and is culture-insensitive so day names and time values parse
+    /// identically on non-English hosts.
+    /// </summary>
+    public bool IsWithinWindow(DateTime now, out string reason)
+    {
+        reason = string.Empty;
+
+        if (AllowedDays.Count > 0)
+        {
+            // Enum names are invariant identifiers ("Monday" regardless of host
+            // culture), so ToString() needs no provider.
+            var today = now.DayOfWeek.ToString();
+            if (!AllowedDays.Contains(today, StringComparer.OrdinalIgnoreCase))
+            {
+                reason = $"Today ({today}) is not an allowed day. Allowed: {string.Join(", ", AllowedDays)}.";
+                return false;
+            }
+        }
+
+        if (TimeSpan.TryParse(StartTime, CultureInfo.InvariantCulture, out var start)
+            && TimeSpan.TryParse(EndTime, CultureInfo.InvariantCulture, out var end))
+        {
+            var time = now.TimeOfDay;
+
+            var within = start <= end
+                ? time >= start && time <= end
+                : time >= start || time <= end; // overnight window crosses midnight
+
+            if (!within)
+            {
+                reason = $"Current time {now:HH:mm} is outside {StartTime}-{EndTime}.";
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 /// <summary>Full configuration for a single named environment.</summary>

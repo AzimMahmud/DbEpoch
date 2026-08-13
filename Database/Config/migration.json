@@ -6,9 +6,7 @@
       "connectionString": "${DB_CONNECTION_STRING}"
     },
     "scripts": {
-      "path": "./Database/Migrations",
-      "pattern": "V*__*.sql",
-      "rollbackPattern": "U*__*.sql"
+      "path": "./Database/Migrations"
     },
     "tracking": {
       "schema": "public",
@@ -21,8 +19,7 @@
       "stopOnFailure": true
     },
     "approval": {
-      "requireApproval": ["production"],
-      "approvers": ["admin@company.com"]
+      "requireApproval": ["production"]
     }
   }
 }

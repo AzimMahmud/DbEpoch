@@ -52,7 +52,7 @@ public sealed class MigrateCommand : CliCommandBase<MigrateCommand.Settings>
 
         if (!settings.Force && environment.DeploymentWindow is { Enabled: true } window)
         {
-            if (!IsWithinDeploymentWindow(window, out var reason))
+            if (!window.IsWithinWindow(DateTime.Now, out var reason))
             {
                 return Fail(settings, $"Outside the configured deployment window. {reason} (override with --force)");
             }
@@ -87,7 +87,7 @@ public sealed class MigrateCommand : CliCommandBase<MigrateCommand.Settings>
                 plan.Items.Select(i => (i.Version, i.Name, i.Type.ToString(), "Pending", i.HasRollback ? "rollback available" : "no rollback")));
         }
 
-        var approver = await ResolveApproverAsync(settings, environment);
+        var approver = ResolveApprover(settings, environment);
         if (environment.Migration.RequireApproval && string.IsNullOrWhiteSpace(approver))
         {
             return Fail(settings, "This environment requires approval. Provide --approver or confirm interactively.");
@@ -161,7 +161,7 @@ public sealed class MigrateCommand : CliCommandBase<MigrateCommand.Settings>
         return 1;
     }
 
-    private async Task<string?> ResolveApproverAsync(Settings settings, EnvironmentConfiguration environment)
+    private static string? ResolveApprover(Settings settings, EnvironmentConfiguration environment)
     {
         if (!environment.Migration.RequireApproval)
         {
@@ -178,36 +178,6 @@ public sealed class MigrateCommand : CliCommandBase<MigrateCommand.Settings>
             return null;
         }
 
-        var approver = AnsiConsole.Ask<string>($"[bold {Theme.Primary}]Approver identity:[/] ");
-        await Task.CompletedTask;
-        return approver;
-    }
-
-    private static bool IsWithinDeploymentWindow(DeploymentWindow window, out string reason)
-    {
-        var now = DateTime.Now;
-        reason = string.Empty;
-
-        if (window.AllowedDays.Count > 0)
-        {
-            var today = now.DayOfWeek.ToString();
-            if (!window.AllowedDays.Contains(today, StringComparer.OrdinalIgnoreCase))
-            {
-                reason = $"Today ({today}) is not an allowed day. Allowed: {string.Join(", ", window.AllowedDays)}.";
-                return false;
-            }
-        }
-
-        if (TimeSpan.TryParse(window.StartTime, out var start) && TimeSpan.TryParse(window.EndTime, out var end))
-        {
-            var time = now.TimeOfDay;
-            if (time < start || time > end)
-            {
-                reason = $"Current time {now:HH:mm} is outside {window.StartTime}-{window.EndTime}.";
-                return false;
-            }
-        }
-
-        return true;
+        return AnsiConsole.Ask<string>($"[bold {Theme.Primary}]Approver identity:[/] ");
     }
 }

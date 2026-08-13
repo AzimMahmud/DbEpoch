@@ -199,7 +199,7 @@ public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
 
             var prefix = string.IsNullOrEmpty(module) ? "" : $"{module}/";
             var safePath = Path.Combine("Database/Migrations", module ?? string.Empty, "Schema/.gitkeep");
-            if (!IsPathSafe(Path.Combine(outputDir, safePath)))
+            if (!IsPathSafe(outputDir, safePath))
             {
                 throw new InvalidOperationException($"Invalid module path: {module}");
             }
@@ -450,13 +450,13 @@ public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
         return Regex.IsMatch(module, @"^[a-zA-Z_][a-zA-Z0-9_]*$");
     }
 
-    private static bool IsPathSafe(string fullPath)
+    private static bool IsPathSafe(string outputDir, string relativePath)
     {
         try
         {
-            var resolvedPath = Path.GetFullPath(fullPath);
-            var basePath = Path.GetFullPath("Database/Migrations");
-            return resolvedPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase);
+            var basePath = Path.GetFullPath(Path.Combine(outputDir, "Database", "Migrations"));
+            var resolvedPath = Path.GetFullPath(Path.Combine(outputDir, relativePath));
+            return resolvedPath.StartsWith(basePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
         }
         catch
         {

@@ -56,9 +56,15 @@ public sealed class CliHost
         {
             config = configLoader.LoadMigrationConfiguration();
         }
-        catch (Exception)
+        catch (FileNotFoundException)
         {
-            // Some commands (create, info, help) work fine without a config file.
+            // No migration.json in this directory: commands like create, info and help
+            // work fine without one, so fall back to defaults. Malformed or otherwise
+            // invalid configuration is a real error and intentionally propagates.
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Same as above: no config directory present.
         }
 
         var environment = string.IsNullOrWhiteSpace(options.EnvironmentName) ? "local" : options.EnvironmentName;
@@ -107,7 +113,7 @@ public sealed class CliHost
 
         var executor = new MigrationExecutor(
             tracker, lockManager, new ScriptParser(), environmentProvider, auditLogger, logger,
-            scriptExecutor, connectionString, commandTimeout, scriptsPath, module: module);
+            scriptExecutor, connectionString, commandTimeout, scriptsPath, config?.ScriptsPattern, module: module);
 
         return new CliHost(executor, configLoader, config, environment, !preferInMemory, connectionString, providerName, scriptsPath, basePath, module);
     }
@@ -133,9 +139,13 @@ public sealed class CliHost
                 return envConfig.Database.ConnectionString;
             }
         }
-        catch (Exception)
+        catch (FileNotFoundException)
         {
             // Environment file may not exist; fall through to global config.
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Same as above: no environments directory.
         }
 
         return string.IsNullOrWhiteSpace(config?.ConnectionString) ? null : config.ConnectionString;

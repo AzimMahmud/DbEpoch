@@ -10,8 +10,7 @@
     "requireApproval": true,
     "allowRollback": true,
     "lockTimeoutSeconds": 300,
-    "maxBatchSize": 5,
-    "allowedRoles": ["admin", "deployer"]
+    "maxBatchSize": 5
   },
   "deploymentWindow": {
     "enabled": true,
