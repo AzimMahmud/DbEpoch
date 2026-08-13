@@ -31,11 +31,23 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
 
         // The DELETE+INSERT pair must be atomic: if INSERT fails (e.g. constraint
         // violation) we must not have already destroyed the prior history row.
+        //
+        // The replacement key depends on the migration kind:
+        //   - Versioned migrations are identified by (version, environment): a renamed
+        //     file keeps the same version, so we DELETE by version to preserve the
+        //     UNIQUE(version, environment) invariant.
+        //   - Repeatable migrations all share version "R" and are identified by
+        //     (script_name, environment): we DELETE by script_name so multiple
+        //     repeatables can coexist in the same environment.
+        var deleteKey = string.Equals(record.Version, "R", StringComparison.OrdinalIgnoreCase)
+            ? "script_name = @script_name"
+            : "version = @version";
+
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
         await using var command = connection.CreateCommand();
         command.Transaction = transaction;
         command.CommandText = $"""
-            DELETE FROM {_historyTable} WHERE environment = @environment AND version = @version;
+            DELETE FROM {_historyTable} WHERE environment = @environment AND {deleteKey};
 
             INSERT INTO {_historyTable}
                 (id, version, name, script_name, script_hash, migration_type, category, executed_by,
@@ -173,7 +185,7 @@ public sealed class RelationalMigrationTracker : IMigrationTracker
         Category = r.GetString(r.GetOrdinal("category")),
         ExecutedBy = r.GetString(r.GetOrdinal("executed_by")),
         ExecutedAtUtc = r.GetDateTime(r.GetOrdinal("executed_at_utc")),
-        ExecutionTimeMs = r.GetInt32(r.GetOrdinal("execution_time_ms")),
+        ExecutionTimeMs = r.GetInt64(r.GetOrdinal("execution_time_ms")),
         Environment = r.GetString(r.GetOrdinal("environment")),
         Status = Enum.TryParse<MigrationStatus>(r.GetString(r.GetOrdinal("status")), true, out var s) ? s : MigrationStatus.Pending,
         RollbackAvailable = r.GetBoolean(r.GetOrdinal("rollback_available")),

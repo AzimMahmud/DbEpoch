@@ -45,7 +45,7 @@ public sealed class SqliteProvider : IDatabaseProvider
                 error_message        TEXT,
                 batch_number         INTEGER NOT NULL DEFAULT 1
             );
-            CREATE UNIQUE INDEX IF NOT EXISTS uk_migration_version_env ON {h}(version, environment);
+            CREATE UNIQUE INDEX IF NOT EXISTS uk_migration_version_env ON {h}(version, environment) WHERE version <> 'R';
             CREATE UNIQUE INDEX IF NOT EXISTS uk_migration_script_name ON {h}(script_name, environment);
             CREATE INDEX IF NOT EXISTS idx_migration_history_env      ON {h}(environment);
             CREATE INDEX IF NOT EXISTS idx_migration_history_status   ON {h}(status);

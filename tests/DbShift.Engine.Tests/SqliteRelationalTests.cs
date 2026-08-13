@@ -206,6 +206,33 @@ public class SqliteRelationalTests : IDisposable
         Assert.False(await tracker.ExistsAsync("dev", "999"));
     }
 
+    [Fact]
+    public async Task Tracker_Add_MultipleRepeatables_Coexist()
+    {
+        await EnsureSchemaAsync();
+        var tracker = new RelationalMigrationTracker(_provider, _connectionString);
+
+        await tracker.AddAsync(new MigrationRecord { Version = "R", ScriptName = "R__Alpha.sql", ScriptHash = "h1", Type = MigrationType.Repeatable, Environment = "dev", Status = MigrationStatus.Completed, ExecutedBy = "tester" });
+        await tracker.AddAsync(new MigrationRecord { Version = "R", ScriptName = "R__Beta.sql", ScriptHash = "h2", Type = MigrationType.Repeatable, Environment = "dev", Status = MigrationStatus.Completed, ExecutedBy = "tester" });
+
+        var all = await tracker.GetAllAsync("dev");
+        Assert.Equal(2, all.Count);
+    }
+
+    [Fact]
+    public async Task Tracker_Add_Repeatable_ReplacesByScriptName()
+    {
+        await EnsureSchemaAsync();
+        var tracker = new RelationalMigrationTracker(_provider, _connectionString);
+
+        await tracker.AddAsync(new MigrationRecord { Version = "R", ScriptName = "R__Alpha.sql", ScriptHash = "old_hash", Type = MigrationType.Repeatable, Environment = "dev", Status = MigrationStatus.Completed, ExecutedBy = "tester" });
+        await tracker.AddAsync(new MigrationRecord { Version = "R", ScriptName = "R__Alpha.sql", ScriptHash = "new_hash", Type = MigrationType.Repeatable, Environment = "dev", Status = MigrationStatus.Completed, ExecutedBy = "tester" });
+
+        var all = await tracker.GetAllAsync("dev");
+        Assert.Single(all);
+        Assert.Equal("new_hash", all[0].ScriptHash);
+    }
+
     // ── LockManager ──────────────────────────────────────────────────
 
     [Fact]

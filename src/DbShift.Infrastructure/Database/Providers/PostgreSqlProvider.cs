@@ -46,9 +46,10 @@ public sealed class PostgreSqlProvider : IDatabaseProvider
                 rollback_script_name VARCHAR(500),
                 error_message        TEXT,
                 batch_number         INTEGER      NOT NULL DEFAULT 1,
-                CONSTRAINT uk_migration_version_env  UNIQUE (version, environment),
                 CONSTRAINT uk_migration_script_name  UNIQUE (script_name, environment)
             );
+            CREATE UNIQUE INDEX IF NOT EXISTS uk_migration_version_env
+                ON {h}(version, environment) WHERE version <> 'R';
             CREATE INDEX IF NOT EXISTS idx_migration_history_env      ON {h}(environment);
             CREATE INDEX IF NOT EXISTS idx_migration_history_status   ON {h}(status);
             CREATE INDEX IF NOT EXISTS idx_migration_history_executed ON {h}(executed_at_utc);

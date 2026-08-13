@@ -24,8 +24,6 @@ public sealed class MigrationRecord
     public string? RollbackScriptName { get; set; }
     public string? ErrorMessage { get; set; }
     public int BatchNumber { get; set; } = 1;
-    public string Checksum { get; set; } = string.Empty;
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }
 
 /// <summary>A persisted row in <c>__migration_audit</c> describing a single auditable action.</summary>

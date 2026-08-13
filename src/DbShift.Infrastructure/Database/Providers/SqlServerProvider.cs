@@ -41,7 +41,7 @@ public sealed class SqlServerProvider : IDatabaseProvider
                 [category]             NVARCHAR(50)     NOT NULL,
                 [executed_by]          NVARCHAR(255)    NOT NULL,
                 [executed_at_utc]      DATETIME2        NOT NULL DEFAULT GETUTCDATE(),
-                [execution_time_ms]    INT              NOT NULL,
+                [execution_time_ms]    BIGINT           NOT NULL,
                 [environment]          NVARCHAR(50)     NOT NULL,
                 [status]               NVARCHAR(20)     NOT NULL,
                 [rollback_available]   BIT              NOT NULL DEFAULT 0,
@@ -49,9 +49,11 @@ public sealed class SqlServerProvider : IDatabaseProvider
                 [error_message]        NVARCHAR(MAX)    NULL,
                 [batch_number]         INT              NOT NULL DEFAULT 1,
                 CONSTRAINT [pk_migration_history] PRIMARY KEY CLUSTERED ([id]),
-                CONSTRAINT [uk_migration_version_env] UNIQUE ([version], [environment]),
                 CONSTRAINT [uk_migration_script_name] UNIQUE ([script_name], [environment])
             );
+
+            IF NOT EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [name] = N'uk_migration_version_env' AND [object_id] = OBJECT_ID(N'{h}'))
+            CREATE UNIQUE INDEX [uk_migration_version_env] ON {h}([version], [environment]) WHERE [version] <> N'R';
 
             IF NOT EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [name] = N'idx_migration_history_env' AND [object_id] = OBJECT_ID(N'{h}'))
             CREATE INDEX [idx_migration_history_env] ON {h}([environment]);
@@ -74,6 +76,9 @@ public sealed class SqlServerProvider : IDatabaseProvider
                 CONSTRAINT [pk_migration_lock] PRIMARY KEY CLUSTERED ([id]),
                 CONSTRAINT [uk_migration_lock_key] UNIQUE ([lock_key])
             );
+
+            IF NOT EXISTS (SELECT 1 FROM [sys].[indexes] WHERE [name] = N'idx_migration_lock_env_active' AND [object_id] = OBJECT_ID(N'{l}'))
+            CREATE INDEX [idx_migration_lock_env_active] ON {l}([environment], [is_active]);
 
             IF NOT EXISTS (SELECT 1 FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME] = N'__migration_audit')
             CREATE TABLE {a} (

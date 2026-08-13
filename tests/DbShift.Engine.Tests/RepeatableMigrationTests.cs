@@ -141,4 +141,34 @@ public class RepeatableMigrationTests
         Assert.Equal(2, result.TotalApplied);
         Assert.Contains(result.PendingRepeatables, f => f == "R__CreateView.sql");
     }
+
+    [Fact]
+    public async Task Deploy_MultipleRepeatables_SecondDeployIsNoOp()
+    {
+        using var dir = new TempScriptsDirectory();
+        dir.WriteScript("Schema/R__Alpha.sql", "CREATE OR REPLACE VIEW a AS SELECT 1;");
+        dir.WriteScript("Schema/R__Beta.sql", "CREATE OR REPLACE VIEW b AS SELECT 1;");
+
+        MigrationExecutor Create()
+            => new MigrationExecutor(
+                _tracker, _lockManager, _parser, _envProvider, _auditLogger,
+                NullLogger<MigrationExecutor>.Instance,
+                new FakeScriptExecutor(), "fake-connection", scriptsPath: dir.Path);
+
+        var first = await Create().DeployAsync(new MigrationContext
+        {
+            Environment = "development",
+            ExecutedBy = "tester"
+        });
+        Assert.True(first.IsSuccess);
+        Assert.Equal(2, first.TotalApplied);
+
+        var second = await Create().DeployAsync(new MigrationContext
+        {
+            Environment = "development",
+            ExecutedBy = "tester"
+        });
+        Assert.True(second.IsSuccess);
+        Assert.Equal(0, second.TotalApplied);
+    }
 }

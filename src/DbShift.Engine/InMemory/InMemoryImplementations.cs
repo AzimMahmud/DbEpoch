@@ -9,18 +9,40 @@ namespace DbShift.Engine.InMemory;
 /// <summary>In-memory <see cref="IMigrationTracker"/> used for tests and offline workflows.</summary>
 public sealed class InMemoryMigrationTracker : IMigrationTracker
 {
-    private readonly ConcurrentDictionary<(string Env, string Version), MigrationRecord> _store = new();
+    // Keyed on (environment, script_name) so that multiple repeatable migrations
+    // (which all share version "R") can coexist in the same environment. The
+    // UNIQUE(version, environment) invariant for versioned migrations is enforced
+    // inside AddAsync by evicting any prior row sharing the same version.
+    private readonly ConcurrentDictionary<(string Env, string ScriptName), MigrationRecord> _store = new();
 
     public Task AddAsync(MigrationRecord record, string? module = null, CancellationToken cancellationToken = default)
     {
         record.Environment ??= string.Empty;
-        _store[(record.Environment, record.Version)] = record;
+
+        // Versioned migrations are identified by version: a renamed file keeps the
+        // same version, so evict any prior record sharing this (env, version).
+        // Repeatables (version "R") are identified solely by script_name, so they
+        // are left alone here and keyed directly below.
+        if (!string.Equals(record.Version, "R", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (var key in _store.Keys
+                         .Where(k => k.Env == record.Environment
+                                     && string.Equals(_store[k].Version, record.Version, StringComparison.OrdinalIgnoreCase))
+                         .ToList())
+            {
+                _store.TryRemove(key, out _);
+            }
+        }
+
+        _store[(record.Environment, record.ScriptName)] = record;
         return Task.CompletedTask;
     }
 
     public Task<MigrationRecord?> GetByVersionAsync(string environment, string version, string? module = null, CancellationToken cancellationToken = default)
     {
-        _store.TryGetValue((environment, version), out var record);
+        var record = _store.Values.FirstOrDefault(r =>
+            r.Environment == environment
+            && string.Equals(r.Version, version, StringComparison.OrdinalIgnoreCase));
         return Task.FromResult(record);
     }
 
@@ -43,23 +65,38 @@ public sealed class InMemoryMigrationTracker : IMigrationTracker
 
     public Task UpdateStatusAsync(string environment, string version, MigrationStatus status, string? errorMessage, string? module = null, CancellationToken cancellationToken = default)
     {
-        if (_store.TryGetValue((environment, version), out var record))
+        foreach (var record in _store.Values.Where(r =>
+                     r.Environment == environment
+                     && string.Equals(r.Version, version, StringComparison.OrdinalIgnoreCase)))
         {
             record.Status = status;
             record.ErrorMessage = errorMessage;
         }
+
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(string environment, string version, string? module = null, CancellationToken cancellationToken = default)
     {
-        _store.TryRemove((environment, version), out _);
+        var keys = _store.Keys
+            .Where(k => k.Env == environment
+                        && _store.TryGetValue(k, out var r)
+                        && string.Equals(r.Version, version, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        foreach (var key in keys)
+        {
+            _store.TryRemove(key, out _);
+        }
+
         return Task.CompletedTask;
     }
 
     public Task<bool> ExistsAsync(string environment, string version, string? module = null, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(_store.ContainsKey((environment, version)));
+        return Task.FromResult(_store.Values.Any(r =>
+            r.Environment == environment
+            && string.Equals(r.Version, version, StringComparison.OrdinalIgnoreCase)));
     }
 }
 
