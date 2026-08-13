@@ -20,7 +20,7 @@ A practical walkthrough from zero to production.
 
 ## 1. Installation
 
-**Prerequisite:** None for the binary install methods. For the .NET tool method, you need [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
+**Prerequisite:** None for the binary install methods. For the .NET tool method, you need any [.NET 6+ SDK](https://dotnet.microsoft.com/download/dotnet) (6.0, 8.0, or 10.0).
 
 ### One-liner (recommended)
 
@@ -40,7 +40,9 @@ These scripts detect your OS and architecture, download the correct binary, and 
 |----------|----------|
 | Windows x64 | [`dbshift-windows-x64.zip`](https://github.com/AzimMahmud/dbshift/releases/latest/download/dbshift-windows-x64.zip) |
 | Linux x64 | [`dbshift-linux-x64.tar.gz`](https://github.com/AzimMahmud/dbshift/releases/latest/download/dbshift-linux-x64.tar.gz) |
+| Linux arm64 | [`dbshift-linux-arm64.tar.gz`](https://github.com/AzimMahmud/dbshift/releases/latest/download/dbshift-linux-arm64.tar.gz) |
 | macOS x64 | [`dbshift-macos-x64.tar.gz`](https://github.com/AzimMahmud/dbshift/releases/latest/download/dbshift-macos-x64.tar.gz) |
+| macOS arm64 | [`dbshift-macos-arm64.tar.gz`](https://github.com/AzimMahmud/dbshift/releases/latest/download/dbshift-macos-arm64.tar.gz) |
 
 Extract and place `dbshift` (or `dbshift.exe`) anywhere on your `PATH`.
 
@@ -54,8 +56,8 @@ dbshift --version
 ### Build from source
 
 ```bash
-git clone <your-repo>
-cd DbShift
+git clone https://github.com/AzimMahmud/dbshift.git
+cd dbshift
 .\publish.ps1                    # Windows → dist\dbshift.exe
 ./publish.sh                     # Linux/macOS → dist/dbshift
 ./dist/dbshift --help

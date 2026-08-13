@@ -13,7 +13,7 @@ dotnet test
 ```
 
 Requirements:
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (pinned by `global.json`)
+- [.NET SDK](https://dotnet.microsoft.com/download/dotnet) — `global.json` pins `6.0.100` with `latestMajor` roll-forward, so any .NET 6+ SDK works
 - PowerShell 7+ (Windows) or bash (Linux/macOS) for the build scripts
 
 ## Project structure
@@ -25,7 +25,7 @@ src/
 ├── DbShift.Infrastructure/ providers, relational implementations, config loading
 └── DbShift.CLI/           executable, argument parsing, Spectre.Console.Cli UI
 tests/
-└── DbShift.Engine.Tests/  89 tests: parser, executor, config loader, locks, exceptions
+└── DbShift.Engine.Tests/  116 tests: parser, executor, config loader, locks, exceptions
 ```
 
 ## Code conventions
@@ -50,7 +50,7 @@ tests/
 2. Add the NuGet package reference to `DbShift.Infrastructure.csproj`.
 3. Register it in `DatabaseProviderFactory.CreateProvider()`.
 4. Add the provider config value to the README table.
-5. Update provider-specific SQL helpers in `NewCommand.cs`.
+5. Update provider-specific SQL helpers in `CLI/Helpers/ProviderSqlHelper.cs`.
 
 ## Commit messages
 
