@@ -15,6 +15,9 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <NeutralLanguage>en</NeutralLanguage>
     <Deterministic>true</Deterministic>
+    <!-- net6.0 is EOL but deliberately retained so `dotnet tool install` works on any
+         .NET 6+ runtime. Silence the EOL warning to keep the zero-warning build gate. -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
 
     <!-- Package metadata -->
     <Authors>DbShift Contributors</Authors>
