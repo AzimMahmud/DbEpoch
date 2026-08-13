@@ -12,11 +12,17 @@ public abstract class CliCommandBase<TSettings> : AsyncCommand<TSettings> where 
 
     protected CliHost CreateHost(GlobalSettings settings)
     {
+        var basePath = !string.IsNullOrWhiteSpace(settings.Config) ? settings.Config : settings.LegacyConfig;
+        if (!string.IsNullOrWhiteSpace(settings.LegacyConfig) && string.IsNullOrWhiteSpace(settings.Config) && !settings.Json)
+        {
+            ConsoleHelper.PrintWarning("The --config option is deprecated; use --base-path instead.");
+        }
+
         return CliHost.Create(new CliHostOptions(
             settings.Environment,
             settings.Provider,
             settings.ConnectionString,
-            settings.Config,
+            basePath,
             settings.UseInMemory,
             settings.Verbose,
             settings.Module));

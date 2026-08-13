@@ -8,9 +8,13 @@ public sealed class RepairCommand : CliCommandBase<RepairCommand.Settings>
 {
     public sealed class Settings : GlobalSettings
     {
-        [CommandOption("-V|--version")]
+        [CommandOption("-V|--target-version")]
         [Description("Specific version to repair (omit to repair all failed migrations)")]
-        public string? Version { get; set; }
+        public string? TargetVersion { get; set; }
+
+        [CommandOption("--version", IsHidden = true)]
+        [Description("Deprecated alias for --target-version")]
+        public string? LegacyVersion { get; set; }
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -22,7 +26,15 @@ public sealed class RepairCommand : CliCommandBase<RepairCommand.Settings>
             return live;
         }
 
-        var version = settings.Version;
+        var version = !string.IsNullOrWhiteSpace(settings.TargetVersion)
+            ? settings.TargetVersion
+            : settings.LegacyVersion;
+
+        if (!string.IsNullOrWhiteSpace(settings.LegacyVersion) && string.IsNullOrWhiteSpace(settings.TargetVersion) && !settings.Json)
+        {
+            ConsoleHelper.PrintWarning("The --version option is deprecated; use --target-version instead.");
+        }
+
         var label = string.IsNullOrWhiteSpace(version) ? "all failed migrations" : $"migration {version}";
 
         if (!settings.Json)

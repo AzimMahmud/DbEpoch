@@ -9,11 +9,15 @@ public sealed class RollbackCommand : CliCommandBase<RollbackCommand.Settings>
 {
     public sealed class Settings : GlobalSettings
     {
-        [CommandOption("-V|--version")]
+        [CommandOption("-V|--target-version")]
         [Description("Specific version to roll back (default: last)")]
-        public string? Version { get; set; }
+        public string? TargetVersion { get; set; }
 
-        [CommandOption("-n|--count")]
+        [CommandOption("--version", IsHidden = true)]
+        [Description("Deprecated alias for --target-version")]
+        public string? LegacyVersion { get; set; }
+
+        [CommandOption("--count")]
         [Description("Number of recent migrations to roll back")]
         public int Count { get; set; } = 1;
 
@@ -53,9 +57,18 @@ public sealed class RollbackCommand : CliCommandBase<RollbackCommand.Settings>
             return 0;
         }
 
+        var version = !string.IsNullOrWhiteSpace(settings.TargetVersion)
+            ? settings.TargetVersion
+            : settings.LegacyVersion;
+
+        if (!string.IsNullOrWhiteSpace(settings.LegacyVersion) && string.IsNullOrWhiteSpace(settings.TargetVersion) && !settings.Json)
+        {
+            ConsoleHelper.PrintWarning("The --version option is deprecated; use --target-version instead.");
+        }
+
         var request = new RollbackRequest
         {
-            Version = string.IsNullOrWhiteSpace(settings.Version) ? "last" : settings.Version,
+            Version = string.IsNullOrWhiteSpace(version) ? "last" : version,
             Count = settings.Count,
             Environment = host.EnvironmentName,
             ExecutedBy = settings.ExecutedBy ?? Environment.UserName

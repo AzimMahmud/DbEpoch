@@ -20,9 +20,13 @@ public abstract class GlobalSettings : CommandSettings
     [Description("Database connection string override")]
     public string? ConnectionString { get; set; }
 
-    [CommandOption("-C|--config")]
+    [CommandOption("-C|--base-path")]
     [Description("Path to the repository root (config base)")]
     public string? Config { get; set; }
+
+    [CommandOption("--config", IsHidden = true)]
+    [Description("Deprecated alias for --base-path")]
+    public string? LegacyConfig { get; set; }
 
     [CommandOption("-i|--in-memory")]
     [Description("Force offline in-memory mode (no database)")]
@@ -32,6 +36,9 @@ public abstract class GlobalSettings : CommandSettings
     [Description("Skip interactive prompts")]
     public bool AssumeYes { get; set; }
 
+    // Declared so the help text exposes --no-color. The actual suppression happens
+    // in Program.cs before Spectre renders anything (it must be applied to the
+    // AnsiConsole instance up front, so the bound property here is informational only).
     [CommandOption("--no-color")]
     [Description("Disable colored output")]
     public bool NoColor { get; set; }

@@ -27,7 +27,7 @@ public sealed class CreateCommand : CliCommandBase<CreateCommand.Settings>
         [Description("Short description to embed in the header")]
         public string? Description { get; set; }
 
-        [CommandOption("-o|--dir")]
+        [CommandOption("-o|--output")]
         [Description("Override the output directory")]
         public string? Dir { get; set; }
 

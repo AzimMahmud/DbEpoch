@@ -8,7 +8,7 @@ public sealed class HistoryCommand : CliCommandBase<HistoryCommand.Settings>
 {
     public sealed class Settings : GlobalSettings
     {
-        [CommandOption("-n|--limit")]
+        [CommandOption("-l|--limit")]
         [Description("Maximum entries to display")]
         public int Limit { get; set; } = 25;
     }
