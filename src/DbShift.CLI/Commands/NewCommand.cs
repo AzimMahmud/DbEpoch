@@ -332,7 +332,7 @@ public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
                   - uses: actions/checkout@v4
                   - uses: actions/setup-dotnet@v4
                     with:
-                      dotnet-version: '8.0.x'
+                      dotnet-version: '10.0.x'
                   - run: dotnet tool restore
                   - run: dbshift validate --json
 
@@ -345,7 +345,7 @@ public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
                   - uses: actions/checkout@v4
                   - uses: actions/setup-dotnet@v4
                     with:
-                      dotnet-version: '8.0.x'
+                      dotnet-version: '10.0.x'
                   - run: dotnet tool restore
                   - run: dbshift migrate --environment development --yes
                     env:
@@ -360,7 +360,7 @@ public sealed class NewCommand : CliCommandBase<NewCommand.Settings>
                   - uses: actions/checkout@v4
                   - uses: actions/setup-dotnet@v4
                     with:
-                      dotnet-version: '8.0.x'
+                      dotnet-version: '10.0.x'
                   - run: dotnet tool restore
                   - run: dbshift migrate --environment production --approver deploy-bot --yes
                     env:

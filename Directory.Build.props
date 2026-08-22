@@ -1,12 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <!--
-      Target the three .NET LTS releases (6, 8, 10).
-      STS runtimes (7, 9) resolve to the nearest LTS via NuGet's runtime graph,
-      so a `dotnet tool install` works on any .NET 6+ runtime.
-    -->
-    <TargetFrameworks>net6.0;net8.0;net10.0</TargetFrameworks>
+    <!-- .NET 10 only (dropped the net6.0/net8.0 multi-targeting). -->
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -15,9 +11,6 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <NeutralLanguage>en</NeutralLanguage>
     <Deterministic>true</Deterministic>
-    <!-- net6.0 is EOL but deliberately retained so `dotnet tool install` works on any
-         .NET 6+ runtime. Silence the EOL warning to keep the zero-warning build gate. -->
-    <CheckEolTargetFramework>false</CheckEolTargetFramework>
 
     <!-- Package metadata -->
     <Authors>DbShift Contributors</Authors>
@@ -29,14 +22,5 @@
 
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true' Or '$(TF_BUILD)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
-
-  <!--
-    Polyfill newer C# language attributes (required/init/record) on net6.0.
-    PolySharp is a source-only generator with no runtime dependency, so it keeps
-    net8.0/net10.0 outputs clean (only pulled in when targeting net6.0).
-  -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="all" />
-  </ItemGroup>
 
 </Project>

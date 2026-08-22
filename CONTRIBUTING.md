@@ -9,12 +9,13 @@ git clone https://github.com/AzimMahmud/dbshift.git
 cd dbshift
 dotnet restore
 dotnet build
-dotnet test
+dotnet test --filter "Category!=Integration"
 ```
 
 Requirements:
-- [.NET SDK](https://dotnet.microsoft.com/download/dotnet) — `global.json` pins `6.0.100` with `latestMajor` roll-forward, so any .NET 6+ SDK works
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) — `global.json` pins `10.0.100` with `latestFeature` roll-forward
 - PowerShell 7+ (Windows) or bash (Linux/macOS) for the build scripts
+- Docker (optional) — only needed to run the real-database integration tests: `dotnet test tests/DbShift.Engine.Tests --filter "Category=Integration"`
 
 ## Project structure
 
@@ -26,6 +27,8 @@ src/
 └── DbShift.CLI/           executable, argument parsing, Spectre.Console.Cli UI
 tests/
 └── DbShift.Engine.Tests/  116 tests: parser, executor, config loader, locks, exceptions
+    └── Integration/        54 tests: same tracker/lock/audit contract against real
+                             PostgreSQL/MySQL/SQL Server containers (needs Docker)
 ```
 
 ## Code conventions

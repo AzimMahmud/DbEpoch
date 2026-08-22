@@ -4,6 +4,27 @@ All notable changes to the DbShift project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.0.0] — 2026-08-22
+
+### Added
+
+- **Real-database integration tests** — 54 new tests in `tests/DbShift.Engine.Tests/Integration/` run the `RelationalMigrationTracker`/`RelationalMigrationLockManager`/`RelationalAuditLogger` contract against live PostgreSQL, MySQL, and SQL Server containers via Testcontainers, closing the gap where only SQLite had real-database coverage. Tagged `Category=Integration`; requires Docker and is excluded from the default `dotnet test` run.
+- **CodeQL security scanning** — `.github/workflows/codeql.yml` runs `security-and-quality` analysis on push/PR to `main` and weekly on a schedule.
+
+### Changed
+
+- **`ci.yml`** — added a dedicated `integration-tests` job (ubuntu-latest) for the new Testcontainers-backed suite; the cross-OS `build` matrix now excludes `Category=Integration` from its `dotnet test` run; added an explicit least-privilege `permissions: contents: read` block.
+
+### Breaking
+
+- **Dropped net6.0/net8.0 targets — net10.0 only.** `Directory.Build.props` and every workflow now target `net10.0` exclusively (previously multi-targeted `net6.0;net8.0;net10.0` for broad `dotnet tool install` compatibility). Building from source, running as a `dotnet tool`, and CI all require the **.NET 10 SDK/runtime**. `global.json` now pins `10.0.100` with `latestFeature` roll-forward (was `6.0.100`/`latestMajor`). The PolySharp polyfill dependency (needed only for net6.0) was removed. Self-contained release binaries are unaffected — they already bundled `net10.0`.
+
+### Fixed
+
+- **Interactive banner showed .NET runtime/OS info** — `dbshift new`'s interactive wizard printed the .NET `FrameworkDescription` and `OSDescription` on every run via `ConsoleHelper.PrintBanner()`. Removed; the banner now shows only branding and supported providers.
+- **Concurrent deploys possible after a lock lease expired mid-deploy** — `MigrationExecutor.DeployAsync` renewed the distributed lock before each batch but discarded the `bool` result; if the lease had already expired and been stolen by another process, the deploy kept executing and recording migrations with no lock held at all, letting two `dbshift migrate` runs race against the same environment. Now stops immediately and reports the lock loss instead. Covered by `DeployFlowTests.Deploy_LockLostBetweenBatches_StopsAndReportsFailure`.
+- **Non-`DbException` faults crashed the whole deploy instead of failing one migration** — `RelationalMigrationExecutor.ExecuteAsync` only caught `DbException`, so e.g. cancellation-adjacent provider faults propagated uncaught out of `DeployAsync`, skipping the structured `DeployResult` entirely. Broadened to catch any non-cancellation exception; genuine cancellation (`OperationCanceledException`) still propagates so it isn't misrecorded as a migration failure.
+
 ## [1.1.0] — 2026-07-30
 
 ### Added

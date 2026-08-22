@@ -17,6 +17,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
@@ -36,10 +39,7 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            6.0.x
-            8.0.x
-            10.0.x
+          dotnet-version: 10.0.x
           global-json-file: global.json
 
       - name: Display SDK versions
@@ -54,6 +54,7 @@ jobs:
       - name: Test
         run: |
           dotnet test --configuration Release --no-build \
+            --filter "Category!=Integration" \
             --logger "GitHubActions;summary.includePassedTests=true" \
             --collect:"XPlat Code Coverage" \
             --results-directory ./TestResults
@@ -65,6 +66,27 @@ jobs:
           name: coverage
           path: ./TestResults/**/coverage.cobertura.xml
           if-no-files-found: warn
+
+  # Real-database tests (tests/DbShift.Engine.Tests/Integration/) — needs Docker,
+  # so it runs here rather than in the cross-OS build matrix.
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore tests/DbShift.Engine.Tests
+
+      - name: Test (Postgres / MySQL / SQL Server via Testcontainers)
+        run: |
+          dotnet test tests/DbShift.Engine.Tests --configuration Release \
+            --filter "Category=Integration" \
+            --logger "GitHubActions;summary.includePassedTests=true"
 
   coverage:
     needs: build
@@ -99,10 +121,7 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            6.0.x
-            8.0.x
-            10.0.x
+          dotnet-version: 10.0.x
           global-json-file: global.json
 
       - name: Pack

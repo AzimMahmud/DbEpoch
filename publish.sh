@@ -36,5 +36,4 @@ echo "  $OUTPUT/$EXE_NAME new -n MyApp -p postgresql --json"
 #   linux-x64, linux-arm64, linux-musl-x64
 #   osx-x64, osx-arm64
 #
-# Override the bundled framework (default net10.0):
-#   FRAMEWORK=net8.0 ./publish.sh linux-x64
+# dbshift targets net10.0 only — FRAMEWORK has no other valid value here.

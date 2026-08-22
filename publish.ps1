@@ -53,5 +53,4 @@ if ($LASTEXITCODE -eq 0) {
 # linux-x64, linux-arm64, linux-musl-x64
 # osx-x64, osx-arm64
 #
-# Override the bundled framework (default net10.0):
-#   .\publish.ps1 -Runtime win-x64 -Framework net8.0
+# dbshift targets net10.0 only — -Framework has no other valid value here.

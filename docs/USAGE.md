@@ -20,7 +20,7 @@ A practical walkthrough from zero to production.
 
 ## 1. Installation
 
-**Prerequisite:** None for the binary install methods. For the .NET tool method, you need any [.NET 6+ SDK](https://dotnet.microsoft.com/download/dotnet) (6.0, 8.0, or 10.0).
+**Prerequisite:** None for the binary install methods. For the .NET tool method, you need the [.NET 10 SDK/runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ### One-liner (recommended)
 
@@ -654,7 +654,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4 with: { dotnet-version: '8.0.x' }
+      - uses: actions/setup-dotnet@v4 with: { dotnet-version: '10.0.x' }
       - run: dotnet build DbShift.slnx -c Release
       - run: dotnet test DbShift.slnx -c Release --no-build
       - run: dotnet run --project src/DbShift.CLI -- validate

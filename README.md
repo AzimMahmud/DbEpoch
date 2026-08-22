@@ -89,7 +89,7 @@ Extract and place `dbshift` (or `dbshift.exe` on Windows) anywhere on your `PATH
 > [one-liner](#one-liner-recommended) or [manual download](#manual-download) above —
 > no .NET runtime is required. The command below will work as soon as the package is published.
 
-Requires [.NET SDK 6.0, 8.0, or 10.0](https://dotnet.microsoft.com/download/dotnet) (any LTS from 6 onward). The package multi-targets `net6.0`, `net8.0`, and `net10.0`, so `dotnet tool install` resolves to whichever runtime you have installed (including STS runtimes 7 and 9 via NuGet fallback).
+Requires the [.NET 10 SDK/runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ```bash
 dotnet tool install --global DbShift
@@ -103,17 +103,13 @@ git clone https://github.com/AzimMahmud/dbshift.git
 cd dbshift
 .\publish.ps1          # Windows → dist\dbshift.exe
 ./publish.sh           # Linux/macOS → dist/dbshift
-
-# Optionally bundle a different .NET runtime (default: net10.0)
-FRAMEWORK=net8.0 ./publish.sh linux-x64            # Linux/macOS
-.\publish.ps1 -Runtime win-x64 -Framework net8.0   # Windows
 ```
 
 ### Verify
 
 ```bash
 dbshift --version
-# → DbShift v1.1.0
+# → DbShift v2.0.0
 # → database migrations for .NET
 ```
 
@@ -513,13 +509,17 @@ between PostgreSQL, SQL Server, MySQL, and SQLite).
 
 ```bash
 dotnet build DbShift.slnx
-dotnet test  DbShift.slnx
+dotnet test  DbShift.slnx --filter "Category!=Integration"
 ```
 
 Conditions:
 - Compiled with `TreatWarningsAsErrors` — zero warnings required.
-- Target frameworks: `net6.0`, `net8.0`, `net10.0` (LTS span — runs on any .NET 6+ runtime). SDK resolved by `global.json` with `latestMajor` roll-forward.
-- Test suite: 116 tests covering `ScriptParser`, `MigrationExecutor`, `FileSystemConfigLoader`, deployment windows, lock management, and exception hierarchy, executed across all three target frameworks.
+- Target framework: `net10.0`. SDK resolved by `global.json` with `latestFeature` roll-forward.
+- Test suite: 116 tests covering `ScriptParser`, `MigrationExecutor`, `FileSystemConfigLoader`, deployment windows, lock management, and exception hierarchy (SQLite-backed, no external services).
+- Real-database integration tests: 54 more tests (`tests/DbShift.Engine.Tests/Integration/`) run the same tracker/lock-manager/audit-log contract against live PostgreSQL, MySQL, and SQL Server via [Testcontainers](https://dotnet.testcontainers.org/). Needs Docker; excluded from the default run above. Run them with:
+  ```bash
+  dotnet test tests/DbShift.Engine.Tests --filter "Category=Integration"
+  ```
 
 ---
 

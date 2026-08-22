@@ -21,8 +21,6 @@ public static class ConsoleHelper
         var info = new Grid()
             .AddColumn(new GridColumn().NoWrap().PadRight(2))
             .AddColumn()
-            .AddRow($"[bold {Theme.Primary}]runtime[/]", $"[grey]{Markup.Escape(System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription)}[/]")
-            .AddRow($"[bold {Theme.Primary}]platform[/]", $"[grey]{Markup.Escape(System.Runtime.InteropServices.RuntimeInformation.OSDescription)}[/]")
             .AddRow($"[bold {Theme.Primary}]providers[/]", $"[grey]PostgreSQL / SQL Server / MySQL / SQLite[/]");
 
         AnsiConsole.Write(new Panel(info)

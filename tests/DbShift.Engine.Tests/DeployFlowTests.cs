@@ -124,6 +124,33 @@ public class DeployFlowTests
     }
 
     [Fact]
+    public async Task Deploy_LockLostBetweenBatches_StopsAndReportsFailure()
+    {
+        using var dir = new TempScriptsDirectory();
+        dir.WriteScript("Schema/V001__CreateTable.sql", "CREATE TABLE t (id INT);");
+        dir.WriteScript("Schema/V002__AddColumn.sql", "ALTER TABLE t ADD COLUMN name VARCHAR(100);");
+
+        var lockManager = new FakeLockManager { RenewSucceeds = false };
+        var scriptExecutor = new FakeScriptExecutor();
+        var executor = new MigrationExecutor(
+            _tracker, lockManager, _parser, _envProvider, _auditLogger,
+            NullLogger<MigrationExecutor>.Instance,
+            scriptExecutor, "fake", scriptsPath: dir.Path);
+
+        var result = await executor.DeployAsync(new MigrationContext
+        {
+            Environment = "development",
+            ExecutedBy = "tester",
+            BatchSize = 1
+        });
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("lock", result.ErrorMessage!, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(0, result.TotalApplied);
+        Assert.Equal(0, scriptExecutor.ExecutionCount);
+    }
+
+    [Fact]
     public async Task Deploy_ApprovalRequired_NoApprover_Refuses()
     {
         _envProvider.RequireApproval = true;

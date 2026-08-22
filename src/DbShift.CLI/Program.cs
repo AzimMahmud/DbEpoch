@@ -8,7 +8,7 @@ var app = new CommandApp();
 app.Configure(config =>
 {
     config.SetApplicationName("dbshift");
-    config.SetApplicationVersion("1.1.0");
+    config.SetApplicationVersion("2.0.0");
     config.PropagateExceptions();
 
     config.AddCommand<NewCommand>("new")

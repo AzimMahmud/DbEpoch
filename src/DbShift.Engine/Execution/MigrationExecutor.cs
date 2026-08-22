@@ -241,9 +241,17 @@ public sealed class MigrationExecutor
             var batchNumber = 1;
             foreach (var batch in pending.Chunk(Math.Max(1, batchSize)))
             {
-                // Renew the lease before each batch so a long-running deploy cannot have its
-                // lock silently expire while work is still in flight.
-                await _lockManager.RenewAsync(context.Environment, lockKey, context.ExecutedBy, env.Migration.LockTimeoutSeconds, _module, cancellationToken);
+                // Renew before each batch; if the lease already expired and got stolen, stop
+                // rather than keep applying migrations with no lock held.
+                var renewed = await _lockManager.RenewAsync(context.Environment, lockKey, context.ExecutedBy, env.Migration.LockTimeoutSeconds, _module, cancellationToken);
+                if (!renewed)
+                {
+                    result.ErrorMessage = $"Lost the migration lock for environment '{context.Environment}' (lease expired before batch {batchNumber} could run). " +
+                                          $"Applied {result.TotalApplied} migration(s) before the lock was lost; another deployment may now be running concurrently. Re-run once it completes.";
+                    await AuditSafe(context.Environment, AuditAction.Deploy, context.ExecutedBy,
+                        $"lock lost before batch {batchNumber}: applied {result.TotalApplied}, failed {result.FailedMigrations.Count}");
+                    return result;
+                }
 
                 foreach (var migration in batch)
                 {

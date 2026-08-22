@@ -100,6 +100,32 @@ public sealed class ConfigurableEnvironmentProvider : IEnvironmentProvider
 }
 
 /// <summary>
+/// Lock manager whose <see cref="RenewAsync"/> outcome is controlled by the test, to simulate
+/// a lease that expires and gets stolen by another process mid-deploy. Acquire/Release always
+/// succeed so the scenario under test is purely "renewal reports the lease is gone".
+/// </summary>
+public sealed class FakeLockManager : IMigrationLockManager
+{
+    public bool RenewSucceeds { get; set; } = true;
+    public int RenewCallCount { get; private set; }
+
+    public Task<bool> AcquireAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, string? module = null, CancellationToken cancellationToken = default)
+        => Task.FromResult(true);
+
+    public Task ReleaseAsync(string environment, string lockKey, string? lockedBy = null, string? module = null, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    public Task<bool> RenewAsync(string environment, string lockKey, string lockedBy, int timeoutSeconds, string? module = null, CancellationToken cancellationToken = default)
+    {
+        RenewCallCount++;
+        return Task.FromResult(RenewSucceeds);
+    }
+
+    public Task<bool> IsActiveAsync(string environment, string lockKey, string? module = null, CancellationToken cancellationToken = default)
+        => Task.FromResult(true);
+}
+
+/// <summary>
 /// Fake script executor that always fails. Used to test deploy error handling.
 /// Tracks execution count for assertions.
 /// </summary>

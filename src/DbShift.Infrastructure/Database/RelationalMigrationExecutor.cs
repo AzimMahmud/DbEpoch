@@ -49,10 +49,10 @@ public sealed class RelationalMigrationExecutor : IMigrationScriptExecutor
 
             return new ScriptExecutionResult { IsSuccess = true, ElapsedMs = stopwatch.ElapsedMilliseconds };
         }
-        catch (DbException ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            // Include the exception type so callers and logs can distinguish e.g. a timeout from
-            // a constraint violation without losing information the way ex.Message alone would.
+            // Broad on purpose: any provider fault becomes a failed result instead of crashing
+            // the deploy loop. Cancellation propagates instead, so it isn't logged as a failure.
             return new ScriptExecutionResult
             {
                 IsSuccess = false,
