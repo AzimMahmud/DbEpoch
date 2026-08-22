@@ -15,6 +15,7 @@
     <PackageId>DbShift</PackageId>
     <PackageTags>database;migration;postgresql;sqlserver;mysql;sqlite;cli;flyway;schema</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/AzimMahmud/dbshift</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AzimMahmud/dbshift</RepositoryUrl>
@@ -33,6 +34,7 @@
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\.github\assets\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

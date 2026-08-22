@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src=".github/assets/logo.svg" alt="DbShift" width="480">
+<img src="https://raw.githubusercontent.com/AzimMahmud/dbshift/main/.github/assets/logo.svg" alt="DbShift" width="480">
 
 **Database migrations that ship.**
 
@@ -9,9 +9,9 @@ Beautiful CLI, zero magic, production-tested patterns.
 
 [![CI](https://github.com/AzimMahmud/dbshift/actions/workflows/ci.yml/badge.svg)](https://github.com/AzimMahmud/dbshift/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/AzimMahmud/dbshift?include_prereleases&color=success)](https://github.com/AzimMahmud/dbshift/releases)
-[![.NET](https://img.shields.io/badge/.NET-6.0%20|%208.0%20|%2010.0-512bd4)]()
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
+[![.NET](https://img.shields.io/badge/.NET-10.0-512bd4)](https://dotnet.microsoft.com/download/dotnet/10.0)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/AzimMahmud/dbshift/blob/main/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/AzimMahmud/dbshift/blob/main/CONTRIBUTING.md)
 
 </div>
 
@@ -535,8 +535,8 @@ is encapsulated behind `IDatabaseProvider`. The `Relational*` classes use `Syste
 base types (`DbConnection`, `DbCommand`, `DbDataReader`) so the same code path works across all
 four engines. Adding a new provider is a single class.
 
-[Docs: Multi-database setup](docs/USAGE.md#6-multi-database-setup) ·
-[Docs: Full usage guide](docs/USAGE.md)
+[Docs: Multi-database setup](https://github.com/AzimMahmud/dbshift/blob/main/docs/USAGE.md#6-multi-database-setup) ·
+[Docs: Full usage guide](https://github.com/AzimMahmud/dbshift/blob/main/docs/USAGE.md)
 
 ---
 
@@ -606,4 +606,4 @@ DbShift/
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](https://github.com/AzimMahmud/dbshift/blob/main/LICENSE).
