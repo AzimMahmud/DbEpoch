@@ -12,10 +12,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-function Info  { Write-Host "  > $_" -ForegroundColor Cyan }
-function Ok    { Write-Host "  ✓ $_" -ForegroundColor Green }
-function Warn  { Write-Host "  ⚠ $_" -ForegroundColor Yellow }
-function Err   { Write-Host "  ✗ $_" -ForegroundColor Red; exit 1 }
+function Info($Message) { Write-Host "  > $Message" -ForegroundColor Cyan }
+function Ok($Message)   { Write-Host "  ✓ $Message" -ForegroundColor Green }
+function Warn($Message) { Write-Host "  ⚠ $Message" -ForegroundColor Yellow }
+function Err($Message)  { Write-Host "  ✗ $Message" -ForegroundColor Red; exit 1 }
 
 # ── architecture detection ────────────────────────────────────────────────
 $arch = switch ([Environment]::ProcessorArchitecture) {

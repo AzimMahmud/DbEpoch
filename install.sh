@@ -72,7 +72,8 @@ download_release() {
     local sums_url
     sums_url="$(base_url "$tag")/SHA256SUMS"
 
-    local workdir
+    # Not `local`: the EXIT trap fires after this function returns, and needs
+    # `workdir` to still be in scope then (set -u would otherwise error on it).
     workdir="$(mktemp -d)"
     trap 'rm -rf "$workdir"' EXIT
 
