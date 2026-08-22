@@ -182,8 +182,11 @@ remove_path_entry() {
 uninstall() {
     local target="${INSTALL_DIR}/dbshift"
     if [ -e "$target" ]; then
-        rm -f "$target"
-        ok "Removed ${target}"
+        if rm -f "$target" 2>/dev/null; then
+            ok "Removed ${target}"
+        else
+            err "Could not remove ${target} (permission denied). It's likely owned by another user (e.g. installed system-wide). Try: sudo rm \"${target}\""
+        fi
     else
         warn "No dbshift binary found at ${target}"
     fi

@@ -113,6 +113,17 @@ dbshift --version
 # → database migrations for .NET
 ```
 
+### Not sure where it's installed?
+
+```bash
+which -a dbshift          # Linux / macOS — lists every match on PATH, not just the first
+```
+```powershell
+where.exe dbshift          # Windows
+```
+
+`which -a` matters because it's possible to end up with more than one copy on PATH (e.g. one from the installer's default `~/.local/bin`, another installed manually or system-wide to `/usr/local/bin`) — only the first one in PATH order actually runs when you type `dbshift`, so `dbshift --version` can be misleading if you assume there's only one.
+
 ### Updating
 
 Re-run the same one-liner (or manual download) you used to install — it overwrites the existing binary in place and won't add a duplicate PATH entry. There's nothing else to migrate between versions; `migrate`/`rollback`/`status` all work against whatever's already tracked in `__migration_history`.
@@ -125,7 +136,7 @@ curl -fsSL https://github.com/AzimMahmud/dbshift/releases/latest/download/instal
 powershell -c "iwr -Uri https://github.com/AzimMahmud/dbshift/releases/latest/download/install.ps1 | iex"
 ```
 
-If you previously installed a different way (e.g. manual download to a custom folder, then later the one-liner to the default folder), you may end up with two binaries on PATH — remove the older one manually (see below) so `dbshift --version` resolves to the one you expect.
+If you previously installed a different way (e.g. manual download to a custom folder, or a system-wide copy someone placed in `/usr/local/bin`), re-running the one-liner only updates the copy at its own default location (`~/.local/bin`) — it won't touch a differently-located one, and you can end up running the old version if that other copy comes first on PATH. Use `which -a dbshift` above to check, then remove the stale copy (see Uninstalling).
 
 ### Uninstalling
 
@@ -143,6 +154,12 @@ iwr -Uri https://github.com/AzimMahmud/dbshift/releases/latest/download/install.
 ```
 
 If you used a non-default install directory, pass it along (`INSTALL_DIR=... UNINSTALL=1 bash ...` / `.\install.ps1 -InstallDir ... -Uninstall`).
+
+**System-wide installs (e.g. `/usr/local/bin`, or anywhere owned by `root`) need `sudo`** — the scripts above run as your own user and can't remove a root-owned file. If `UNINSTALL=1 ...` reports the binary was removed but `which -a dbshift` still finds it, that copy is likely root-owned; remove it directly:
+
+```bash
+sudo rm "$(which dbshift)"
+```
 
 If you installed via `dotnet tool install --global DbShift`, use `dotnet tool uninstall --global DbShift` instead.
 

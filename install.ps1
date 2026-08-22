@@ -31,8 +31,12 @@ if ($Uninstall) {
     Write-Host ""
 
     if (Test-Path $InstallDir) {
-        Remove-Item -LiteralPath $InstallDir -Recurse -Force
-        Ok "Removed $InstallDir"
+        try {
+            Remove-Item -LiteralPath $InstallDir -Recurse -Force
+            Ok "Removed $InstallDir"
+        } catch {
+            Err "Could not remove $InstallDir (access denied). It's likely a system-wide install; try re-running from an elevated (Administrator) PowerShell.`n  $_"
+        }
     } else {
         Warn "No DbShift installation found at $InstallDir"
     }
