@@ -10,6 +10,7 @@ All notable changes to the DbShift project will be documented in this file.
 
 - **Real-database integration tests** — 54 new tests in `tests/DbShift.Engine.Tests/Integration/` run the `RelationalMigrationTracker`/`RelationalMigrationLockManager`/`RelationalAuditLogger` contract against live PostgreSQL, MySQL, and SQL Server containers via Testcontainers, closing the gap where only SQLite had real-database coverage. Tagged `Category=Integration`; requires Docker and is excluded from the default `dotnet test` run.
 - **CodeQL security scanning** — `.github/workflows/codeql.yml` runs `security-and-quality` analysis on push/PR to `main` and weekly on a schedule.
+- **README: Updating / Uninstalling sections** — documents re-running the installer to upgrade in place (verified: no duplicate PATH entry, clean binary overwrite) and manual removal steps for Linux/macOS/Windows, since no automated uninstaller exists yet.
 
 ### Changed
 

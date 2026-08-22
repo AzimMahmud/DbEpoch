@@ -113,6 +113,46 @@ dbshift --version
 # → database migrations for .NET
 ```
 
+### Updating
+
+Re-run the same one-liner (or manual download) you used to install — it overwrites the existing binary in place and won't add a duplicate PATH entry. There's nothing else to migrate between versions; `migrate`/`rollback`/`status` all work against whatever's already tracked in `__migration_history`.
+
+```bash
+# Linux / macOS
+curl -fsSL https://github.com/AzimMahmud/dbshift/releases/latest/download/install.sh | bash
+
+# Windows (PowerShell)
+powershell -c "iwr -Uri https://github.com/AzimMahmud/dbshift/releases/latest/download/install.ps1 | iex"
+```
+
+If you previously installed a different way (e.g. manual download to a custom folder, then later the one-liner to the default folder), you may end up with two binaries on PATH — remove the older one manually (see below) so `dbshift --version` resolves to the one you expect.
+
+### Uninstalling
+
+There's no automated uninstaller yet — remove the binary and the PATH entry the installer added:
+
+```bash
+# Linux / macOS (default install location)
+rm ~/.local/bin/dbshift
+
+# Remove the PATH entry the installer added (look for the
+# "# Added by dbshift installer" line just above it)
+$EDITOR ~/.zshrc   # or ~/.bashrc
+```
+
+```powershell
+# Windows (default install location)
+Remove-Item "$env:LOCALAPPDATA\DbShift" -Recurse -Force
+
+# Remove DbShift from your user PATH
+[Environment]::SetEnvironmentVariable("Path", (
+    ([Environment]::GetEnvironmentVariable("Path", "User") -split ';' |
+        Where-Object { $_ -ne "$env:LOCALAPPDATA\DbShift" }) -join ';'
+), "User")
+```
+
+If you installed via `dotnet tool install --global DbShift`, use `dotnet tool uninstall --global DbShift` instead.
+
 ---
 
 ## Commands
