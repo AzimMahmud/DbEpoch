@@ -3,17 +3,29 @@
 # Usage: curl -fsSL https://github.com/AzimMahmud/dbshift/releases/latest/download/install.sh | bash
 #   or:  bash <(curl -fsSL https://github.com/AzimMahmud/dbshift/releases/latest/download/install.sh)
 #
+# Uninstall:
+#   UNINSTALL=1 bash -c "$(curl -fsSL https://github.com/AzimMahmud/dbshift/releases/latest/download/install.sh)"
+#   or, with the script already on disk: bash install.sh --uninstall
+#
 # Environment overrides:
 #   REPO         GitHub "owner/name" (default: AzimMahmud/dbshift)
 #   VERSION      Release tag to install, with or without leading "v" (default: latest)
 #   INSTALL_DIR  Destination directory (default: ~/.local/bin)
 #   ARCH         Override architecture (default: detected)
+#   UNINSTALL    Set to any non-empty value to remove dbshift instead of installing
 
 set -euo pipefail
 
 REPO="${REPO:-AzimMahmud/dbshift}"
 VERSION="${VERSION:-latest}"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
+UNINSTALL="${UNINSTALL:-}"
+
+for arg in "$@"; do
+    case "$arg" in
+        --uninstall|-u) UNINSTALL=1 ;;
+    esac
+done
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 info()  { printf "  \033[36m>\033[0m %s\n" "$*"; }
@@ -140,6 +152,52 @@ ensure_on_path() {
     fi
 }
 
+# ── uninstall ─────────────────────────────────────────────────────────────────
+# Strips every "# Added by dbshift installer" comment plus the export line
+# immediately after it. Line-by-line rather than sed/awk so behavior doesn't
+# vary between GNU and BSD (macOS) implementations.
+remove_path_entry() {
+    local rc_file="$1"
+    [ -f "$rc_file" ] || return 0
+    grep -q "^# Added by dbshift installer$" "$rc_file" 2>/dev/null || return 0
+
+    local tmp
+    tmp="$(mktemp)"
+    local skip_next=false
+    while IFS= read -r line || [ -n "$line" ]; do
+        if [ "$skip_next" = true ]; then
+            skip_next=false
+            continue
+        fi
+        if [ "$line" = "# Added by dbshift installer" ]; then
+            skip_next=true
+            continue
+        fi
+        printf '%s\n' "$line" >> "$tmp"
+    done < "$rc_file"
+    mv "$tmp" "$rc_file"
+    ok "Removed dbshift PATH entry from ${rc_file}"
+}
+
+uninstall() {
+    local target="${INSTALL_DIR}/dbshift"
+    if [ -e "$target" ]; then
+        rm -f "$target"
+        ok "Removed ${target}"
+    else
+        warn "No dbshift binary found at ${target}"
+    fi
+
+    case "$(basename "${SHELL:-bash}")" in
+        zsh)  remove_path_entry "$HOME/.zshrc" ;;
+        bash) remove_path_entry "$HOME/.bashrc" ;;
+    esac
+
+    echo ""
+    info "DbShift removed. Restart your shell to fully clear it from PATH."
+    echo ""
+}
+
 # ── verify ────────────────────────────────────────────────────────────────────
 verify() {
     if [ -x "${INSTALL_DIR}/dbshift" ]; then
@@ -159,6 +217,12 @@ main() {
     echo "  │  DbShift — database migration tool   │"
     echo "  ╰──────────────────────────────────────╯"
     echo ""
+
+    if [ -n "$UNINSTALL" ]; then
+        info "Install dir: ${INSTALL_DIR}"
+        uninstall
+        return
+    fi
 
     local platform
     platform="$(detect_platform)"

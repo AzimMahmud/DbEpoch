@@ -129,27 +129,20 @@ If you previously installed a different way (e.g. manual download to a custom fo
 
 ### Uninstalling
 
-There's no automated uninstaller yet — remove the binary and the PATH entry the installer added:
+Both install scripts double as uninstallers — they remove the binary and the PATH entry they added (Linux/macOS: strips the block from `.zshrc`/`.bashrc`; Windows: strips the entry from your user `PATH`).
 
 ```bash
-# Linux / macOS (default install location)
-rm ~/.local/bin/dbshift
-
-# Remove the PATH entry the installer added (look for the
-# "# Added by dbshift installer" line just above it)
-$EDITOR ~/.zshrc   # or ~/.bashrc
+# Linux / macOS
+UNINSTALL=1 bash -c "$(curl -fsSL https://github.com/AzimMahmud/dbshift/releases/latest/download/install.sh)"
 ```
 
 ```powershell
-# Windows (default install location)
-Remove-Item "$env:LOCALAPPDATA\DbShift" -Recurse -Force
-
-# Remove DbShift from your user PATH
-[Environment]::SetEnvironmentVariable("Path", (
-    ([Environment]::GetEnvironmentVariable("Path", "User") -split ';' |
-        Where-Object { $_ -ne "$env:LOCALAPPDATA\DbShift" }) -join ';'
-), "User")
+# Windows — download first; a switch like -Uninstall can't be passed through `iwr | iex`
+iwr -Uri https://github.com/AzimMahmud/dbshift/releases/latest/download/install.ps1 -OutFile install.ps1
+.\install.ps1 -Uninstall
 ```
+
+If you used a non-default install directory, pass it along (`INSTALL_DIR=... UNINSTALL=1 bash ...` / `.\install.ps1 -InstallDir ... -Uninstall`).
 
 If you installed via `dotnet tool install --global DbShift`, use `dotnet tool uninstall --global DbShift` instead.
 

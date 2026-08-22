@@ -3,11 +3,16 @@
 # Usage:
 #   powershell -c "iwr -Uri https://github.com/AzimMahmud/dbshift/releases/latest/download/install.ps1 | iex"
 #   pwsh -c "iwr -Uri https://github.com/AzimMahmud/dbshift/releases/latest/download/install.ps1 | iex"
+#
+# Uninstall (download first — a switch like -Uninstall can't be passed through `iwr | iex`):
+#   iwr -Uri https://github.com/AzimMahmud/dbshift/releases/latest/download/install.ps1 -OutFile install.ps1
+#   .\install.ps1 -Uninstall
 
 param(
     [string]$Repo = "AzimMahmud/dbshift",
     [string]$Version = "latest",
-    [string]$InstallDir = "$env:LOCALAPPDATA\DbShift"
+    [string]$InstallDir = "$env:LOCALAPPDATA\DbShift",
+    [switch]$Uninstall
 )
 
 $ErrorActionPreference = "Stop"
@@ -16,6 +21,34 @@ function Info($Message) { Write-Host "  > $Message" -ForegroundColor Cyan }
 function Ok($Message)   { Write-Host "  ✓ $Message" -ForegroundColor Green }
 function Warn($Message) { Write-Host "  ⚠ $Message" -ForegroundColor Yellow }
 function Err($Message)  { Write-Host "  ✗ $Message" -ForegroundColor Red; exit 1 }
+
+# ── uninstall ────────────────────────────────────────────────────────────
+if ($Uninstall) {
+    Write-Host ""
+    Write-Host "  ╭──────────────────────────────────────╮" -ForegroundColor Cyan
+    Write-Host "  │  DbShift — database migration tool   │" -ForegroundColor Cyan
+    Write-Host "  ╰──────────────────────────────────────╯" -ForegroundColor Cyan
+    Write-Host ""
+
+    if (Test-Path $InstallDir) {
+        Remove-Item -LiteralPath $InstallDir -Recurse -Force
+        Ok "Removed $InstallDir"
+    } else {
+        Warn "No DbShift installation found at $InstallDir"
+    }
+
+    $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    if ($currentPath -and ($currentPath -split ';' -contains $InstallDir)) {
+        $newPath = (($currentPath -split ';' | Where-Object { $_ -and $_ -ne $InstallDir }) -join ';')
+        [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+        Ok "Removed $InstallDir from user PATH"
+    }
+
+    Write-Host ""
+    Info "DbShift removed. Restart your shell to fully clear it from PATH."
+    Write-Host ""
+    exit 0
+}
 
 # ── architecture detection ────────────────────────────────────────────────
 $arch = switch ([Environment]::ProcessorArchitecture) {
