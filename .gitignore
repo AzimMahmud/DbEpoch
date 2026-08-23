@@ -45,3 +45,8 @@ Database/Artifacts/*
 Database/Reports/*
 !Database/Artifacts/.gitkeep
 !Database/Reports/.gitkeep
+
+# VitePress / Node
+node_modules/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
