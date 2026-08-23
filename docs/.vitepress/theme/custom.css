@@ -28,6 +28,63 @@
   --vp-home-hero-image-background-image: linear-gradient(-45deg, #34d39950 50%, #60a5fa50 50%);
 }
 
+/* ══════════════════════════════════════
+   NAV
+   ══════════════════════════════════════ */
+
+/* Logo icon sizing */
+.VPNavBar .logo {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.VPNavBar .logo svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Nav title text next to logo (hidden via siteTitle: false, but just in case) */
+.VPNavBar .title {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Nav links */
+.VPNavBarMenuLink .text,
+.VPNavBarMenuGroup .text {
+  font-weight: 500;
+  transition: color 0.25s;
+}
+
+.VPNavBarMenuLink:hover .text,
+.VPNavBarMenuGroup:hover .text {
+  color: var(--vp-c-brand-1);
+}
+
+.VPNavBarMenuLink.is-active .text {
+  color: var(--vp-c-brand-1);
+}
+
+/* Version dropdown */
+.VPNavBar .VPMenuLink .text,
+.VPNavBar .VPMenuGroup .text {
+  font-weight: 500;
+}
+
+/* Nav divider line */
+.VPNavBar {
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+/* Social icon link */
+.VPNavBar .social-links .social-link {
+  transition: color 0.25s;
+}
+.VPNavBar .social-links .social-link:hover {
+  color: var(--vp-c-brand-1);
+}
+
 /* ── Button accents ── */
 .VPButton.brand {
   background: var(--vp-c-brand-1);
