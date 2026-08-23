@@ -5,6 +5,9 @@ hero:
   name: DbShift
   text: Database migrations that ship
   tagline: A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, and SQLite. Beautiful CLI, zero magic, production-tested patterns.
+  image:
+    src: /logo.svg
+    alt: DbShift
   actions:
     - theme: brand
       text: Get Started
