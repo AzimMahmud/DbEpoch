@@ -4,6 +4,24 @@ All notable changes to the DbShift project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.0.1] — 2026-08-23
+
+### Added
+
+- **VitePress documentation site** — full documentation site deployed to GitHub Pages via GitHub Actions, covering installation, all commands, configuration, multi-database setup, script conventions, tracking tables, architecture, and CI/CD integration.
+- **Custom light/dark theme** — branded VitePress theme with teal-blue gradient palette, styled nav, feature cards, and sidebar.
+- **GitHub Pages deployment workflow** — `.github/workflows/docs.yml` auto-deploys the docs site on push to `main`.
+- **`gh-pages` branch** — manual deployment option via `npm run docs:deploy`.
+
+### Changed
+
+- **README rewritten** — condensed from 608 to 150 lines with a professional structure: centered header, feature highlights, command table with docs links, and clear installation instructions.
+- **Nav design improved** — icon-only logo in nav bar, styled hover/active states, border divider.
+
+### Fixed
+
+- **Favicon** — now uses the square icon SVG instead of the full-width logo, displaying correctly in browser tabs.
+
 ## [2.0.0] — 2026-08-22
 
 ### Added

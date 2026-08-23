@@ -19,7 +19,7 @@ export default defineConfig({
       { text: 'Commands', link: '/commands/new' },
       { text: 'Reference', link: '/reference/global-options' },
       {
-        text: 'v2.0.0',
+        text: 'v2.0.1',
         items: [
           { text: 'Changelog', link: 'https://github.com/AzimMahmud/dbshift/blob/main/CHANGELOG.md' },
           { text: 'GitHub', link: 'https://github.com/AzimMahmud/dbshift' }
