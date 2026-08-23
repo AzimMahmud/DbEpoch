@@ -9,6 +9,7 @@ Beautiful CLI, zero magic, production-tested patterns.
 
 [![CI](https://github.com/AzimMahmud/dbshift/actions/workflows/ci.yml/badge.svg)](https://github.com/AzimMahmud/dbshift/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/AzimMahmud/dbshift?include_prereleases&color=success)](https://github.com/AzimMahmud/dbshift/releases)
+[![NuGet](https://img.shields.io/nuget/v/DbShift?logo=nuget&logoColor=white)](https://www.nuget.org/packages/DbShift)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512bd4)](https://dotnet.microsoft.com/download/dotnet/10.0)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/AzimMahmud/dbshift/blob/main/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/AzimMahmud/dbshift/blob/main/CONTRIBUTING.md)
@@ -85,16 +86,14 @@ Extract and place `dbshift` (or `dbshift.exe` on Windows) anywhere on your `PATH
 
 ### .NET global tool
 
-> **Note:** Publication to NuGet is pending. Until the package is listed, use the
-> [one-liner](#one-liner-recommended) or [manual download](#manual-download) above —
-> no .NET runtime is required. The command below will work as soon as the package is published.
-
 Requires the [.NET 10 SDK/runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ```bash
 dotnet tool install --global DbShift
 dbshift --version
 ```
+
+> **Tip:** The self-contained binary ([one-liner](#one-liner-recommended) / [manual download](#manual-download)) does not require .NET. The `dotnet tool` method is convenient if you already have the SDK installed.
 
 ### Build from source
 
