@@ -47,9 +47,13 @@
 
 /* Nav title text next to logo */
 .VPNavBar .title {
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--vp-c-brand-1);
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #0ea5b7, #2563eb, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Nav links */
