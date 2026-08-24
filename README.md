@@ -1,6 +1,6 @@
 ﻿<div align="center">
 
-<img src="./logo.png" alt="DbEpoch" width="120">
+<img src="./icon.png" alt="DbEpoch" width="120">
 
 # DbEpoch
 
