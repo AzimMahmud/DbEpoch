@@ -13,21 +13,21 @@ dotnet test --filter "Category!=Integration"
 ```
 
 Requirements:
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) â€” `global.json` pins `10.0.100` with `latestFeature` roll-forward
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) — `global.json` pins `10.0.100` with `latestFeature` roll-forward
 - PowerShell 7+ (Windows) or bash (Linux/macOS) for the build scripts
-- Docker (optional) â€” only needed to run the real-database integration tests: `dotnet test tests/DbEpoch.Engine.Tests --filter "Category=Integration"`
+- Docker (optional) — only needed to run the real-database integration tests: `dotnet test tests/DbEpoch.Engine.Tests --filter "Category=Integration"`
 
 ## Project structure
 
 ```
 src/
-â”œâ”€â”€ DbEpoch.Core/          domain model, no dependencies
-â”œâ”€â”€ DbEpoch.Engine/        script parser, migration executor, in-memory doubles
-â”œâ”€â”€ DbEpoch.Infrastructure/ providers, relational implementations, config loading
-â””â”€â”€ DbEpoch.CLI/           executable, argument parsing, Spectre.Console.Cli UI
+├── DbEpoch.Core/          domain model, no dependencies
+├── DbEpoch.Engine/        script parser, migration executor, in-memory doubles
+├── DbEpoch.Infrastructure/ providers, relational implementations, config loading
+└── DbEpoch.CLI/           executable, argument parsing, Spectre.Console.Cli UI
 tests/
-â””â”€â”€ DbEpoch.Engine.Tests/  116 tests: parser, executor, config loader, locks, exceptions
-    â””â”€â”€ Integration/        54 tests: same tracker/lock/audit contract against real
+└── DbEpoch.Engine.Tests/  116 tests: parser, executor, config loader, locks, exceptions
+    └── Integration/        54 tests: same tracker/lock/audit contract against real
                              PostgreSQL/MySQL/SQL Server containers (needs Docker)
 ```
 

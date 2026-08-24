@@ -56,7 +56,7 @@ cd DbEpoch
 
 ```bash
 DbEpoch --version
-# -> DbEpoch v2.0.0
+# -> DbEpoch v2.1.0
 # -> database migrations for .NET
 ```
 
@@ -74,7 +74,7 @@ where.exe DbEpoch
 
 :::
 
-`which -a` lists every match on PATH, not just the first. This matters because it's possible to have multiple copies on PATH (e.g. one from the installer, another installed manually) â€” only the first one in PATH order actually runs.
+`which -a` lists every match on PATH, not just the first. This matters because it's possible to have multiple copies on PATH (e.g. one from the installer, another installed manually) — only the first one in PATH order actually runs.
 
 ## Updating
 

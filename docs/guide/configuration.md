@@ -40,8 +40,8 @@ DbEpoch uses a two-tier configuration: a global `migration.json` file and per-en
 | Option | Default | Description |
 |--------|---------|-------------|
 | `version` | `1.0.0` | Configuration schema version |
-| `database.provider` | â€” | Database engine: `postgresql`, `sqlserver`, `mysql`, or `sqlite` |
-| `database.connectionString` | â€” | Connection string (supports `${VAR}` expansion) |
+| `database.provider` | — | Database engine: `postgresql`, `sqlserver`, `mysql`, or `sqlite` |
+| `database.connectionString` | — | Connection string (supports `${VAR}` expansion) |
 | `scripts.path` | `./Database/Migrations` | Relative path to migration scripts |
 | `scripts.pattern` | `*.sql` | File glob for migration scripts |
 | `tracking.schema` | `public` | Database schema for tracking tables |

@@ -39,13 +39,13 @@ Also accepts [global options](/reference/global-options).
 
 ## What happens during a deploy
 
-1. **Lock acquisition** â€” acquires a row-level distributed lock to prevent concurrent runs
-2. **Plan computation** â€” determines which migrations are pending
-3. **Batch execution** â€” applies migrations in batches (configurable via `batchSize`)
-4. **Status tracking** â€” each migration is recorded in `__migration_history`
-5. **Audit logging** â€” every action logged in `__migration_audit`
-6. **Lock release** â€” releases the distributed lock
-7. **Result reporting** â€” shows what was applied, how long it took
+1. **Lock acquisition** — acquires a row-level distributed lock to prevent concurrent runs
+2. **Plan computation** — determines which migrations are pending
+3. **Batch execution** — applies migrations in batches (configurable via `batchSize`)
+4. **Status tracking** — each migration is recorded in `__migration_history`
+5. **Audit logging** — every action logged in `__migration_audit`
+6. **Lock release** — releases the distributed lock
+7. **Result reporting** — shows what was applied, how long it took
 
 ## Approval gating
 
@@ -73,7 +73,7 @@ DbEpoch migrate --environment production
 DbEpoch migrate --environment production --force
 ```
 
-Times are evaluated against local time using invariant culture â€” `Mon`, `Tuesday`, or `TUESDAY` all match.
+Times are evaluated against local time using invariant culture — `Mon`, `Tuesday`, or `TUESDAY` all match.
 
 ## On failure
 

@@ -76,7 +76,7 @@ Database/
 .gitignore
 ```
 
-The example migration (`V001__Example_Users.sql`) is generated with correct SQL for your chosen provider â€” proper column types, defaults, and index syntax.
+The example migration (`V001__Example_Users.sql`) is generated with correct SQL for your chosen provider — proper column types, defaults, and index syntax.
 
 ## Modular monoliths
 

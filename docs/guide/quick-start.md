@@ -20,7 +20,7 @@ DbEpoch new --name MyApp --provider sqlserver --output ./my-db-project
 
 :::
 
-When called without flags, `DbEpoch new` enters interactive mode â€” it prompts for your project name, lets you select the database provider, and asks whether to use the current directory.
+When called without flags, `DbEpoch new` enters interactive mode — it prompts for your project name, lets you select the database provider, and asks whether to use the current directory.
 
 This creates:
 

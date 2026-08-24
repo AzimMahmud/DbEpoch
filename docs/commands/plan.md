@@ -1,4 +1,4 @@
-﻿# plan
+# plan
 
 Compute and display the pending execution plan. Alias: `dry-run`.
 
@@ -27,7 +27,7 @@ DbEpoch plan --json
   Pending migrations: 3
 
   #  Type     Script                                    Rollback
-  â”€  â”€â”€â”€â”€â”€â”€â”€  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€  â”€â”€â”€â”€â”€â”€â”€â”€
+    ────────  ────────  ────────  ────────
   1  Schema   V002__AddOrders.sql                       yes
   2  Schema   V003__AddOrderItems.sql                   yes
   3  Data     V004__SeedOrderStatuses.sql               no
@@ -35,6 +35,6 @@ DbEpoch plan --json
 
 ## How it works
 
-`plan` uses in-memory tracking â€” it scans your migration files, compares them against what would be in the tracking table, and computes the diff. No database connection is needed.
+`plan` uses in-memory tracking — it scans your migration files, compares them against what would be in the tracking table, and computes the diff. No database connection is needed.
 
 This makes it safe to run anywhere: your local machine, a CI pipeline, a code review.

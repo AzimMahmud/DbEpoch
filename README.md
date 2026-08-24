@@ -1,6 +1,6 @@
 ﻿<div align="center">
 
-<img src="https://raw.githubusercontent.com/AzimMahmud/DbEpoch/main/.github/assets/icon.svg" alt="DbEpoch" width="120">
+<img src="./logo.png" alt="DbEpoch" width="120">
 
 # DbEpoch
 
@@ -17,7 +17,7 @@ A Flyway-style migration tool for **PostgreSQL**, **SQL Server**, **MySQL**, and
 
 <br>
 
-[Documentation](https://azimmahmud.github.io/DbEpoch/) Â· [Report Bug](https://github.com/AzimMahmud/DbEpoch/issues) Â· [Request Feature](https://github.com/AzimMahmud/DbEpoch/issues)
+[Documentation](https://azimmahmud.github.io/DbEpoch/) · [Report Bug](https://github.com/AzimMahmud/DbEpoch/issues) · [Request Feature](https://github.com/AzimMahmud/DbEpoch/issues)
 
 </div>
 
@@ -25,18 +25,18 @@ A Flyway-style migration tool for **PostgreSQL**, **SQL Server**, **MySQL**, and
 
 ## What is DbEpoch?
 
-DbEpoch is a SQL-first database migration tool for .NET. You write plain `.sql` files, and DbEpoch tracks, validates, and applies them across environments â€” with built-in safety features for production use.
+DbEpoch is a SQL-first database migration tool for .NET. You write plain `.sql` files, and DbEpoch tracks, validates, and applies them across environments — with built-in safety features for production use.
 
 **Why not Entity Framework migrations?** EF migrations are tightly coupled to your application code and hard to control in production. DbEpoch keeps migrations as standalone SQL files that live in your repository, work with any language or framework, and give you full control over what runs and when.
 
 ## Features
 
-- **SQL-first** â€” Plain `.sql` files. No embedded DSL, no XML, no surprises.
-- **Multi-database** â€” PostgreSQL, SQL Server, MySQL, and SQLite. Switch providers without changing your workflow.
-- **Safe by design** â€” Distributed locks, approval gates, deployment windows, and audit trails.
-- **CI-friendly** â€” Every command supports `--json` output and deterministic exit codes.
-- **Works offline** â€” Validate, plan, and scaffold without a database connection.
-- **Checksum integrity** â€” SHA-256 checksums detect when previously-applied scripts are edited in place.
+- **SQL-first** — Plain `.sql` files. No embedded DSL, no XML, no surprises.
+- **Multi-database** — PostgreSQL, SQL Server, MySQL, and SQLite. Switch providers without changing your workflow.
+- **Safe by design** — Distributed locks, approval gates, deployment windows, and audit trails.
+- **CI-friendly** — Every command supports `--json` output and deterministic exit codes.
+- **Works offline** — Validate, plan, and scaffold without a database connection.
+- **Checksum integrity** — SHA-256 checksums detect when previously-applied scripts are edited in place.
 
 ## Quick Start
 
@@ -60,7 +60,7 @@ DbEpoch migrate -c "Host=localhost;Database=myapp;Username=postgres"
 
 ## Installation
 
-No .NET SDK or runtime required â€” the binary is self-contained.
+No .NET SDK or runtime required — the binary is self-contained.
 
 ```bash
 # Linux / macOS
@@ -162,4 +162,4 @@ Contributions are welcome! Please see [CONTRIBUTING.md](https://github.com/AzimM
 
 ## License
 
-[MIT](https://github.com/AzimMahmud/blob/main/LICENSE)
+[MIT](https://github.com/AzimMahmud/DbEpoch/blob/main/LICENSE)

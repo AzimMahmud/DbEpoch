@@ -45,11 +45,11 @@ If no `U` script exists for a migration, rollback fails with a clear message.
 
 ## Rollback order
 
-When rolling back multiple migrations (`--count` or `--target-version`), they are undone in **reverse chronological order** â€” most recent first.
+When rolling back multiple migrations (`--count` or `--target-version`), they are undone in **reverse chronological order** — most recent first.
 
 ## Notes
 
 - Rollback executes the `U` script in a transaction
 - The migration record is updated to `RolledBack` status in `__migration_history`
 - The audit trail records the rollback action
-- Some environments may have `allowRollback: false` â€” check your environment config
+- Some environments may have `allowRollback: false` — check your environment config

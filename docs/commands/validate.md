@@ -49,6 +49,6 @@ DbEpoch validate --json
 
 ## When to run
 
-- Before `plan` or `migrate` â€” catches issues early
-- In CI â€” fast, no database needed
-- After editing existing scripts â€” detects checksum drift potential
+- Before `plan` or `migrate` — catches issues early
+- In CI — fast, no database needed
+- After editing existing scripts — detects checksum drift potential

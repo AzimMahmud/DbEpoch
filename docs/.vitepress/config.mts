@@ -7,11 +7,11 @@ export default defineConfig({
   base: '/DbEpoch/',
 
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/DbEpoch/icon.png' }]
+    ['link', { rel: 'icon', type: 'image/png', href: '/DbEpoch/logo.png' }]
   ],
 
   themeConfig: {
-    logo: '/icon.png',
+    logo: '/logo.png',
     siteTitle: false,
 
     nav: [
@@ -19,7 +19,7 @@ export default defineConfig({
       { text: 'Commands', link: '/commands/new' },
       { text: 'Reference', link: '/reference/global-options' },
       {
-        text: 'v2.0.1',
+        text: 'v2.1.0',
         items: [
           { text: 'Changelog', link: 'https://github.com/AzimMahmud/DbEpoch/blob/main/CHANGELOG.md' },
           { text: 'GitHub', link: 'https://github.com/AzimMahmud/DbEpoch' }

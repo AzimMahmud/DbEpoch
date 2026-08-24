@@ -1,4 +1,4 @@
-﻿# status
+# status
 
 Show migration status for an environment.
 
@@ -26,13 +26,13 @@ Also accepts [global options](/reference/global-options).
   Failed:         1
 
   #  Version  Name                  Status       Type     Executed At           Duration
-  â”€  â”€â”€â”€â”€â”€â”€â”€  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€  â”€â”€â”€â”€â”€â”€â”€  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€  â”€â”€â”€â”€â”€â”€â”€â”€
+    ────────  ────────  ────────  ────────  ────────  ────────  ────────
   1  001      CreateUsers           Completed    Schema   2026-06-15 10:23:00   145ms
   2  002      CreateRoles           Completed    Schema   2026-06-15 10:23:01   89ms
   3  003      SeedRoles             Completed    Data     2026-06-15 10:23:02   234ms
   ...
   11  011      AddOrders             Failed       Schema   2026-06-17 14:00:00   56ms
-  12  012      AddOrderItems         Pending      Schema   â€”                     â€”
+  12  012      AddOrderItems         Pending      Schema   —                     —
 ```
 
 ## Status values

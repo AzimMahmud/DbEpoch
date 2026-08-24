@@ -18,7 +18,7 @@ DbEpoch init --connection-string "Host=localhost;Database=myapp;Username=postgre
 | `__migration_lock` | Distributed lock preventing concurrent deploys |
 | `__migration_audit` | Append-only audit trail |
 
-The DDL is idempotent â€” if the tables already exist, `init` won't modify them.
+The DDL is idempotent — if the tables already exist, `init` won't modify them.
 
 ## When to run
 

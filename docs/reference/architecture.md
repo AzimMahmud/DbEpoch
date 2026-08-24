@@ -18,25 +18,25 @@ DbEpoch/
 ## Layer diagram
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚              DbEpoch.CLI                     â”‚
-â”‚   Program.cs Â· Commands Â· ConsoleHelper      â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-                    â”‚ uses
-            â”Œâ”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-            â”‚    Engine      â”‚â”€â”€â”€â”€â–¶â”‚      Core         â”‚
-            â”‚ ScriptParser   â”‚     â”‚ Entities Â· Enums  â”‚
-            â”‚ MigrationExec  â”‚     â”‚ ValueObjects      â”‚
-            â”‚ InMemory impls â”‚     â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-            â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜              â–²
-                    â”‚ implements            â”‚ implements
-    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-    â”‚                  Infrastructure                   â”‚
-    â”‚  Providers/                                        â”‚
-    â”‚    PostgreSql Â· SqlServer Â· MySql Â· Sqlite         â”‚
-    â”‚  Relational{Tracker, LockManager, Executor, Audit} â”‚
-    â”‚  FileSystemConfigLoader                            â”‚
-    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+┌──────────────────────────────────────────┐
+│              DbEpoch.CLI                 │
+│   Program.cs · Commands · ConsoleHelper  │
+└──────────────────┬───────────────────────┘
+                   │ uses
+        ┌──────────┴─────────┐     ┌──────────────────┐
+        │    Engine          │     │      Core         │
+        │ ScriptParser       │────▶│ Entities · Enums  │
+        │ MigrationExec      │     │ ValueObjects      │
+        │ InMemory impls     │     └──────────────────┘
+        └──────────┬─────────┘              ▲
+                   │ implements             │ implements
+    ┌──────────────┴────────────────────────┴───────────────┐
+    │                  Infrastructure                       │
+    │  Providers/                                           │
+    │    PostgreSql · SqlServer · MySql · Sqlite            │
+    │  Relational{Tracker, LockManager, Executor, Audit}    │
+    │  FileSystemConfigLoader                               │
+    └───────────────────────────────────────────────────────┘
 ```
 
 ## Core (`DbEpoch.Core`)
@@ -85,7 +85,7 @@ The `DbEpoch` executable built with Spectre.Console.Cli.
 |-------|---------------|
 | `Program` | Entry point, command registration |
 | `CliCommandBase` | Shared helpers for all commands |
-| `CliHost` | Composition root â€” resolves providers, wires implementations |
+| `CliHost` | Composition root — resolves providers, wires implementations |
 | `ConsoleHelper` | Spectre.Console UI: banners, tables, spinners, gradient text |
 | `Theme` | Color palette and glyphs |
 

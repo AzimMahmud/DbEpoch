@@ -26,8 +26,8 @@ One row per applied migration per environment.
 | `batch_number` | INTEGER | Batch number for grouped executions |
 
 **Unique constraints:**
-- `(script_name, environment)` â€” each script applied once per environment
-- `(version, environment)` WHERE `version <> 'R'` â€” one versioned migration per version per environment
+- `(script_name, environment)` — each script applied once per environment
+- `(version, environment)` WHERE `version <> 'R'` — one versioned migration per version per environment
 
 ## `__migration_lock`
 
@@ -43,7 +43,7 @@ Distributed lock preventing concurrent deploys.
 | `environment` | VARCHAR | Target environment |
 | `is_active` | BOOLEAN | Whether the lock is currently held |
 
-The lock uses lease-based expiry with automatic renewal during batch execution. This means a crashed deployment won't block future runs indefinitely â€” the lock expires after `lockTimeoutSeconds`.
+The lock uses lease-based expiry with automatic renewal during batch execution. This means a crashed deployment won't block future runs indefinitely — the lock expires after `lockTimeoutSeconds`.
 
 ## `__migration_audit`
 
