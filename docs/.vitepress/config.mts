@@ -7,11 +7,11 @@ export default defineConfig({
   base: '/DbEpoch/',
 
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/DbEpoch/logo.png' }]
+    ['link', { rel: 'icon', type: 'image/png', href: '/DbEpoch/icon.png' }]
   ],
 
   themeConfig: {
-    logo: '/logo-light.png',
+    logo: '/icon.png',
     siteTitle: 'DbEpoch',
 
     nav: [
