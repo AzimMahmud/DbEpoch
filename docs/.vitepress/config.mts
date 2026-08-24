@@ -12,7 +12,7 @@ export default defineConfig({
 
   themeConfig: {
     logo: '/logo-light.png',
-    siteTitle: false,
+    siteTitle: 'DbEpoch',
 
     nav: [
       { text: 'Guide', link: '/guide/installation' },

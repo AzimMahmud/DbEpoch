@@ -45,10 +45,11 @@
   object-fit: contain;
 }
 
-/* Nav title text next to logo (hidden via siteTitle: false, but just in case) */
+/* Nav title text next to logo */
 .VPNavBar .title {
   font-weight: 700;
   font-size: 16px;
+  color: var(--vp-c-brand-1);
 }
 
 /* Nav links */
