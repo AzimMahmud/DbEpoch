@@ -1,5 +1,5 @@
-name: Feature Request
-description: Suggest an idea for DbShift
+﻿name: Feature Request
+description: Suggest an idea for DbEpoch
 labels: [enhancement]
 
 body:
@@ -20,8 +20,8 @@ body:
     id: solution
     attributes:
       label: Proposed solution
-      description: What should DbShift do differently?
-      placeholder: Add a new command `dbshift ...` that ...
+      description: What should DbEpoch do differently?
+      placeholder: Add a new command `DbEpoch ...` that ...
     validations:
       required: true
 

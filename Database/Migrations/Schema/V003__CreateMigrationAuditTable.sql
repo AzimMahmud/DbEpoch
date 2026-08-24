@@ -1,8 +1,8 @@
--- Migration: Create Migration Audit Table
+﻿-- Migration: Create Migration Audit Table
 -- Author: System
 -- Created: 2026-06-16
 -- Description: Creates the migration audit trail table.
--- Mirrors the schema produced by `dbshift init` (PostgreSQL variant).
+-- Mirrors the schema produced by `dbepoch init` (PostgreSQL variant).
 
 CREATE TABLE IF NOT EXISTS __migration_audit (
     id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),

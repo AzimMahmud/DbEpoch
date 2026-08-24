@@ -1,6 +1,6 @@
-# Global Options
+﻿# Global Options
 
-These options are available on every `dbshift` command.
+These options are available on every `DbEpoch` command.
 
 ## Options
 
@@ -23,19 +23,19 @@ These options are available on every `dbshift` command.
 
 ```bash
 # Use a specific environment
-dbshift migrate --environment production
+DbEpoch migrate --environment production
 
 # Override the provider
-dbshift migrate -p sqlserver -c "Server=...;Database=...;..."
+DbEpoch migrate -p sqlserver -c "Server=...;Database=...;..."
 
 # Offline mode
-dbshift plan --in-memory
+DbEpoch plan --in-memory
 
 # CI mode (no prompts, JSON output)
-dbshift migrate --environment development --yes --json
+DbEpoch migrate --environment development --yes --json
 
 # From a different repository root
-dbshift validate --base-path /path/to/other/repo
+DbEpoch validate --base-path /path/to/other/repo
 ```
 
 ## Environment variable expansion

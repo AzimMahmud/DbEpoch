@@ -1,33 +1,33 @@
-# Contributing to DbShift
+﻿# Contributing to DbEpoch
 
 Thanks for your interest! Here's how to get started.
 
 ## Development setup
 
 ```bash
-git clone https://github.com/AzimMahmud/dbshift.git
-cd dbshift
+git clone https://github.com/AzimMahmud/DbEpoch.git
+cd DbEpoch
 dotnet restore
 dotnet build
 dotnet test --filter "Category!=Integration"
 ```
 
 Requirements:
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) — `global.json` pins `10.0.100` with `latestFeature` roll-forward
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) â€” `global.json` pins `10.0.100` with `latestFeature` roll-forward
 - PowerShell 7+ (Windows) or bash (Linux/macOS) for the build scripts
-- Docker (optional) — only needed to run the real-database integration tests: `dotnet test tests/DbShift.Engine.Tests --filter "Category=Integration"`
+- Docker (optional) â€” only needed to run the real-database integration tests: `dotnet test tests/DbEpoch.Engine.Tests --filter "Category=Integration"`
 
 ## Project structure
 
 ```
 src/
-├── DbShift.Core/          domain model, no dependencies
-├── DbShift.Engine/        script parser, migration executor, in-memory doubles
-├── DbShift.Infrastructure/ providers, relational implementations, config loading
-└── DbShift.CLI/           executable, argument parsing, Spectre.Console.Cli UI
+â”œâ”€â”€ DbEpoch.Core/          domain model, no dependencies
+â”œâ”€â”€ DbEpoch.Engine/        script parser, migration executor, in-memory doubles
+â”œâ”€â”€ DbEpoch.Infrastructure/ providers, relational implementations, config loading
+â””â”€â”€ DbEpoch.CLI/           executable, argument parsing, Spectre.Console.Cli UI
 tests/
-└── DbShift.Engine.Tests/  116 tests: parser, executor, config loader, locks, exceptions
-    └── Integration/        54 tests: same tracker/lock/audit contract against real
+â””â”€â”€ DbEpoch.Engine.Tests/  116 tests: parser, executor, config loader, locks, exceptions
+    â””â”€â”€ Integration/        54 tests: same tracker/lock/audit contract against real
                              PostgreSQL/MySQL/SQL Server containers (needs Docker)
 ```
 
@@ -42,15 +42,15 @@ tests/
 ## Making changes
 
 1. Fork and create a feature branch from `main`.
-2. Make your changes. Keep them focused — one change per PR.
-3. Run `dotnet build` and `dotnet test` — both must pass cleanly.
+2. Make your changes. Keep them focused â€” one change per PR.
+3. Run `dotnet build` and `dotnet test` â€” both must pass cleanly.
 4. If adding a new command, add it to the help table and docs.
 5. Open a PR against `main`.
 
 ## Adding a new database provider
 
 1. Create a class implementing `IDatabaseProvider` in `Infrastructure/Database/Providers/`.
-2. Add the NuGet package reference to `DbShift.Infrastructure.csproj`.
+2. Add the NuGet package reference to `DbEpoch.Infrastructure.csproj`.
 3. Register it in `DatabaseProviderFactory.CreateProvider()`.
 4. Add the provider config value to the README table.
 5. Update provider-specific SQL helpers in `CLI/Helpers/ProviderSqlHelper.cs`.
@@ -79,4 +79,4 @@ Before submitting:
 
 ## Questions?
 
-Open a [Discussion](https://github.com/AzimMahmud/dbshift/discussions) or an Issue.
+Open a [Discussion](https://github.com/AzimMahmud/DbEpoch/discussions) or an Issue.

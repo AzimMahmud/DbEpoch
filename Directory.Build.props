@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
 
   <PropertyGroup>
     <!-- .NET 10 only (dropped the net6.0/net8.0 multi-targeting). -->
@@ -13,11 +13,11 @@
     <Deterministic>true</Deterministic>
 
     <!-- Package metadata -->
-    <Authors>DbShift Contributors</Authors>
-    <Copyright>Copyright (c) 2025 DbShift Contributors</Copyright>
+    <Authors>DbEpoch Contributors</Authors>
+    <Copyright>Copyright (c) 2025 DbEpoch Contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/AzimMahmud/dbshift</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/AzimMahmud/dbshift</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/AzimMahmud/DbEpoch</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AzimMahmud/DbEpoch</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true' Or '$(TF_BUILD)' == 'true'">true</ContinuousIntegrationBuild>

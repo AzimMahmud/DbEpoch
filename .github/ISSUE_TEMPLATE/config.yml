@@ -1,8 +1,8 @@
-blank_issues_enabled: true
+﻿blank_issues_enabled: true
 contact_links:
   - name: Discussions
-    url: https://github.com/AzimMahmud/dbshift/discussions
+    url: https://github.com/AzimMahmud/DbEpoch/discussions
     about: Ask questions, share ideas, or get help with configuration.
   - name: Documentation
-    url: https://github.com/AzimMahmud/dbshift/blob/main/docs/USAGE.md
+    url: https://github.com/AzimMahmud/DbEpoch/blob/main/docs/USAGE.md
     about: Read the full usage guide before opening an issue.

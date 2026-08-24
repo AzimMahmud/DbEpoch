@@ -1,4 +1,4 @@
-name: release
+﻿name: release
 
 on:
   push:
@@ -27,7 +27,7 @@ env:
 
 jobs:
   build:
-    # Ignore stray branch pushes — this workflow only publishes version tags.
+    # Ignore stray branch pushes â€” this workflow only publishes version tags.
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
@@ -36,12 +36,20 @@ jobs:
             asset: windows-x64
             ext: .exe
             compress: zip
+          - rid: win-arm64
+            asset: windows-arm64
+            ext: .exe
+            compress: zip
           - rid: linux-x64
             asset: linux-x64
             ext: ''
             compress: tar.gz
           - rid: linux-arm64
             asset: linux-arm64
+            ext: ''
+            compress: tar.gz
+          - rid: linux-musl-x64
+            asset: linux-musl-x64
             ext: ''
             compress: tar.gz
           - rid: osx-x64
@@ -67,7 +75,7 @@ jobs:
           global-json-file: global.json
 
       - name: Publish (${{ matrix.rid }})
-        run: dotnet publish src/DbShift.CLI \
+        run: dotnet publish src/DbEpoch.CLI \
           --configuration Release \
           --framework ${{ env.PUBLISH_FRAMEWORK }} \
           --runtime ${{ matrix.rid }} \
@@ -79,21 +87,21 @@ jobs:
       - name: Rename binary
         shell: bash
         run: |
-          mv ./publish/${{ matrix.rid }}/dbshift${{ matrix.ext }} ./dbshift${{ matrix.ext }}
+          mv ./publish/${{ matrix.rid }}/DbEpoch${{ matrix.ext }} ./DbEpoch${{ matrix.ext }}
 
       - name: Compress (zip)
         if: matrix.compress == 'zip'
-        run: Compress-Archive -Path ./dbshift.exe -DestinationPath ./dbshift-${{ matrix.asset }}.zip
+        run: Compress-Archive -Path ./DbEpoch.exe -DestinationPath ./DbEpoch-${{ matrix.asset }}.zip
 
       - name: Compress (tar.gz)
         if: matrix.compress == 'tar.gz'
-        run: tar -czf ./dbshift-${{ matrix.asset }}.tar.gz ./dbshift${{ matrix.ext }}
+        run: tar -czf ./DbEpoch-${{ matrix.asset }}.tar.gz ./DbEpoch${{ matrix.ext }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dbshift-${{ matrix.asset }}
-          path: ./dbshift-${{ matrix.asset }}.*
+          name: DbEpoch-${{ matrix.asset }}
+          path: ./DbEpoch-${{ matrix.asset }}.*
           if-no-files-found: error
 
   publish-nuget:
@@ -126,7 +134,7 @@ jobs:
 
       - name: Pack
         if: steps.nuget.outputs.enabled == 'true'
-        run: dotnet pack src/DbShift.CLI \
+        run: dotnet pack src/DbEpoch.CLI \
           --configuration Release \
           --output ./nupkg \
           -p:IncludeSymbols=true \
@@ -168,11 +176,11 @@ jobs:
           # install scripts so consumers can verify integrity end-to-end.
           (
             shopt -s nullglob
-            for f in dbshift-*.zip dbshift-*.tar.gz; do
+            for f in DbEpoch-*.zip DbEpoch-*.tar.gz; do
               [ -f "$f" ] && sha256sum "$f"
             done
           ) > ./SHA256SUMS
-          # Include the install scripts too — they are referenced from the same release.
+          # Include the install scripts too â€” they are referenced from the same release.
           cp ../install.sh .
           cp ../install.ps1 .
           sha256sum install.sh install.ps1 >> ./SHA256SUMS
@@ -183,7 +191,7 @@ jobs:
         run: |
           TAG="${RELEASE_TAG}"
           cat <<EOF > ./release-notes.md
-          # DbShift $TAG
+          # DbEpoch $TAG
 
           ## Installation
 
@@ -198,23 +206,25 @@ jobs:
           The install scripts automatically verify the downloaded archive against
           \`SHA256SUMS\` published alongside this release.
 
-          > **.NET global tool** (\`dotnet tool install --global DbShift\`) will be available once the package is published to NuGet.
+          > **.NET global tool** (\`dotnet tool install --global DbEpoch\`) will be available once the package is published to NuGet.
 
-          > **macOS users:** the first time you run \`dbshift\`, Gatekeeper may
+          > **macOS users:** the first time you run \`DbEpoch\`, Gatekeeper may
           > quarantine the binary. Remove the quarantine attribute with:
           > \`\`\`bash
-          > xattr -d com.apple.quarantine "$(which dbshift)"
+          > xattr -d com.apple.quarantine "$(which DbEpoch)"
           > \`\`\`
 
           ## Downloads
 
           | Platform | Package |
           |----------|--------|
-          | Windows x64 | \`dbshift-windows-x64.zip\` |
-          | Linux x64 | \`dbshift-linux-x64.tar.gz\` |
-          | Linux arm64 | \`dbshift-linux-arm64.tar.gz\` |
-          | macOS x64 | \`dbshift-macos-x64.tar.gz\` |
-          | macOS arm64 | \`dbshift-macos-arm64.tar.gz\` |
+          | Windows x64 | \`DbEpoch-windows-x64.zip\` |
+          | Windows ARM64 | \`DbEpoch-windows-arm64.zip\` |
+          | Linux x64 | \`DbEpoch-linux-x64.tar.gz\` |
+          | Linux ARM64 | \`DbEpoch-linux-arm64.tar.gz\` |
+          | Linux musl x64 (Alpine) | \`DbEpoch-linux-musl-x64.tar.gz\` |
+          | macOS x64 | \`DbEpoch-macos-x64.tar.gz\` |
+          | macOS ARM64 | \`DbEpoch-macos-arm64.tar.gz\` |
 
           ## Verifying integrity
 
@@ -237,13 +247,13 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
-          name: DbShift ${{ env.RELEASE_TAG }}
+          name: DbEpoch ${{ env.RELEASE_TAG }}
           body_path: ./release-notes.md
           draft: false
           prerelease: false
           files: |
             ./install.sh
             ./install.ps1
-            ./release-artifacts/dbshift-*.zip
-            ./release-artifacts/dbshift-*.tar.gz
+            ./release-artifacts/DbEpoch-*.zip
+            ./release-artifacts/DbEpoch-*.tar.gz
             ./release-artifacts/SHA256SUMS

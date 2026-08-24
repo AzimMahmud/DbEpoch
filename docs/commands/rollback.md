@@ -1,4 +1,4 @@
-# rollback
+﻿# rollback
 
 Roll back one or more previously applied migrations using `U` scripts.
 
@@ -8,16 +8,16 @@ Roll back one or more previously applied migrations using `U` scripts.
 
 ```bash
 # Roll back the last migration
-dbshift rollback --environment local
+DbEpoch rollback --environment local
 
 # Roll back the last 3 migrations
-dbshift rollback --environment production --count 3
+DbEpoch rollback --environment production --count 3
 
 # Roll back a specific version
-dbshift rollback --environment production --target-version 003
+DbEpoch rollback --environment production --target-version 003
 
 # Non-interactive
-dbshift rollback --environment production --yes
+DbEpoch rollback --environment production --yes
 ```
 
 ## Options
@@ -45,11 +45,11 @@ If no `U` script exists for a migration, rollback fails with a clear message.
 
 ## Rollback order
 
-When rolling back multiple migrations (`--count` or `--target-version`), they are undone in **reverse chronological order** — most recent first.
+When rolling back multiple migrations (`--count` or `--target-version`), they are undone in **reverse chronological order** â€” most recent first.
 
 ## Notes
 
 - Rollback executes the `U` script in a transaction
 - The migration record is updated to `RolledBack` status in `__migration_history`
 - The audit trail records the rollback action
-- Some environments may have `allowRollback: false` — check your environment config
+- Some environments may have `allowRollback: false` â€” check your environment config

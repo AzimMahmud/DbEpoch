@@ -1,6 +1,6 @@
-# Configuration
+﻿# Configuration
 
-DbShift uses a two-tier configuration: a global `migration.json` file and per-environment overrides.
+DbEpoch uses a two-tier configuration: a global `migration.json` file and per-environment overrides.
 
 ## Global config
 
@@ -40,8 +40,8 @@ DbShift uses a two-tier configuration: a global `migration.json` file and per-en
 | Option | Default | Description |
 |--------|---------|-------------|
 | `version` | `1.0.0` | Configuration schema version |
-| `database.provider` | — | Database engine: `postgresql`, `sqlserver`, `mysql`, or `sqlite` |
-| `database.connectionString` | — | Connection string (supports `${VAR}` expansion) |
+| `database.provider` | â€” | Database engine: `postgresql`, `sqlserver`, `mysql`, or `sqlite` |
+| `database.connectionString` | â€” | Connection string (supports `${VAR}` expansion) |
 | `scripts.path` | `./Database/Migrations` | Relative path to migration scripts |
 | `scripts.pattern` | `*.sql` | File glob for migration scripts |
 | `tracking.schema` | `public` | Database schema for tracking tables |
@@ -107,12 +107,12 @@ All `${VAR}` tokens in configuration files are expanded from environment variabl
 
 ```bash
 export DB_CONNECTION_STRING="Host=localhost;Database=myapp;Username=postgres"
-dbshift migrate
+DbEpoch migrate
 ```
 
 ## Connection string resolution order
 
-When `dbshift migrate` runs, the connection string is resolved in this order:
+When `DbEpoch migrate` runs, the connection string is resolved in this order:
 
 1. `--connection-string` CLI flag (highest priority)
 2. `DB_CONNECTION_STRING` environment variable
@@ -124,7 +124,7 @@ Each step is skipped if the value is not set or empty. The first non-empty value
 ## Validating your config
 
 ```bash
-dbshift info
+DbEpoch info
 ```
 
 Shows your current configuration, resolved provider, available environments, and file paths.

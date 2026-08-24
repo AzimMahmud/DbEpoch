@@ -1,4 +1,4 @@
-## Description
+﻿## Description
 
 <!-- Briefly describe the change and why it's needed. -->
 
@@ -25,7 +25,7 @@ Fixes #(issue)
 
 ```bash
 # Commands to verify your change
-dbshift validate
-dbshift plan
+DbEpoch validate
+DbEpoch plan
 ...
 ```

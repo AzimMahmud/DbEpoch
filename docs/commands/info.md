@@ -1,4 +1,4 @@
-# info
+﻿# info
 
 Show configuration, provider, environments, and paths. Alias: `config`.
 
@@ -7,8 +7,8 @@ Show configuration, provider, environments, and paths. Alias: `config`.
 ## Usage
 
 ```bash
-dbshift info
-dbshift info --json
+DbEpoch info
+DbEpoch info --json
 ```
 
 Also accepts [global options](/reference/global-options).
@@ -16,7 +16,7 @@ Also accepts [global options](/reference/global-options).
 ## Example output
 
 ```
- DbShift Configuration
+ DbEpoch Configuration
 
   Provider:         PostgreSQL
   Base path:        /home/user/myapp

@@ -1,17 +1,17 @@
-import { defineConfig } from 'vitepress'
+﻿import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'DbShift',
+  title: 'DbEpoch',
   description: 'Database migrations that ship. A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, and SQLite.',
 
-  base: '/dbshift/',
+  base: '/DbEpoch/',
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/dbshift/icon.svg' }]
+    ['link', { rel: 'icon', type: 'image/png', href: '/DbEpoch/icon.png' }]
   ],
 
   themeConfig: {
-    logo: '/icon.svg',
+    logo: '/icon.png',
     siteTitle: false,
 
     nav: [
@@ -21,8 +21,8 @@ export default defineConfig({
       {
         text: 'v2.0.1',
         items: [
-          { text: 'Changelog', link: 'https://github.com/AzimMahmud/dbshift/blob/main/CHANGELOG.md' },
-          { text: 'GitHub', link: 'https://github.com/AzimMahmud/dbshift' }
+          { text: 'Changelog', link: 'https://github.com/AzimMahmud/DbEpoch/blob/main/CHANGELOG.md' },
+          { text: 'GitHub', link: 'https://github.com/AzimMahmud/DbEpoch' }
         ]
       }
     ],
@@ -89,11 +89,11 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/AzimMahmud/dbshift' }
+      { icon: 'github', link: 'https://github.com/AzimMahmud/DbEpoch' }
     ],
 
     editLink: {
-      pattern: 'https://github.com/AzimMahmud/dbshift/edit/main/docs/:path'
+      pattern: 'https://github.com/AzimMahmud/DbEpoch/edit/main/docs/:path'
     },
 
     search: {

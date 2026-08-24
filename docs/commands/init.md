@@ -1,4 +1,4 @@
-# init
+﻿# init
 
 Create the migration tracking schema (3 tables) on the target database.
 
@@ -7,7 +7,7 @@ Create the migration tracking schema (3 tables) on the target database.
 ## Usage
 
 ```bash
-dbshift init --connection-string "Host=localhost;Database=myapp;Username=postgres;Password=secret"
+DbEpoch init --connection-string "Host=localhost;Database=myapp;Username=postgres;Password=secret"
 ```
 
 ## Tables created
@@ -18,11 +18,11 @@ dbshift init --connection-string "Host=localhost;Database=myapp;Username=postgre
 | `__migration_lock` | Distributed lock preventing concurrent deploys |
 | `__migration_audit` | Append-only audit trail |
 
-The DDL is idempotent — if the tables already exist, `init` won't modify them.
+The DDL is idempotent â€” if the tables already exist, `init` won't modify them.
 
 ## When to run
 
-Run `dbshift init` once per database, before your first `dbshift migrate`. You don't need to run it again afterward.
+Run `DbEpoch init` once per database, before your first `DbEpoch migrate`. You don't need to run it again afterward.
 
 ## Notes
 

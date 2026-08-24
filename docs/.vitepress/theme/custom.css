@@ -1,16 +1,16 @@
-/**
- * DbShift custom light/dark theme
+﻿/**
+ * DbEpoch custom light/dark theme
  * Brand: teal-blue gradient palette derived from the logo
  */
 
 :root {
-  /* ── Brand colors ── */
+  /* â”€â”€ Brand colors â”€â”€ */
   --vp-c-brand-1: #2563eb;
   --vp-c-brand-2: #1d4ed8;
   --vp-c-brand-3: #1e40af;
   --vp-c-brand-soft: rgba(37, 99, 235, 0.14);
 
-  /* ── Home hero gradient (light) ── */
+  /* â”€â”€ Home hero gradient (light) â”€â”€ */
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #0ea5b7 30%, #2563eb 70%, #7c3aed);
 
@@ -28,9 +28,9 @@
   --vp-home-hero-image-background-image: linear-gradient(-45deg, #34d39950 50%, #60a5fa50 50%);
 }
 
-/* ══════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    NAV
-   ══════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /* Logo icon sizing */
 .VPNavBar .logo {
@@ -85,7 +85,7 @@
   color: var(--vp-c-brand-1);
 }
 
-/* ── Button accents ── */
+/* â”€â”€ Button accents â”€â”€ */
 .VPButton.brand {
   background: var(--vp-c-brand-1);
   border-color: var(--vp-c-brand-1);
@@ -96,12 +96,12 @@
   border-color: var(--vp-c-brand-2);
 }
 
-/* ── Hero logo image ── */
+/* â”€â”€ Hero logo image â”€â”€ */
 .VPHero .VPImage {
   border-radius: 16px;
 }
 
-/* ── Feature cards ── */
+/* â”€â”€ Feature cards â”€â”€ */
 .VPFeature {
   border: 1px solid var(--vp-c-divider);
   transition: border-color 0.25s, box-shadow 0.25s;
@@ -111,22 +111,22 @@
   box-shadow: 0 4px 24px var(--vp-c-brand-soft);
 }
 
-/* ── Sidebar active link ── */
+/* â”€â”€ Sidebar active link â”€â”€ */
 .VPSidebarItem.is-active > .item > .indicator {
   background-color: var(--vp-c-brand-1);
 }
 
-/* ── Code blocks ── */
+/* â”€â”€ Code blocks â”€â”€ */
 .dark :root {
   --vp-code-block-bg: #0d1117;
 }
 
-/* ── Search box ── */
+/* â”€â”€ Search box â”€â”€ */
 .dark .VPSearch .VPInput {
   border-color: #30363d;
 }
 
-/* ── Footer ── */
+/* â”€â”€ Footer â”€â”€ */
 .VPFooter {
   border-top: 1px solid var(--vp-c-divider);
 }

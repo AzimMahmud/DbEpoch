@@ -1,4 +1,4 @@
-# create
+﻿# create
 
 Scaffold a new migration script from a template.
 
@@ -8,25 +8,25 @@ Scaffold a new migration script from a template.
 
 ```bash
 # Schema migration with timestamp version
-dbshift create --name CreateUsersTable --type schema --author jane
+DbEpoch create --name CreateUsersTable --type schema --author jane
 
 # Schema migration with sequence version (001, 002...)
-dbshift create --name AddEmailColumn --type schema --sequence
+DbEpoch create --name AddEmailColumn --type schema --sequence
 
 # Data migration
-dbshift create --name SeedRoles --type data --author jane
+DbEpoch create --name SeedRoles --type data --author jane
 
 # Patch migration
-dbshift create --name FixIndexes --type patch
+DbEpoch create --name FixIndexes --type patch
 
 # Rollback script
-dbshift create --name CreateUsersTable --type rollback
+DbEpoch create --name CreateUsersTable --type rollback
 
 # Repeatable script
-dbshift create --name RefreshUserView --type repeatable
+DbEpoch create --name RefreshUserView --type repeatable
 
 # With metadata
-dbshift create --name CreateOrders --type schema --author jane --description "Orders and order_items tables"
+DbEpoch create --name CreateOrders --type schema --author jane --description "Orders and order_items tables"
 ```
 
 ## Options

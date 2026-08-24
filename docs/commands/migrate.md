@@ -1,4 +1,4 @@
-# migrate
+﻿# migrate
 
 Apply pending migrations to the target environment. Aliases: `deploy`, `apply`.
 
@@ -8,22 +8,22 @@ Apply pending migrations to the target environment. Aliases: `deploy`, `apply`.
 
 ```bash
 # Interactive (asks for confirmation)
-dbshift migrate --connection-string "Host=localhost;Database=myapp;Username=postgres"
+DbEpoch migrate --connection-string "Host=localhost;Database=myapp;Username=postgres"
 
 # Non-interactive (for automation)
-dbshift migrate --connection-string "$DB_CONNECTION_STRING" --yes
+DbEpoch migrate --connection-string "$DB_CONNECTION_STRING" --yes
 
 # Specify environment (uses per-environment config)
-dbshift migrate --environment production --yes
+DbEpoch migrate --environment production --yes
 
 # Override batch size
-dbshift migrate --batch-size 5
+DbEpoch migrate --batch-size 5
 
 # Bypass deployment window check
-dbshift migrate --environment production --force
+DbEpoch migrate --environment production --force
 
 # With approval gating
-dbshift migrate --environment production --approver jane@corp.com --yes
+DbEpoch migrate --environment production --approver jane@corp.com --yes
 ```
 
 ## Options
@@ -39,20 +39,20 @@ Also accepts [global options](/reference/global-options).
 
 ## What happens during a deploy
 
-1. **Lock acquisition** — acquires a row-level distributed lock to prevent concurrent runs
-2. **Plan computation** — determines which migrations are pending
-3. **Batch execution** — applies migrations in batches (configurable via `batchSize`)
-4. **Status tracking** — each migration is recorded in `__migration_history`
-5. **Audit logging** — every action logged in `__migration_audit`
-6. **Lock release** — releases the distributed lock
-7. **Result reporting** — shows what was applied, how long it took
+1. **Lock acquisition** â€” acquires a row-level distributed lock to prevent concurrent runs
+2. **Plan computation** â€” determines which migrations are pending
+3. **Batch execution** â€” applies migrations in batches (configurable via `batchSize`)
+4. **Status tracking** â€” each migration is recorded in `__migration_history`
+5. **Audit logging** â€” every action logged in `__migration_audit`
+6. **Lock release** â€” releases the distributed lock
+7. **Result reporting** â€” shows what was applied, how long it took
 
 ## Approval gating
 
 For environments with `requireApproval: true`, you must provide an approver:
 
 ```bash
-dbshift migrate --environment production --approver jane@corp.com
+DbEpoch migrate --environment production --approver jane@corp.com
 ```
 
 Without `--approver`, the command fails with a clear message.
@@ -66,26 +66,26 @@ For environments with a configured `deploymentWindow`, the command checks:
 
 ```bash
 # Outside the window -> blocked
-dbshift migrate --environment production
+DbEpoch migrate --environment production
 # Error: Outside the configured deployment window.
 
 # Override with --force
-dbshift migrate --environment production --force
+DbEpoch migrate --environment production --force
 ```
 
-Times are evaluated against local time using invariant culture — `Mon`, `Tuesday`, or `TUESDAY` all match.
+Times are evaluated against local time using invariant culture â€” `Mon`, `Tuesday`, or `TUESDAY` all match.
 
 ## On failure
 
 - The error is recorded in `__migration_history`
 - The transaction for that single script is rolled back
 - If `stopOnFailure` is `true` (default), the deployment stops immediately
-- Run `dbshift repair` to clear the failed state, then retry
+- Run `DbEpoch repair` to clear the failed state, then retry
 
 ## JSON output
 
 ```bash
-dbshift migrate --json
+DbEpoch migrate --json
 ```
 
 ```json

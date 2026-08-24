@@ -1,4 +1,4 @@
-# validate
+﻿# validate
 
 Check scripts for naming conventions, syntax, duplicates, and dependency errors.
 
@@ -7,9 +7,9 @@ Check scripts for naming conventions, syntax, duplicates, and dependency errors.
 ## Usage
 
 ```bash
-dbshift validate
-dbshift validate --environment local
-dbshift validate --json    # for CI
+DbEpoch validate
+DbEpoch validate --environment local
+DbEpoch validate --json    # for CI
 ```
 
 ## What it checks
@@ -35,7 +35,7 @@ dbshift validate --json    # for CI
 ## JSON output
 
 ```bash
-dbshift validate --json
+DbEpoch validate --json
 ```
 
 ```json
@@ -49,6 +49,6 @@ dbshift validate --json
 
 ## When to run
 
-- Before `plan` or `migrate` — catches issues early
-- In CI — fast, no database needed
-- After editing existing scripts — detects checksum drift potential
+- Before `plan` or `migrate` â€” catches issues early
+- In CI â€” fast, no database needed
+- After editing existing scripts â€” detects checksum drift potential

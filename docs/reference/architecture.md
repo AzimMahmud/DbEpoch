@@ -1,45 +1,45 @@
-# Architecture
+﻿# Architecture
 
-DbShift is built as a layered .NET solution with clear separation of concerns.
+DbEpoch is built as a layered .NET solution with clear separation of concerns.
 
 ## Project structure
 
 ```
-DbShift/
+DbEpoch/
   src/
-    DbShift.Core/             Pure domain model (zero dependencies)
-    DbShift.Engine/           Script parsing, migration execution
-    DbShift.Infrastructure/   Database providers, file system config
-    DbShift.CLI/              The dbshift executable
+    DbEpoch.Core/             Pure domain model (zero dependencies)
+    DbEpoch.Engine/           Script parsing, migration execution
+    DbEpoch.Infrastructure/   Database providers, file system config
+    DbEpoch.CLI/              The DbEpoch executable
   tests/
-    DbShift.Engine.Tests/     Unit + integration tests
+    DbEpoch.Engine.Tests/     Unit + integration tests
 ```
 
 ## Layer diagram
 
 ```
-┌─────────────────────────────────────────────┐
-│              DbShift.CLI                     │
-│   Program.cs · Commands · ConsoleHelper      │
-└───────────────────┬─────────────────────────┘
-                    │ uses
-            ┌───────▼────────┐     ┌──────────────────┐
-            │    Engine      │────▶│      Core         │
-            │ ScriptParser   │     │ Entities · Enums  │
-            │ MigrationExec  │     │ ValueObjects      │
-            │ InMemory impls │     └──────────────────┘
-            └───────┬────────┘              ▲
-                    │ implements            │ implements
-    ┌───────────────▼───────────────────────┴──────────┐
-    │                  Infrastructure                   │
-    │  Providers/                                        │
-    │    PostgreSql · SqlServer · MySql · Sqlite         │
-    │  Relational{Tracker, LockManager, Executor, Audit} │
-    │  FileSystemConfigLoader                            │
-    └────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              DbEpoch.CLI                     â”‚
+â”‚   Program.cs Â· Commands Â· ConsoleHelper      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚ uses
+            â”Œâ”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+            â”‚    Engine      â”‚â”€â”€â”€â”€â–¶â”‚      Core         â”‚
+            â”‚ ScriptParser   â”‚     â”‚ Entities Â· Enums  â”‚
+            â”‚ MigrationExec  â”‚     â”‚ ValueObjects      â”‚
+            â”‚ InMemory impls â”‚     â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+            â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜              â–²
+                    â”‚ implements            â”‚ implements
+    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+    â”‚                  Infrastructure                   â”‚
+    â”‚  Providers/                                        â”‚
+    â”‚    PostgreSql Â· SqlServer Â· MySql Â· Sqlite         â”‚
+    â”‚  Relational{Tracker, LockManager, Executor, Audit} â”‚
+    â”‚  FileSystemConfigLoader                            â”‚
+    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
-## Core (`DbShift.Core`)
+## Core (`DbEpoch.Core`)
 
 Pure domain model with zero external dependencies.
 
@@ -49,9 +49,9 @@ Pure domain model with zero external dependencies.
 | `Enums` | `MigrationStatus`, `MigrationType`, `AuditAction` |
 | `Interfaces` | `IMigrationTracker`, `IMigrationLockManager`, `IAuditLogger`, `IEnvironmentProvider`, `IMigrationScriptExecutor`, `IConfigLoader` |
 | `ValueObjects` | `MigrationConfiguration`, `EnvironmentConfiguration`, `DeploymentWindow`, `ParsedMigration`, `MigrationContext` |
-| `Exceptions` | `DbShiftException`, `ScriptParseException`, `MigrationConfigurationException`, `UnsupportedProviderException` |
+| `Exceptions` | `DbEpochException`, `ScriptParseException`, `MigrationConfigurationException`, `UnsupportedProviderException` |
 
-## Engine (`DbShift.Engine`)
+## Engine (`DbEpoch.Engine`)
 
 Application core that orchestrates the migration workflow.
 
@@ -63,7 +63,7 @@ Application core that orchestrates the migration workflow.
 | `InMemoryMigrationLockManager` | In-memory lock manager |
 | `InMemoryAuditLogger` | In-memory audit logger |
 
-## Infrastructure (`DbShift.Infrastructure`)
+## Infrastructure (`DbEpoch.Infrastructure`)
 
 Database-specific implementations and file system access.
 
@@ -77,15 +77,15 @@ Database-specific implementations and file system access.
 | `RelationalMigrationLockManager` | Row-based distributed lock with lease expiry |
 | `FileSystemConfigLoader` | Loads `migration.json` and `environments/*.json`, expands `${VAR}` tokens |
 
-## CLI (`DbShift.CLI`)
+## CLI (`DbEpoch.CLI`)
 
-The `dbshift` executable built with Spectre.Console.Cli.
+The `DbEpoch` executable built with Spectre.Console.Cli.
 
 | Class | Responsibility |
 |-------|---------------|
 | `Program` | Entry point, command registration |
 | `CliCommandBase` | Shared helpers for all commands |
-| `CliHost` | Composition root — resolves providers, wires implementations |
+| `CliHost` | Composition root â€” resolves providers, wires implementations |
 | `ConsoleHelper` | Spectre.Console UI: banners, tables, spinners, gradient text |
 | `Theme` | Color palette and glyphs |
 

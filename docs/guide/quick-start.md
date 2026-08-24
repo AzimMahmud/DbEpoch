@@ -1,4 +1,4 @@
-# Quick Start
+﻿# Quick Start
 
 From zero to your first migration in 60 seconds.
 
@@ -7,20 +7,20 @@ From zero to your first migration in 60 seconds.
 ::: code-group
 
 ```bash [Interactive]
-dbshift new
+DbEpoch new
 ```
 
 ```bash [Non-interactive]
-dbshift new --name MyApp --provider postgresql
+DbEpoch new --name MyApp --provider postgresql
 ```
 
 ```bash [With output directory]
-dbshift new --name MyApp --provider sqlserver --output ./my-db-project
+DbEpoch new --name MyApp --provider sqlserver --output ./my-db-project
 ```
 
 :::
 
-When called without flags, `dbshift new` enters interactive mode — it prompts for your project name, lets you select the database provider, and asks whether to use the current directory.
+When called without flags, `DbEpoch new` enters interactive mode â€” it prompts for your project name, lets you select the database provider, and asks whether to use the current directory.
 
 This creates:
 
@@ -40,7 +40,7 @@ Database/
     Patch/
     Rollback/
       U001__Example_Users.sql      # example rollback
-  Templates/                       # used by dbshift create
+  Templates/                       # used by DbEpoch create
 .github/workflows/
   database-migration.yml           # GitHub Actions CI pipeline
 .gitignore
@@ -49,7 +49,7 @@ Database/
 ## 2. Create a migration
 
 ```bash
-dbshift create --name CreateUsersTable --type schema --author jane
+DbEpoch create --name CreateUsersTable --type schema --author jane
 ```
 
 This creates a file like `Database/Migrations/Schema/V20260617120000__CreateUsersTable.sql`:
@@ -85,7 +85,7 @@ CREATE INDEX idx_users_email ON users (email);
 ## 4. Validate
 
 ```bash
-dbshift validate
+DbEpoch validate
 ```
 
 Checks naming conventions, duplicate versions, missing dependencies, and required metadata fields. No database required.
@@ -93,7 +93,7 @@ Checks naming conventions, duplicate versions, missing dependencies, and require
 ## 5. Preview the plan
 
 ```bash
-dbshift plan
+DbEpoch plan
 ```
 
 Shows exactly what will run and in what order. No database required.
@@ -105,16 +105,16 @@ Shows exactly what will run and in what order. No database required.
 export DB_CONNECTION_STRING="Host=localhost;Database=myapp;Username=postgres"
 
 # Create tracking tables (once per database)
-dbshift init -c "$DB_CONNECTION_STRING"
+DbEpoch init -c "$DB_CONNECTION_STRING"
 
 # Apply pending migrations
-dbshift migrate -c "$DB_CONNECTION_STRING"
+DbEpoch migrate -c "$DB_CONNECTION_STRING"
 ```
 
 ## 7. Check status
 
 ```bash
-dbshift status
+DbEpoch status
 ```
 
 Shows a summary and detailed table of all migrations with their status.
@@ -122,7 +122,7 @@ Shows a summary and detailed table of all migrations with their status.
 ## 8. Rollback
 
 ```bash
-dbshift rollback --count 1
+DbEpoch rollback --count 1
 ```
 
 Requires a matching `U` script in `Database/Migrations/Rollback/`.

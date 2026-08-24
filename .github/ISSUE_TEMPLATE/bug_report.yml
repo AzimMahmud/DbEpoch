@@ -1,5 +1,5 @@
-name: Bug Report
-description: Report a problem with DbShift
+﻿name: Bug Report
+description: Report a problem with DbEpoch
 labels: [bug]
 
 body:
@@ -10,8 +10,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: DbShift version
-      description: Output of `dbshift --version`
+      label: DbEpoch version
+      description: Output of `DbEpoch --version`
       placeholder: e.g. 1.0.0
     validations:
       required: true
@@ -42,7 +42,7 @@ body:
       description: Include the exact command you ran, the full output, and what you expected to happen.
       placeholder: |
         Command:
-          dbshift validate
+          DbEpoch validate
 
         Output:
           ...
@@ -57,9 +57,9 @@ body:
       label: Steps to reproduce
       description: Minimal reproduction steps.
       placeholder: |
-        1. Run `dbshift new -n Test`
+        1. Run `DbEpoch new -n Test`
         2. Create a migration...
-        3. Run `dbshift validate`
+        3. Run `DbEpoch validate`
     validations:
       required: true
 

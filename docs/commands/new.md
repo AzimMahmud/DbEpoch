@@ -1,6 +1,6 @@
-# new
+﻿# new
 
-Scaffold a complete DbShift project structure. Aliases: `scaffold`, `init-project`.
+Scaffold a complete DbEpoch project structure. Aliases: `scaffold`, `init-project`.
 
 **Database required:** No
 
@@ -9,24 +9,24 @@ Scaffold a complete DbShift project structure. Aliases: `scaffold`, `init-projec
 ::: code-group
 
 ```bash [Interactive]
-dbshift new
+DbEpoch new
 ```
 
 ```bash [Non-interactive]
-dbshift new --name MyApp --provider postgresql
+DbEpoch new --name MyApp --provider postgresql
 ```
 
 ```bash [With output directory]
-dbshift new --name MyApp --provider sqlserver --output ./my-db-project
+DbEpoch new --name MyApp --provider sqlserver --output ./my-db-project
 ```
 
 ```bash [JSON mode for CI]
-dbshift new --name MyApp --json
+DbEpoch new --name MyApp --json
 ```
 
 :::
 
-When called without flags, `dbshift new` enters interactive mode:
+When called without flags, `DbEpoch new` enters interactive mode:
 
 1. Prompts for your **project name** (default: `MyApp`)
 2. Lets you **select the database provider** from a list
@@ -76,7 +76,7 @@ Database/
 .gitignore
 ```
 
-The example migration (`V001__Example_Users.sql`) is generated with correct SQL for your chosen provider — proper column types, defaults, and index syntax.
+The example migration (`V001__Example_Users.sql`) is generated with correct SQL for your chosen provider â€” proper column types, defaults, and index syntax.
 
 ## Modular monoliths
 
@@ -85,6 +85,6 @@ When prompted, you can enter comma-separated module names. Each module gets its 
 ## After scaffolding
 
 1. Set your connection string (env var or edit `migration.json`)
-2. Run `dbshift create --name YourMigration --type schema` to add scripts
+2. Run `DbEpoch create --name YourMigration --type schema` to add scripts
 3. Write your SQL
-4. Run `dbshift migrate`
+4. Run `DbEpoch migrate`

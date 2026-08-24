@@ -1,18 +1,18 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -euo pipefail
 
 RUNTIME="${1:-linux-x64}"
 FRAMEWORK="${FRAMEWORK:-net10.0}"
 OUTPUT="${2:-$(dirname "$0")/dist}"
-EXE_NAME="dbshift"
+EXE_NAME="DbEpoch"
 
 case "$RUNTIME" in
-  win-*) EXE_NAME="dbshift.exe" ;;
+  win-*) EXE_NAME="DbEpoch.exe" ;;
 esac
 
-echo "Publishing dbshift ($RUNTIME, $FRAMEWORK)..."
+echo "Publishing DbEpoch ($RUNTIME, $FRAMEWORK)..."
 
-dotnet publish "$(dirname "$0")/src/DbShift.CLI/DbShift.CLI.csproj" \
+dotnet publish "$(dirname "$0")/src/DbEpoch.CLI/DbEpoch.CLI.csproj" \
     --configuration Release \
     --framework "$FRAMEWORK" \
     --runtime "$RUNTIME" \
@@ -36,4 +36,4 @@ echo "  $OUTPUT/$EXE_NAME new -n MyApp -p postgresql --json"
 #   linux-x64, linux-arm64, linux-musl-x64
 #   osx-x64, osx-arm64
 #
-# dbshift targets net10.0 only — FRAMEWORK has no other valid value here.
+# DbEpoch targets net10.0 only â€” FRAMEWORK has no other valid value here.

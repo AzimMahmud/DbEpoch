@@ -1,20 +1,20 @@
-# CI/CD Integration
+﻿# CI/CD Integration
 
-Every `dbshift` command supports `--json` for machine-readable output and deterministic exit codes.
+Every `DbEpoch` command supports `--json` for machine-readable output and deterministic exit codes.
 
 ## JSON output
 
 ```bash
 # Validate
-dbshift validate --json
+DbEpoch validate --json
 # { "success": true, "scriptsChecked": 16, "errors": [], "warnings": [] }
 
 # Deploy
-dbshift migrate --json
+DbEpoch migrate --json
 # { "success": true, "applied": 3, "appliedMigrations": ["001", "002", "003"], ... }
 
 # Status
-dbshift status --json
+DbEpoch status --json
 # { "success": true, "applied": 3, "pending": 1, "failed": 0, ... }
 ```
 
@@ -37,9 +37,9 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - run: dotnet build DbShift.slnx -c Release
-      - run: dotnet test DbShift.slnx -c Release --no-build
-      - run: dotnet run --project src/DbShift.CLI -- validate --json
+      - run: dotnet build DbEpoch.slnx -c Release
+      - run: dotnet test DbEpoch.slnx -c Release --no-build
+      - run: dotnet run --project src/DbEpoch.CLI -- validate --json
 
   deploy-dev:
     needs: validate
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - run: dotnet run --project src/DbShift.CLI -- migrate -e development --yes --json
+      - run: dotnet run --project src/DbEpoch.CLI -- migrate -e development --yes --json
         env:
           DB_CONNECTION_STRING: ${{ secrets.DEV_DB_CONNECTION_STRING }}
 ```
@@ -59,10 +59,10 @@ jobs:
 
 ```yaml
 steps:
-  - script: dotnet run --project src/DbShift.CLI -- validate --json
+  - script: dotnet run --project src/DbEpoch.CLI -- validate --json
     displayName: 'Validate migrations'
 
-  - script: dotnet run --project src/DbShift.CLI -- migrate -e development --yes
+  - script: dotnet run --project src/DbEpoch.CLI -- migrate -e development --yes
     displayName: 'Deploy to dev'
     env:
       DB_CONNECTION_STRING: $(DEV_DB_CONNECTION_STRING)
@@ -90,7 +90,7 @@ steps:
 Use these in CI conditionals:
 
 ```yaml
-- run: dotnet run --project src/DbShift.CLI -- validate --json
+- run: dotnet run --project src/DbEpoch.CLI -- validate --json
   id: validate
 
 - run: echo "Validation passed"

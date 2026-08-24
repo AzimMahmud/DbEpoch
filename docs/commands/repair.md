@@ -1,4 +1,4 @@
-# repair
+﻿# repair
 
 Re-queue one or all failed migrations so they can be retried.
 
@@ -8,10 +8,10 @@ Re-queue one or all failed migrations so they can be retried.
 
 ```bash
 # Repair all failed migrations
-dbshift repair
+DbEpoch repair
 
 # Repair a specific failed migration
-dbshift repair --target-version 005
+DbEpoch repair --target-version 005
 ```
 
 ## Options
@@ -24,7 +24,7 @@ Also accepts [global options](/reference/global-options).
 
 ## What it does
 
-`repair` removes the failed record(s) from `__migration_history`, allowing the migration(s) to be retried on the next `dbshift migrate`.
+`repair` removes the failed record(s) from `__migration_history`, allowing the migration(s) to be retried on the next `DbEpoch migrate`.
 
 ## Important
 
@@ -32,8 +32,8 @@ Also accepts [global options](/reference/global-options).
 
 ## When to use
 
-1. A migration fails during `dbshift migrate`
+1. A migration fails during `DbEpoch migrate`
 2. Fix the SQL in the migration file
 3. Clean up any partial changes in the database (if applicable)
-4. Run `dbshift repair` to clear the failed state
-5. Run `dbshift migrate` again to retry
+4. Run `DbEpoch repair` to clear the failed state
+5. Run `DbEpoch migrate` again to retry

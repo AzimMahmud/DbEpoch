@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="src/DbEpoch.Core/DbEpoch.Core.csproj" />
+  <Project Path="src/DbEpoch.Engine/DbEpoch.Engine.csproj" />
+  <Project Path="src/DbEpoch.Infrastructure/DbEpoch.Infrastructure.csproj" />
+  <Project Path="src/DbEpoch.CLI/DbEpoch.CLI.csproj" />
+  <Project Path="tests/DbEpoch.Engine.Tests/DbEpoch.Engine.Tests.csproj" />
+</Solution>

@@ -1,19 +1,19 @@
-param(
+﻿param(
     [string]$Runtime = "win-x64",
     [string]$Framework = "net10.0",
     [string]$Output = $(Join-Path $PSScriptRoot "dist"),
-    [string]$ExeName = "dbshift.exe",
+    [string]$ExeName = "DbEpoch.exe",
     [switch]$Clean
 )
 
-$project = Join-Path $PSScriptRoot "src\DbShift.CLI\DbShift.CLI.csproj"
+$project = Join-Path $PSScriptRoot "src\DbEpoch.CLI\DbEpoch.CLI.csproj"
 
 if ($Clean -and (Test-Path $Output)) {
     Remove-Item -LiteralPath $Output -Recurse -Force
     Write-Host "Cleaned $Output"
 }
 
-Write-Host "Publishing dbshift ($Runtime, $Framework)..." -ForegroundColor Cyan
+Write-Host "Publishing DbEpoch ($Runtime, $Framework)..." -ForegroundColor Cyan
 
 dotnet publish $project `
     --configuration Release `
@@ -48,9 +48,9 @@ if ($LASTEXITCODE -eq 0) {
     exit 1
 }
 
-# ── Supported runtimes ──────────────────────────────────
+# â”€â”€ Supported runtimes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # win-x64, win-arm64
 # linux-x64, linux-arm64, linux-musl-x64
 # osx-x64, osx-arm64
 #
-# dbshift targets net10.0 only — -Framework has no other valid value here.
+# DbEpoch targets net10.0 only â€” -Framework has no other valid value here.

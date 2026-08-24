@@ -1,8 +1,8 @@
--- Migration: Create Migration History Table
+﻿-- Migration: Create Migration History Table
 -- Author: System
 -- Created: 2026-06-16
 -- Description: Creates the migration history tracking table.
--- Mirrors the schema produced by `dbshift init` (PostgreSQL variant).
+-- Mirrors the schema produced by `dbepoch init` (PostgreSQL variant).
 
 CREATE TABLE IF NOT EXISTS __migration_history (
     id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
