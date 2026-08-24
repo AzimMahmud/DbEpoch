@@ -19,6 +19,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/AzimMahmud/DbEpoch</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AzimMahmud/DbEpoch</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
