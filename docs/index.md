@@ -6,7 +6,7 @@ hero:
   text: Database migrations that ship
   tagline: A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, and SQLite. Beautiful CLI, zero magic, production-tested patterns.
   image:
-    src: /logo.png
+    src: /logo-light.png
     alt: DbEpoch
   actions:
     - theme: brand

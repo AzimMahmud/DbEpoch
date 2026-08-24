@@ -4,13 +4,13 @@
  */
 
 :root {
-  /* â”€â”€ Brand colors â”€â”€ */
+  /* Brand colors */
   --vp-c-brand-1: #2563eb;
   --vp-c-brand-2: #1d4ed8;
   --vp-c-brand-3: #1e40af;
   --vp-c-brand-soft: rgba(37, 99, 235, 0.14);
 
-  /* â”€â”€ Home hero gradient (light) â”€â”€ */
+  /* Home hero gradient (light) */
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #0ea5b7 30%, #2563eb 70%, #7c3aed);
 
@@ -28,20 +28,21 @@
   --vp-home-hero-image-background-image: linear-gradient(-45deg, #34d39950 50%, #60a5fa50 50%);
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ===========================
    NAV
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   =========================== */
 
 /* Logo icon sizing */
 .VPNavBar .logo {
-  width: 32px;
-  height: 32px;
+  width: auto;
+  height: 28px;
   flex-shrink: 0;
 }
 
-.VPNavBar .logo svg {
-  width: 32px;
-  height: 32px;
+.VPNavBar .logo img {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
 }
 
 /* Nav title text next to logo (hidden via siteTitle: false, but just in case) */
@@ -85,7 +86,7 @@
   color: var(--vp-c-brand-1);
 }
 
-/* â”€â”€ Button accents â”€â”€ */
+/* Button accents */
 .VPButton.brand {
   background: var(--vp-c-brand-1);
   border-color: var(--vp-c-brand-1);
@@ -96,12 +97,14 @@
   border-color: var(--vp-c-brand-2);
 }
 
-/* â”€â”€ Hero logo image â”€â”€ */
+/* Hero logo image */
 .VPHero .VPImage {
   border-radius: 16px;
+  max-width: 280px;
+  height: auto;
 }
 
-/* â”€â”€ Feature cards â”€â”€ */
+/* Feature cards */
 .VPFeature {
   border: 1px solid var(--vp-c-divider);
   transition: border-color 0.25s, box-shadow 0.25s;
@@ -111,22 +114,22 @@
   box-shadow: 0 4px 24px var(--vp-c-brand-soft);
 }
 
-/* â”€â”€ Sidebar active link â”€â”€ */
+/* Sidebar active link */
 .VPSidebarItem.is-active > .item > .indicator {
   background-color: var(--vp-c-brand-1);
 }
 
-/* â”€â”€ Code blocks â”€â”€ */
+/* Code blocks */
 .dark :root {
   --vp-code-block-bg: #0d1117;
 }
 
-/* â”€â”€ Search box â”€â”€ */
+/* Search box */
 .dark .VPSearch .VPInput {
   border-color: #30363d;
 }
 
-/* â”€â”€ Footer â”€â”€ */
+/* Footer */
 .VPFooter {
   border-top: 1px solid var(--vp-c-divider);
 }
