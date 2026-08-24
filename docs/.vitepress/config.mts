@@ -11,7 +11,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: '/icon.png',
+    logo: '/icon-dark.png',
     siteTitle: 'DbEpoch',
 
     nav: [
