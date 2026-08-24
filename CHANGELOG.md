@@ -4,19 +4,20 @@ All notable changes to the DbEpoch project will be documented in this file.
 
 ## [Unreleased]
 
-## [2.1.0] â€” 2026-08-24
+## [2.1.0] - 2026-08-24
 
 ### Added
 
-- **Windows ARM64 build** â€” `DbEpoch-windows-arm64.zip` now included in releases.
-- **Alpine Linux (musl) build** â€” `DbEpoch-linux-musl-x64.tar.gz` now included in releases for Alpine and musl-based distros.
-- **macOS Gatekeeper auto-fix** â€” install script now automatically removes the quarantine attribute so `DbEpoch` runs immediately after install.
-- **Windows Git Bash/WSL detection** â€” install script detects Windows environments and directs users to `install.ps1` instead of failing with "Unsupported OS".
+- **Windows ARM64 build** - DbEpoch-windows-arm64.zip now included in releases.
+- **Alpine Linux (musl) build** - DbEpoch-linux-musl-x64.tar.gz now included in releases for Alpine and musl-based distros.
+- **macOS Gatekeeper auto-fix** - install script now automatically removes the quarantine attribute so DbEpoch runs immediately after install.
+- **Windows Git Bash/WSL detection** - install script detects Windows environments and directs users to install.ps1 instead of failing with "Unsupported OS".
+- **New logo assets** - dark/light variants at 64x64, 128x128, 256x256, and 512x512 sizes in dbepoch_logos/ folder. Updated root logo.png, docs favicon, and NuGet package icon.
 
 ### Fixed
 
-- **Version mismatch** â€” `DbEpoch --version` now reads the version from assembly metadata instead of a hardcoded string, ensuring it always matches the installed version.
-
+- **Version mismatch** - DbEpoch --version now reads the version from assembly metadata instead of a hardcoded string, ensuring it always matches the installed version.
+- **Mojibake in docs** - fixed broken UTF-8 characters (em dashes, middle dots, box-drawing chars) across all documentation files.
 ## [2.0.1] â€” 2026-08-23
 
 ### Added
