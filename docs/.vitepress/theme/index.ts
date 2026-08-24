@@ -5,19 +5,20 @@ import { watch } from 'vue'
 export default {
   extends: DefaultTheme,
   enhanceApp({ app }) {
-    // Use icon.png for both light and dark themes
+    // Swap nav logo based on theme
     if (typeof window !== 'undefined') {
-      const setLogo = () => {
+      const swapLogo = () => {
         const img = document.querySelector('.VPNavBar .logo img') as HTMLImageElement
         if (!img) return
-        img.src = '/DbEpoch/icon.png'
+        const isDark = document.documentElement.classList.contains('dark')
+        img.src = isDark ? '/DbEpoch/icon-dark.png' : '/DbEpoch/icon.png'
       }
 
       // Run on load
-      setTimeout(setLogo, 100)
+      setTimeout(swapLogo, 100)
 
-      // Watch for theme changes to ensure icon.png stays
-      const observer = new MutationObserver(setLogo)
+      // Watch for theme changes
+      const observer = new MutationObserver(swapLogo)
       observer.observe(document.documentElement, {
         attributes: true,
         attributeFilter: ['class']
