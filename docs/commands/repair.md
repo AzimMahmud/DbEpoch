@@ -1,4 +1,4 @@
-﻿# repair
+# repair
 
 Re-queue one or all failed migrations so they can be retried.
 

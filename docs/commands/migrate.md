@@ -1,4 +1,4 @@
-﻿# migrate
+# migrate
 
 Apply pending migrations to the target environment. Aliases: `deploy`, `apply`.
 

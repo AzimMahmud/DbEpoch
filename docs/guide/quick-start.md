@@ -1,4 +1,4 @@
-﻿# Quick Start
+# Quick Start
 
 From zero to your first migration in 60 seconds.
 

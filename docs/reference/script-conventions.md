@@ -1,4 +1,4 @@
-﻿# Script Conventions
+# Script Conventions
 
 DbEpoch uses Flyway-style naming for migration scripts.
 

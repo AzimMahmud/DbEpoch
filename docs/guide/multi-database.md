@@ -1,4 +1,4 @@
-﻿# Multi-Database Setup
+# Multi-Database Setup
 
 DbEpoch supports four databases. The only thing that changes is the connection string and the `provider` setting.
 

@@ -1,4 +1,4 @@
-﻿# create
+# create
 
 Scaffold a new migration script from a template.
 

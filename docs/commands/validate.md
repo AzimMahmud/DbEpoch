@@ -1,4 +1,4 @@
-﻿# validate
+# validate
 
 Check scripts for naming conventions, syntax, duplicates, and dependency errors.
 

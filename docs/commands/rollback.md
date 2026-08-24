@@ -1,4 +1,4 @@
-﻿# rollback
+# rollback
 
 Roll back one or more previously applied migrations using `U` scripts.
 

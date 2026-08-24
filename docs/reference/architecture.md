@@ -1,4 +1,4 @@
-﻿# Architecture
+# Architecture
 
 DbEpoch is built as a layered .NET solution with clear separation of concerns.
 

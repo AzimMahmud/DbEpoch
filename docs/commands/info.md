@@ -1,4 +1,4 @@
-﻿# info
+# info
 
 Show configuration, provider, environments, and paths. Alias: `config`.
 

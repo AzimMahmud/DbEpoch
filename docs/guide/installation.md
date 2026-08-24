@@ -1,4 +1,4 @@
-﻿# Installation
+# Installation
 
 No .NET SDK or runtime required for the binary install methods.
 

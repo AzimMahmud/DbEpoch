@@ -1,4 +1,4 @@
-﻿# new
+# new
 
 Scaffold a complete DbEpoch project structure. Aliases: `scaffold`, `init-project`.
 

@@ -1,4 +1,4 @@
-﻿# Global Options
+# Global Options
 
 These options are available on every `DbEpoch` command.
 

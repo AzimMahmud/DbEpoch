@@ -1,4 +1,4 @@
-﻿# Configuration
+# Configuration
 
 DbEpoch uses a two-tier configuration: a global `migration.json` file and per-environment overrides.
 

@@ -1,4 +1,4 @@
-﻿# CI/CD Integration
+# CI/CD Integration
 
 Every `DbEpoch` command supports `--json` for machine-readable output and deterministic exit codes.
 

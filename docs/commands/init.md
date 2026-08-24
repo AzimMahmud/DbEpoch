@@ -1,4 +1,4 @@
-﻿# init
+# init
 
 Create the migration tracking schema (3 tables) on the target database.
 
