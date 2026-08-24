@@ -18,6 +18,12 @@ All notable changes to the DbEpoch project will be documented in this file.
 
 - **Version mismatch** - DbEpoch --version now reads the version from assembly metadata instead of a hardcoded string, ensuring it always matches the installed version.
 - **Mojibake in docs** - fixed broken UTF-8 characters (em dashes, middle dots, box-drawing chars) across all documentation files.
+
+### Changed
+
+- **Docs nav logo** - icon + gradient "DbEpoch" text, dark/light theme swap.
+- **Browser favicon** - uses square icon instead of full logo.
+- **NuGet package icon** - updated to 256px light variant with `<RepositoryType>git</RepositoryType>` for repo linking.
 ## [2.0.1] â€” 2026-08-23
 
 ### Added
