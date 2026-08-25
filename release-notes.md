@@ -1,13 +1,13 @@
-# dbsh v2.1.1
+# dbsh v2.1.2
 
 ## Installation
 
 ```bash
 # Linux / macOS
-curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.1/install.sh | bash
+curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.2/install.sh | bash
 
 # Windows
-powershell -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/download/v2.1.1/install.ps1 | iex"
+powershell -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/download/v2.1.2/install.ps1 | iex"
 ```
 
 The install scripts automatically verify the downloaded archive against `SHA256SUMS` published alongside this release.
@@ -33,13 +33,13 @@ The install scripts automatically verify the downloaded archive against `SHA256S
 Every archive is checksummed in `SHA256SUMS` (attached to this release). The install scripts verify it automatically; to verify manually:
 
 ```bash
-curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.1/SHA256SUMS | sha256sum -c -
+curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.2/SHA256SUMS | sha256sum -c -
 ```
 
 ## Changelog
 
-- Documentation site now served from `https://dbsh.azim.me/` (root base) instead of the GitHub Pages project path.
-- Added `CNAME` to the published docs root so the custom domain persists across deploys.
-- Fixed the browser favicon path to `/icon.png` after the base-path change.
+- Fixed Unicode encoding issues in install scripts (box-drawing characters, em dashes, status icons)
+- Updated release packaging with proper UTF-8 encoding for cross-platform compatibility
+- Improved install script display for better terminal rendering
 
-See [CHANGELOG.md](https://github.com/AzimMahmud/dbsh/blob/v2.1.1/CHANGELOG.md) for details.
+See [CHANGELOG.md](https://github.com/AzimMahmud/dbsh/blob/v2.1.2/CHANGELOG.md) for details.

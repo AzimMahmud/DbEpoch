@@ -19,7 +19,7 @@ export default defineConfig({
       { text: 'Commands', link: '/commands/new' },
       { text: 'Reference', link: '/reference/global-options' },
       {
-        text: 'v2.1.1',
+        text: 'v2.1.2',
         items: [
           { text: 'Changelog', link: 'https://github.com/AzimMahmud/dbsh/blob/main/CHANGELOG.md' },
           { text: 'GitHub', link: 'https://github.com/AzimMahmud/dbsh' }
@@ -102,7 +102,7 @@ export default defineConfig({
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright 2024-present Azim Mahmud'
+      copyright: 'Copyright 2025-present Azim Mahmud'
     }
   }
 })

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dbsh â€“ official install script
+# dbsh — official install script
 # Usage: curl -fsSL https://github.com/AzimMahmud/dbsh/releases/latest/download/install.sh | bash
 #   or:  bash <(curl -fsSL https://github.com/AzimMahmud/dbsh/releases/latest/download/install.sh)
 #
@@ -27,13 +27,13 @@ for arg in "$@"; do
     esac
 done
 
-# â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── helpers ─────────────────────────────────────────────────────────────
 info()  { printf "  \033[36m>\033[0m %s\n" "$*"; }
-ok()    { printf "  \033[32mâœ“\033[0m %s\n" "$*"; }
-warn()  { printf "  \033[33mâš \033[0m %s\n" "$*"; }
-err()   { printf "  \033[31mâœ—\033[0m %s\n" "$*" >&2; exit 1; }
+ok()    { printf "  \033[32m[OK]\033[0m %s\n" "$*"; }
+warn()  { printf "  \033[33m[!]\033[0m %s\n" "$*"; }
+err()   { printf "  \033[31m[ERROR]\033[0m %s\n" "$*" >&2; exit 1; }
 
-# â”€â”€ platform detection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── platform detection ─────────────────────────────────────────────────
 detect_platform() {
     local os arch
 
@@ -41,7 +41,7 @@ detect_platform() {
         Linux)  os="linux";;
         Darwin) os="macos";;
         MINGW*|MSYS*|CYGWIN*)
-            err "Windows detected â€” this script is for Linux/macOS only.
+            err "Windows detected — this script is for Linux/macOS only.
   Use PowerShell instead:
 
     powershell -c \"iwr -Uri https://github.com/${REPO}/releases/latest/download/install.ps1 | iex\"
@@ -62,7 +62,7 @@ detect_platform() {
     echo "${os}-${arch}"
 }
 
-# â”€â”€ release URL helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── release URL helpers ───────────────────────────────────────────────
 resolve_tag() {
     # Strip an optional leading "v" so "v1.0.0" and "1.0.0" both work.
     local v="$VERSION"
@@ -83,7 +83,7 @@ base_url() {
     fi
 }
 
-# â”€â”€ download + integrity check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── download + integrity check ─────────────────────────────────────────
 download_release() {
     local platform="$1"
     local tag
@@ -130,7 +130,7 @@ download_release() {
     mv "$workdir/dbsh" "${INSTALL_TMP}"
 }
 
-# â”€â”€ install â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── install ─────────────────────────────────────────────────────────────
 install_binary() {
     mkdir -p "$INSTALL_DIR"
     mv "${INSTALL_TMP}" "${INSTALL_DIR}/dbsh" || err "Failed to install binary (check write permission on ${INSTALL_DIR})"
@@ -138,7 +138,7 @@ install_binary() {
     ok "Installed to ${INSTALL_DIR}/dbsh"
 }
 
-# â”€â”€ PATH management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── PATH management ────────────────────────────────────────────────────
 ensure_on_path() {
     case ":${PATH:-}:" in
         *":${INSTALL_DIR}:"*) return 0 ;;
@@ -162,7 +162,7 @@ ensure_on_path() {
     fi
 }
 
-# â”€â”€ uninstall â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── uninstall ───────────────────────────────────────────────────────────
 # Strips every "# Added by dbsh installer" comment plus the export line
 # immediately after it. Line-by-line rather than sed/awk so behavior doesn't
 # vary between GNU and BSD (macOS) implementations.
@@ -211,7 +211,7 @@ uninstall() {
     echo ""
 }
 
-# â”€â”€ verify â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── verify ─────────────────────────────────────────────────────────────
 verify() {
     if [ -x "${INSTALL_DIR}/dbsh" ]; then
         # On macOS, remove the Gatekeeper quarantine attribute so the binary
@@ -228,12 +228,12 @@ verify() {
 # Allow override of temp staging path so the trap can clean it up.
 INSTALL_TMP="$(mktemp -d)/dbsh"
 
-# â”€â”€ main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── main ───────────────────────────────────────────────────────────────
 main() {
     echo ""
-    echo "  â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®"
-    echo "  â”‚  dbsh â€” database migration tool   â”‚"
-    echo "  â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯"
+    echo "  ┌──────────────────────────────────────────────────┐"
+    echo "  │  dbsh — database migration tool                  │"
+    echo "  └──────────────────────────────────────────────────┘"
     echo ""
 
     if [ -n "$UNINSTALL" ]; then

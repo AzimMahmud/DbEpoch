@@ -36,4 +36,4 @@ echo "  $OUTPUT/$EXE_NAME new -n MyApp -p postgresql --json"
 #   linux-x64, linux-arm64, linux-musl-x64
 #   osx-x64, osx-arm64
 #
-# dbsh targets net10.0 only â€” FRAMEWORK has no other valid value here.
+# dbsh targets net10.0 only — FRAMEWORK has no other valid value here.

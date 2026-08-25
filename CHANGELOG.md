@@ -4,6 +4,18 @@ All notable changes to the dbsh project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.2] - 2026-08-25
+
+### Fixed
+
+- **Unicode encoding** - fixed broken UTF-8 characters in install scripts (box-drawing characters, em dashes, status icons) that caused rendering issues on many terminals.
+- **Cross-platform compatibility** - updated install.sh and install.ps1 to use ASCII-compatible box-drawing characters and status icons for better terminal rendering across different platforms.
+- **Release packaging** - improved archive generation to include properly encoded install scripts in all release packages.
+
+### Changed
+
+- **Status icons** - replaced Unicode checkmark/warning symbols with ASCII-friendly `[OK]`, `[!]`, `[ERROR]` indicators for maximum compatibility.
+
 ## [2.1.1] - 2026-08-25
 
 ### Changed
