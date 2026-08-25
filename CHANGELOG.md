@@ -4,6 +4,14 @@ All notable changes to the dbsh project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-08-25
+
+### Changed
+
+- **Custom domain** - documentation site now served from `https://dbsh.azim.me/` (root base `/`) instead of the GitHub Pages project path.
+- **`CNAME` file** - added to the published docs root so the custom domain persists across deploys.
+- **Favicon** - browser tab icon path fixed to `/icon.png` after the base-path change.
+
 ## [2.1.0] - 2026-08-24
 
 ### Added
