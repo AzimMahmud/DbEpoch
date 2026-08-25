@@ -7,9 +7,9 @@ Check scripts for naming conventions, syntax, duplicates, and dependency errors.
 ## Usage
 
 ```bash
-DbEpoch validate
-DbEpoch validate --environment local
-DbEpoch validate --json    # for CI
+dbsh validate
+dbsh validate --environment local
+dbsh validate --json    # for CI
 ```
 
 ## What it checks
@@ -35,7 +35,7 @@ DbEpoch validate --json    # for CI
 ## JSON output
 
 ```bash
-DbEpoch validate --json
+dbsh validate --json
 ```
 
 ```json

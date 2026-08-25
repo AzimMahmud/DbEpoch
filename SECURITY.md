@@ -9,10 +9,10 @@
 
 ## Reporting a vulnerability
 
-We take security seriously. If you discover a security vulnerability in DbEpoch,
+We take security seriously. If you discover a security vulnerability in dbsh,
 please **do not** open a public issue. Instead, report it privately:
 
-- Open a [draft security advisory](https://github.com/AzimMahmud/DbEpoch/security/advisories/new)
+- Open a [draft security advisory](https://github.com/AzimMahmud/dbsh/security/advisories/new)
 - Or email the maintainers directly (check the commit history for contacts)
 
 We will acknowledge receipt within 48 hours and provide a timeline for a fix.
@@ -20,10 +20,10 @@ Vulnerabilities will be disclosed after a fix is released.
 
 ## Scope
 
-- The `DbEpoch` binary and its source code
+- The `dbsh` binary and its source code
 - The install scripts (`install.sh`, `install.ps1`)
 - The build/publish scripts
-- The NuGet package (`DbEpoch` on [nuget.org](https://www.nuget.org/packages/DbEpoch))
+- The NuGet package (`dbsh` on [nuget.org](https://www.nuget.org/packages/dbsh))
 
 ## Out of scope
 

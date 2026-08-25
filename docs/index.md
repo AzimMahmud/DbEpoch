@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: DbEpoch
+  name: dbsh
   text: Database migrations that ship
   tagline: A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, and SQLite. Beautiful CLI, zero magic, production-tested patterns.
   image:
     src: /icon.png
-    alt: DbEpoch
+    alt: dbsh
   actions:
     - theme: brand
       text: Get Started
@@ -17,12 +17,12 @@ hero:
       link: /commands/new
     - theme: alt
       text: GitHub
-      link: https://github.com/AzimMahmud/DbEpoch
+      link: https://github.com/AzimMahmud/dbsh
 
 features:
   - icon: 📝
     title: SQL-first
-    details: Plain .sql files. No embedded DSL, no XML, no surprises. You write SQL, DbEpoch tracks and applies it.
+    details: Plain .sql files. No embedded DSL, no XML, no surprises. You write SQL, dbsh tracks and applies it.
   - icon: 🗄️
     title: Multi-database
     details: One tool, four engines. PostgreSQL, SQL Server, MySQL, and SQLite. Switch providers without changing your workflow.

@@ -1,25 +1,25 @@
 # Architecture
 
-DbEpoch is built as a layered .NET solution with clear separation of concerns.
+dbsh is built as a layered .NET solution with clear separation of concerns.
 
 ## Project structure
 
 ```
-DbEpoch/
+dbsh/
   src/
-    DbEpoch.Core/             Pure domain model (zero dependencies)
-    DbEpoch.Engine/           Script parsing, migration execution
-    DbEpoch.Infrastructure/   Database providers, file system config
-    DbEpoch.CLI/              The DbEpoch executable
+    dbsh.Core/             Pure domain model (zero dependencies)
+    dbsh.Engine/           Script parsing, migration execution
+    dbsh.Infrastructure/   Database providers, file system config
+    dbsh.CLI/              The dbsh executable
   tests/
-    DbEpoch.Engine.Tests/     Unit + integration tests
+    dbsh.Engine.Tests/     Unit + integration tests
 ```
 
 ## Layer diagram
 
 ```
 ┌──────────────────────────────────────────┐
-│              DbEpoch.CLI                 │
+│              dbsh.CLI                 │
 │   Program.cs · Commands · ConsoleHelper  │
 └──────────────────┬───────────────────────┘
                    │ uses
@@ -39,7 +39,7 @@ DbEpoch/
     └───────────────────────────────────────────────────────┘
 ```
 
-## Core (`DbEpoch.Core`)
+## Core (`dbsh.Core`)
 
 Pure domain model with zero external dependencies.
 
@@ -49,9 +49,9 @@ Pure domain model with zero external dependencies.
 | `Enums` | `MigrationStatus`, `MigrationType`, `AuditAction` |
 | `Interfaces` | `IMigrationTracker`, `IMigrationLockManager`, `IAuditLogger`, `IEnvironmentProvider`, `IMigrationScriptExecutor`, `IConfigLoader` |
 | `ValueObjects` | `MigrationConfiguration`, `EnvironmentConfiguration`, `DeploymentWindow`, `ParsedMigration`, `MigrationContext` |
-| `Exceptions` | `DbEpochException`, `ScriptParseException`, `MigrationConfigurationException`, `UnsupportedProviderException` |
+| `Exceptions` | `dbshException`, `ScriptParseException`, `MigrationConfigurationException`, `UnsupportedProviderException` |
 
-## Engine (`DbEpoch.Engine`)
+## Engine (`dbsh.Engine`)
 
 Application core that orchestrates the migration workflow.
 
@@ -63,7 +63,7 @@ Application core that orchestrates the migration workflow.
 | `InMemoryMigrationLockManager` | In-memory lock manager |
 | `InMemoryAuditLogger` | In-memory audit logger |
 
-## Infrastructure (`DbEpoch.Infrastructure`)
+## Infrastructure (`dbsh.Infrastructure`)
 
 Database-specific implementations and file system access.
 
@@ -77,9 +77,9 @@ Database-specific implementations and file system access.
 | `RelationalMigrationLockManager` | Row-based distributed lock with lease expiry |
 | `FileSystemConfigLoader` | Loads `migration.json` and `environments/*.json`, expands `${VAR}` tokens |
 
-## CLI (`DbEpoch.CLI`)
+## CLI (`dbsh.CLI`)
 
-The `DbEpoch` executable built with Spectre.Console.Cli.
+The `dbsh` executable built with Spectre.Console.Cli.
 
 | Class | Responsibility |
 |-------|---------------|

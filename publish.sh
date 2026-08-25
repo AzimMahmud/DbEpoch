@@ -4,15 +4,15 @@ set -euo pipefail
 RUNTIME="${1:-linux-x64}"
 FRAMEWORK="${FRAMEWORK:-net10.0}"
 OUTPUT="${2:-$(dirname "$0")/dist}"
-EXE_NAME="DbEpoch"
+EXE_NAME="dbsh"
 
 case "$RUNTIME" in
-  win-*) EXE_NAME="DbEpoch.exe" ;;
+  win-*) EXE_NAME="dbsh.exe" ;;
 esac
 
-echo "Publishing DbEpoch ($RUNTIME, $FRAMEWORK)..."
+echo "Publishing dbsh ($RUNTIME, $FRAMEWORK)..."
 
-dotnet publish "$(dirname "$0")/src/DbEpoch.CLI/DbEpoch.CLI.csproj" \
+dotnet publish "$(dirname "$0")/src/dbsh.CLI/dbsh.CLI.csproj" \
     --configuration Release \
     --framework "$FRAMEWORK" \
     --runtime "$RUNTIME" \
@@ -36,4 +36,4 @@ echo "  $OUTPUT/$EXE_NAME new -n MyApp -p postgresql --json"
 #   linux-x64, linux-arm64, linux-musl-x64
 #   osx-x64, osx-arm64
 #
-# DbEpoch targets net10.0 only â€” FRAMEWORK has no other valid value here.
+# dbsh targets net10.0 only â€” FRAMEWORK has no other valid value here.

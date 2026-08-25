@@ -7,9 +7,9 @@ Show migration status for an environment.
 ## Usage
 
 ```bash
-DbEpoch status
-DbEpoch status --environment production
-DbEpoch status --json    # machine-readable for CI
+dbsh status
+dbsh status --environment production
+dbsh status --json    # machine-readable for CI
 ```
 
 Also accepts [global options](/reference/global-options).
@@ -48,7 +48,7 @@ Also accepts [global options](/reference/global-options).
 ## JSON output
 
 ```bash
-DbEpoch status --json
+dbsh status --json
 ```
 
 ```json

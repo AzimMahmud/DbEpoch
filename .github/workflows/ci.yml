@@ -67,7 +67,7 @@ jobs:
           path: ./TestResults/**/coverage.cobertura.xml
           if-no-files-found: warn
 
-  # Real-database tests (tests/DbEpoch.Engine.Tests/Integration/) â€” needs Docker,
+  # Real-database tests (tests/dbsh.Engine.Tests/Integration/) â€” needs Docker,
   # so it runs here rather than in the cross-OS build matrix.
   integration-tests:
     runs-on: ubuntu-latest
@@ -80,11 +80,11 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore tests/DbEpoch.Engine.Tests
+        run: dotnet restore tests/dbsh.Engine.Tests
 
       - name: Test (Postgres / MySQL / SQL Server via Testcontainers)
         run: |
-          dotnet test tests/DbEpoch.Engine.Tests --configuration Release \
+          dotnet test tests/dbsh.Engine.Tests --configuration Release \
             --filter "Category=Integration" \
             --logger "GitHubActions;summary.includePassedTests=true"
 
@@ -125,7 +125,7 @@ jobs:
           global-json-file: global.json
 
       - name: Pack
-        run: dotnet pack src/DbEpoch.CLI --configuration Release --output ./nupkg -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
+        run: dotnet pack src/dbsh.CLI --configuration Release --output ./nupkg -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
 
       - name: Upload NuGet package
         uses: actions/upload-artifact@v4

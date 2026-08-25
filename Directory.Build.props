@@ -13,11 +13,11 @@
     <Deterministic>true</Deterministic>
 
     <!-- Package metadata -->
-    <Authors>DbEpoch Contributors</Authors>
-    <Copyright>Copyright (c) 2025 DbEpoch Contributors</Copyright>
+    <Authors>dbsh Contributors</Authors>
+    <Copyright>Copyright (c) 2025 dbsh Contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/AzimMahmud/DbEpoch</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/AzimMahmud/DbEpoch</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/AzimMahmud/dbsh</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AzimMahmud/dbsh</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true' Or '$(TF_BUILD)' == 'true'">true</ContinuousIntegrationBuild>

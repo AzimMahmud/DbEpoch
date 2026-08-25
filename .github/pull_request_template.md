@@ -25,7 +25,7 @@ Fixes #(issue)
 
 ```bash
 # Commands to verify your change
-DbEpoch validate
-DbEpoch plan
+dbsh validate
+dbsh plan
 ...
 ```

@@ -7,9 +7,9 @@ Show the audit trail for an environment. Alias: `audit`.
 ## Usage
 
 ```bash
-DbEpoch history
-DbEpoch history --environment production --limit 50
-DbEpoch history --json
+dbsh history
+dbsh history --environment production --limit 50
+dbsh history --json
 ```
 
 ## Options
@@ -48,7 +48,7 @@ The audit trail records every action performed against the database:
 ## JSON output
 
 ```bash
-DbEpoch history --json
+dbsh history --json
 ```
 
 Returns an array of audit entries with `action`, `performedBy`, `performedAtUtc`, `environment`, and `details` fields.

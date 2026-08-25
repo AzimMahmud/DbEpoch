@@ -1,6 +1,6 @@
 # new
 
-Scaffold a complete DbEpoch project structure. Aliases: `scaffold`, `init-project`.
+Scaffold a complete dbsh project structure. Aliases: `scaffold`, `init-project`.
 
 **Database required:** No
 
@@ -9,24 +9,24 @@ Scaffold a complete DbEpoch project structure. Aliases: `scaffold`, `init-projec
 ::: code-group
 
 ```bash [Interactive]
-DbEpoch new
+dbsh new
 ```
 
 ```bash [Non-interactive]
-DbEpoch new --name MyApp --provider postgresql
+dbsh new --name MyApp --provider postgresql
 ```
 
 ```bash [With output directory]
-DbEpoch new --name MyApp --provider sqlserver --output ./my-db-project
+dbsh new --name MyApp --provider sqlserver --output ./my-db-project
 ```
 
 ```bash [JSON mode for CI]
-DbEpoch new --name MyApp --json
+dbsh new --name MyApp --json
 ```
 
 :::
 
-When called without flags, `DbEpoch new` enters interactive mode:
+When called without flags, `dbsh new` enters interactive mode:
 
 1. Prompts for your **project name** (default: `MyApp`)
 2. Lets you **select the database provider** from a list
@@ -85,6 +85,6 @@ When prompted, you can enter comma-separated module names. Each module gets its 
 ## After scaffolding
 
 1. Set your connection string (env var or edit `migration.json`)
-2. Run `DbEpoch create --name YourMigration --type schema` to add scripts
+2. Run `dbsh create --name YourMigration --type schema` to add scripts
 3. Write your SQL
-4. Run `DbEpoch migrate`
+4. Run `dbsh migrate`

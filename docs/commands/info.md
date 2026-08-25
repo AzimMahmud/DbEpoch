@@ -7,8 +7,8 @@ Show configuration, provider, environments, and paths. Alias: `config`.
 ## Usage
 
 ```bash
-DbEpoch info
-DbEpoch info --json
+dbsh info
+dbsh info --json
 ```
 
 Also accepts [global options](/reference/global-options).
@@ -16,7 +16,7 @@ Also accepts [global options](/reference/global-options).
 ## Example output
 
 ```
- DbEpoch Configuration
+ dbsh Configuration
 
   Provider:         PostgreSQL
   Base path:        /home/user/myapp

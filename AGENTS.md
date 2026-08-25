@@ -4,10 +4,10 @@
 
 ```bash
 # Full solution (all projects)
-dotnet build DbEpoch.slnx
+dotnet build dbsh.slnx
 
 # Single project
-dotnet build src/DbEpoch.CLI/DbEpoch.CLI.csproj
+dotnet build src/dbsh.CLI/dbsh.CLI.csproj
 ```
 
 `TreatWarningsAsErrors` is enabled globally via `Directory.Build.props`. Zero warnings required.
@@ -21,10 +21,10 @@ Target framework: `net10.0`.
 dotnet test --filter "Category!=Integration"
 
 # Real-database integration tests (Postgres/MySQL/SQL Server via Testcontainers, needs Docker)
-dotnet test tests/DbEpoch.Engine.Tests --filter "Category=Integration"
+dotnet test tests/dbsh.Engine.Tests --filter "Category=Integration"
 ```
 
-Test count: 116 unit/SQLite tests across 13 test classes, plus 54 Docker-backed integration tests in `tests/DbEpoch.Engine.Tests/Integration/`.
+Test count: 116 unit/SQLite tests across 13 test classes, plus 54 Docker-backed integration tests in `tests/dbsh.Engine.Tests/Integration/`.
 
 ## Lint / Format
 
@@ -34,15 +34,15 @@ No separate lint step â€” `TreatWarningsAsErrors` serves as the gate. The b
 
 | Project | Responsibility |
 |---------|---------------|
-| `DbEpoch.Core` | Entities, enums, value objects, interfaces. Zero dependencies. |
-| `DbEpoch.Engine` | `ScriptParser`, `MigrationExecutor`, in-memory test doubles. |
-| `DbEpoch.Infrastructure` | 4 database providers (PostgreSQL, SqlServer, MySQL, SQLite), relational implementations, `FileSystemConfigLoader`. |
-| `DbEpoch.CLI` | `DbEpoch` executable using `Spectre.Console.Cli` 0.49.1. |
+| `dbsh.Core` | Entities, enums, value objects, interfaces. Zero dependencies. |
+| `dbsh.Engine` | `ScriptParser`, `MigrationExecutor`, in-memory test doubles. |
+| `dbsh.Infrastructure` | 4 database providers (PostgreSQL, SqlServer, MySQL, SQLite), relational implementations, `FileSystemConfigLoader`. |
+| `dbsh.CLI` | `dbsh` executable using `Spectre.Console.Cli` 0.49.1. |
 
 ## Key conventions
 
-- Custom exceptions in `DbEpoch.Core/Exceptions/DbEpochException.cs`: `DbEpochException` (base), `ScriptParseException`, `MigrationConfigurationException`, `UnsupportedProviderException`.
-- In-memory test doubles in `DbEpoch.Engine/InMemory/InMemoryImplementations.cs`.
+- Custom exceptions in `dbsh.Core/Exceptions/dbshException.cs`: `dbshException` (base), `ScriptParseException`, `MigrationConfigurationException`, `UnsupportedProviderException`.
+- In-memory test doubles in `dbsh.Engine/InMemory/InMemoryImplementations.cs`.
 - Migration scripts: `V<digits>__Name.sql` (versioned), `R__Name.sql` (repeatable), `U<digits>__Name.sql` (rollback).
 - SHA-256 hashing with LF normalization for checksums.
 - 3 tracking tables: `__migration_history`, `__migration_lock`, `__migration_audit`.

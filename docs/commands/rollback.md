@@ -8,16 +8,16 @@ Roll back one or more previously applied migrations using `U` scripts.
 
 ```bash
 # Roll back the last migration
-DbEpoch rollback --environment local
+dbsh rollback --environment local
 
 # Roll back the last 3 migrations
-DbEpoch rollback --environment production --count 3
+dbsh rollback --environment production --count 3
 
 # Roll back a specific version
-DbEpoch rollback --environment production --target-version 003
+dbsh rollback --environment production --target-version 003
 
 # Non-interactive
-DbEpoch rollback --environment production --yes
+dbsh rollback --environment production --yes
 ```
 
 ## Options

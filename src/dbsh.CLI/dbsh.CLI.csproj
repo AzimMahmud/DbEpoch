@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>dbsh.CLI</RootNamespace>
+    <AssemblyName>dbsh</AssemblyName>
+    <Description>dbsh - a database-agnostic migration tool for .NET (PostgreSQL, SQL Server, MySQL, SQLite).</Description>
+    <Version>2.1.0</Version>
+    <FileVersion>2.1.0.0</FileVersion>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+
+    <PackAsTool>true</PackAsTool>
+    <DebugType>none</DebugType>
+    <ToolCommandName>dbsh</ToolCommandName>
+    <PackageId>dbsh</PackageId>
+    <PackageTags>database;migration;postgresql;sqlserver;mysql;sqlite;cli;flyway;schema</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/AzimMahmud/dbsh</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AzimMahmud/dbsh</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" Version="0.49.1" />
+    <PackageReference Include="Spectre.Console.Cli" Version="0.49.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\dbsh.Core\dbsh.Core.csproj" />
+    <ProjectReference Include="..\dbsh.Engine\dbsh.Engine.csproj" />
+    <ProjectReference Include="..\dbsh.Infrastructure\dbsh.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\.github\assets\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

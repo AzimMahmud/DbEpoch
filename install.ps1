@@ -1,17 +1,17 @@
 ﻿#!/usr/bin/env pwsh
-# DbEpoch â€“ official Windows install script
+# dbsh â€“ official Windows install script
 # Usage:
-#   powershell -c "iwr -Uri https://github.com/AzimMahmud/DbEpoch/releases/latest/download/install.ps1 | iex"
-#   pwsh -c "iwr -Uri https://github.com/AzimMahmud/DbEpoch/releases/latest/download/install.ps1 | iex"
+#   powershell -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/latest/download/install.ps1 | iex"
+#   pwsh -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/latest/download/install.ps1 | iex"
 #
 # Uninstall (download first â€” a switch like -Uninstall can't be passed through `iwr | iex`):
-#   iwr -Uri https://github.com/AzimMahmud/DbEpoch/releases/latest/download/install.ps1 -OutFile install.ps1
+#   iwr -Uri https://github.com/AzimMahmud/dbsh/releases/latest/download/install.ps1 -OutFile install.ps1
 #   .\install.ps1 -Uninstall
 
 param(
-    [string]$Repo = "AzimMahmud/DbEpoch",
+    [string]$Repo = "AzimMahmud/dbsh",
     [string]$Version = "latest",
-    [string]$InstallDir = "$env:LOCALAPPDATA\DbEpoch",
+    [string]$InstallDir = "$env:LOCALAPPDATA\dbsh",
     [switch]$Uninstall
 )
 
@@ -26,7 +26,7 @@ function Err($Message)  { Write-Host "  âœ— $Message" -ForegroundColor Red; 
 if ($Uninstall) {
     Write-Host ""
     Write-Host "  â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®" -ForegroundColor Cyan
-    Write-Host "  â”‚  DbEpoch â€” database migration tool   â”‚" -ForegroundColor Cyan
+    Write-Host "  â”‚  dbsh â€” database migration tool   â”‚" -ForegroundColor Cyan
     Write-Host "  â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯" -ForegroundColor Cyan
     Write-Host ""
 
@@ -38,7 +38,7 @@ if ($Uninstall) {
             Err "Could not remove $InstallDir (access denied). It's likely a system-wide install; try re-running from an elevated (Administrator) PowerShell.`n  $_"
         }
     } else {
-        Warn "No DbEpoch installation found at $InstallDir"
+        Warn "No dbsh installation found at $InstallDir"
     }
 
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
@@ -49,7 +49,7 @@ if ($Uninstall) {
     }
 
     Write-Host ""
-    Info "DbEpoch removed. Restart your shell to fully clear it from PATH."
+    Info "dbsh removed. Restart your shell to fully clear it from PATH."
     Write-Host ""
     exit 0
 }
@@ -70,20 +70,20 @@ if ($Version -eq "latest") {
 } else {
     $base = "https://github.com/$Repo/releases/download/v$Version"
 }
-$url = "$base/DbEpoch-$platform.zip"
+$url = "$base/dbsh-$platform.zip"
 $sumsUrl = "$base/SHA256SUMS"
 
 # â”€â”€ download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host ""
 Write-Host "  â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®" -ForegroundColor Cyan
-Write-Host "  â”‚  DbEpoch â€” database migration tool   â”‚" -ForegroundColor Cyan
+Write-Host "  â”‚  dbsh â€” database migration tool   â”‚" -ForegroundColor Cyan
 Write-Host "  â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯" -ForegroundColor Cyan
 Write-Host ""
 
 Info "Detected: $platform"
-Info "Downloading DbEpoch for $platform..."
+Info "Downloading dbsh for $platform..."
 
-$zip = "$env:TEMP\DbEpoch.zip"
+$zip = "$env:TEMP\dbsh.zip"
 try {
     Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
 } catch {
@@ -92,7 +92,7 @@ try {
 Ok "Downloaded"
 
 # â”€â”€ integrity check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-$assetName = "DbEpoch-$platform.zip"
+$assetName = "dbsh-$platform.zip"
 $expectedHash = $null
 try {
     $sums = Invoke-WebRequest -Uri $sumsUrl -UseBasicParsing
@@ -143,7 +143,7 @@ if ($currentPath -notlike "*$InstallDir*") {
 }
 
 # â”€â”€ verify â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-$exe = Join-Path $InstallDir "DbEpoch.exe"
+$exe = Join-Path $InstallDir "dbsh.exe"
 if (Test-Path $exe) {
     $version = & $exe --version 2>&1 | Select-Object -First 1
     Ok $version
@@ -152,5 +152,5 @@ if (Test-Path $exe) {
 }
 
 Write-Host ""
-Info "Run 'DbEpoch --help' to get started."
+Info "Run 'dbsh --help' to get started."
 Write-Host ""

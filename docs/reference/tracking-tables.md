@@ -1,6 +1,6 @@
 # Tracking Tables
 
-`DbEpoch init` creates three tables in your database. These track migration state, prevent concurrent deploys, and maintain an audit trail.
+`dbsh init` creates three tables in your database. These track migration state, prevent concurrent deploys, and maintain an audit trail.
 
 ## `__migration_history`
 

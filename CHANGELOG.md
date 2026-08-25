@@ -1,6 +1,6 @@
 ﻿# Changelog
 
-All notable changes to the DbEpoch project will be documented in this file.
+All notable changes to the dbsh project will be documented in this file.
 
 ## [Unreleased]
 
@@ -8,20 +8,20 @@ All notable changes to the DbEpoch project will be documented in this file.
 
 ### Added
 
-- **Windows ARM64 build** - DbEpoch-windows-arm64.zip now included in releases.
-- **Alpine Linux (musl) build** - DbEpoch-linux-musl-x64.tar.gz now included in releases for Alpine and musl-based distros.
-- **macOS Gatekeeper auto-fix** - install script now automatically removes the quarantine attribute so DbEpoch runs immediately after install.
+- **Windows ARM64 build** - dbsh-windows-arm64.zip now included in releases.
+- **Alpine Linux (musl) build** - dbsh-linux-musl-x64.tar.gz now included in releases for Alpine and musl-based distros.
+- **macOS Gatekeeper auto-fix** - install script now automatically removes the quarantine attribute so dbsh runs immediately after install.
 - **Windows Git Bash/WSL detection** - install script detects Windows environments and directs users to install.ps1 instead of failing with "Unsupported OS".
-- **New logo assets** - dark/light variants at 64x64, 128x128, 256x256, and 512x512 sizes in dbepoch_logos/ folder. Updated root logo.png, docs favicon, and NuGet package icon.
+- **New logo assets** - dark/light variants at 64x64, 128x128, 256x256, and 512x512 sizes in dbsh_logos/ folder. Updated root logo.png, docs favicon, and NuGet package icon.
 
 ### Fixed
 
-- **Version mismatch** - DbEpoch --version now reads the version from assembly metadata instead of a hardcoded string, ensuring it always matches the installed version.
+- **Version mismatch** - dbsh --version now reads the version from assembly metadata instead of a hardcoded string, ensuring it always matches the installed version.
 - **Mojibake in docs** - fixed broken UTF-8 characters (em dashes, middle dots, box-drawing chars) across all documentation files.
 
 ### Changed
 
-- **Docs nav logo** - icon + gradient "DbEpoch" text, dark/light theme swap.
+- **Docs nav logo** - icon + gradient "dbsh" text, dark/light theme swap.
 - **Browser favicon** - uses square icon instead of full logo.
 - **NuGet package icon** - updated to 256px light variant with `<RepositoryType>git</RepositoryType>` for repo linking.
 ## [2.0.1] â€” 2026-08-23
@@ -46,12 +46,12 @@ All notable changes to the DbEpoch project will be documented in this file.
 
 ### Added
 
-- **Real-database integration tests** â€” 54 new tests in `tests/DbEpoch.Engine.Tests/Integration/` run the `RelationalMigrationTracker`/`RelationalMigrationLockManager`/`RelationalAuditLogger` contract against live PostgreSQL, MySQL, and SQL Server containers via Testcontainers, closing the gap where only SQLite had real-database coverage. Tagged `Category=Integration`; requires Docker and is excluded from the default `dotnet test` run.
+- **Real-database integration tests** â€” 54 new tests in `tests/dbsh.Engine.Tests/Integration/` run the `RelationalMigrationTracker`/`RelationalMigrationLockManager`/`RelationalAuditLogger` contract against live PostgreSQL, MySQL, and SQL Server containers via Testcontainers, closing the gap where only SQLite had real-database coverage. Tagged `Category=Integration`; requires Docker and is excluded from the default `dotnet test` run.
 - **CodeQL security scanning** â€” `.github/workflows/codeql.yml` runs `security-and-quality` analysis on push/PR to `main` and weekly on a schedule.
-- **`install.sh --uninstall` / `install.ps1 -Uninstall`** â€” both installer scripts now double as uninstallers: remove the binary and strip the PATH entry they added (`# Added by DbEpoch installer` block in `.zshrc`/`.bashrc`, or the matching entry in the Windows user `PATH`). Idempotent â€” safe to run when nothing is installed. `install.sh` also accepts `UNINSTALL=1` as an env-var alternative to the `--uninstall`/`-u` flag, consistent with its existing `REPO`/`VERSION`/`INSTALL_DIR` overrides.
-- **README: Updating / Uninstalling sections** â€” documents re-running the installer to upgrade in place (verified: no duplicate PATH entry, clean binary overwrite), the new automated uninstall commands, a `which -a DbEpoch` / `where.exe DbEpoch` tip for detecting duplicate installs across different directories, and how to handle a system-wide (root-owned) install.
+- **`install.sh --uninstall` / `install.ps1 -Uninstall`** â€” both installer scripts now double as uninstallers: remove the binary and strip the PATH entry they added (`# Added by dbsh installer` block in `.zshrc`/`.bashrc`, or the matching entry in the Windows user `PATH`). Idempotent â€” safe to run when nothing is installed. `install.sh` also accepts `UNINSTALL=1` as an env-var alternative to the `--uninstall`/`-u` flag, consistent with its existing `REPO`/`VERSION`/`INSTALL_DIR` overrides.
+- **README: Updating / Uninstalling sections** â€” documents re-running the installer to upgrade in place (verified: no duplicate PATH entry, clean binary overwrite), the new automated uninstall commands, a `which -a dbsh` / `where.exe dbsh` tip for detecting duplicate installs across different directories, and how to handle a system-wide (root-owned) install.
 - **Uninstall now fails gracefully on permission-denied** â€” `install.sh --uninstall` against a root-owned/system-wide install previously crashed with a raw `rm: Permission denied`; it now reports a clear message with the exact `sudo rm ...` command to run. `install.ps1 -Uninstall` gets the equivalent fix (points to running an elevated PowerShell).
-- **NuGet package icon** â€” `.github/assets/icon.png` (128Ã—128, rendered from the existing `icon.svg`), wired up via `<PackageIcon>` in `DbEpoch.CLI.csproj`. Package ID `DbEpoch` confirmed available on NuGet.org. Verified end-to-end: packed, installed as a real global tool from the local `.nupkg` (`dotnet tool install --global DbEpoch --add-source ...`), ran `DbEpoch --version`/`--help` successfully.
+- **NuGet package icon** â€” `.github/assets/icon.png` (128Ã—128, rendered from the existing `icon.svg`), wired up via `<PackageIcon>` in `dbsh.CLI.csproj`. Package ID `dbsh` confirmed available on NuGet.org. Verified end-to-end: packed, installed as a real global tool from the local `.nupkg` (`dotnet tool install --global dbsh --add-source ...`), ran `dbsh --version`/`--help` successfully.
 
 ### Changed
 
@@ -63,8 +63,8 @@ All notable changes to the DbEpoch project will be documented in this file.
 
 ### Fixed
 
-- **Interactive banner showed .NET runtime/OS info** â€” `DbEpoch new`'s interactive wizard printed the .NET `FrameworkDescription` and `OSDescription` on every run via `ConsoleHelper.PrintBanner()`. Removed; the banner now shows only branding and supported providers.
-- **Concurrent deploys possible after a lock lease expired mid-deploy** â€” `MigrationExecutor.DeployAsync` renewed the distributed lock before each batch but discarded the `bool` result; if the lease had already expired and been stolen by another process, the deploy kept executing and recording migrations with no lock held at all, letting two `DbEpoch migrate` runs race against the same environment. Now stops immediately and reports the lock loss instead. Covered by `DeployFlowTests.Deploy_LockLostBetweenBatches_StopsAndReportsFailure`.
+- **Interactive banner showed .NET runtime/OS info** â€” `dbsh new`'s interactive wizard printed the .NET `FrameworkDescription` and `OSDescription` on every run via `ConsoleHelper.PrintBanner()`. Removed; the banner now shows only branding and supported providers.
+- **Concurrent deploys possible after a lock lease expired mid-deploy** â€” `MigrationExecutor.DeployAsync` renewed the distributed lock before each batch but discarded the `bool` result; if the lease had already expired and been stolen by another process, the deploy kept executing and recording migrations with no lock held at all, letting two `dbsh migrate` runs race against the same environment. Now stops immediately and reports the lock loss instead. Covered by `DeployFlowTests.Deploy_LockLostBetweenBatches_StopsAndReportsFailure`.
 - **Non-`DbException` faults crashed the whole deploy instead of failing one migration** â€” `RelationalMigrationExecutor.ExecuteAsync` only caught `DbException`, so e.g. cancellation-adjacent provider faults propagated uncaught out of `DeployAsync`, skipping the structured `DeployResult` entirely. Broadened to catch any non-cancellation exception; genuine cancellation (`OperationCanceledException`) still propagates so it isn't misrecorded as a migration failure.
 - **`install.sh` always exited 1 despite a successful install** â€” `workdir` was declared `local` inside `download_release`, but the `trap 'rm -rf "$workdir"' EXIT` fires after the function returns, so under `set -u` the trap failed with `workdir: unbound variable` on every run. `workdir` is no longer `local`.
 - **`install.ps1` printed no status text** â€” `Info`/`Ok`/`Warn`/`Err` referenced `$_` without declaring a parameter, so every call like `Info "Detected: $platform"` printed just the icon with nothing after it (the argument was never bound to `$_` outside a pipeline). All four now take an explicit `$Message` parameter.
@@ -74,7 +74,7 @@ All notable changes to the DbEpoch project will be documented in this file.
 
 ### Added
 
-- **`--verbose` flag** â€” `DbEpoch migrate/rollback/status/create/repair --verbose` shows `Information`-level log messages (script execution, checksums, lock acquisition). Propagated via `GlobalSettings.Verbose` â†’ `CliHostOptions.Verbose` â†’ `SpectreLogger<T>`.
+- **`--verbose` flag** â€” `dbsh migrate/rollback/status/create/repair --verbose` shows `Information`-level log messages (script execution, checksums, lock acquisition). Propagated via `GlobalSettings.Verbose` â†’ `CliHostOptions.Verbose` â†’ `SpectreLogger<T>`.
 - **`strictAudit` mode** â€” `MigrationExecutor` constructor accepts a `strictAudit` parameter; when `true`, `AuditSafe()` re-throws audit failures instead of silently swallowing them.
 - **`InvalidateCache()`** â€” `MigrationExecutor.InvalidateCache()` forces re-reading migration scripts from disk on the next operation.
 - **`ParseAsync(string, CancellationToken)`** â€” `ScriptParser.ParseAsync(filePath, ct)` for async file I/O with cancellation support.
@@ -111,14 +111,14 @@ All notable changes to the DbEpoch project will be documented in this file.
 - `dist/` added to `.gitignore`.
 
 #### CLI â€” project scaffolding
-- `DbEpoch new` â€” interactive project scaffold. Run without flags to be prompted for project name, database provider, and output directory. Creates the full directory tree, config files, per-environment settings, example migrations (provider-specific SQL), templates, `.gitignore`, and a GitHub Actions CI pipeline.
+- `dbsh new` â€” interactive project scaffold. Run without flags to be prompted for project name, database provider, and output directory. Creates the full directory tree, config files, per-environment settings, example migrations (provider-specific SQL), templates, `.gitignore`, and a GitHub Actions CI pipeline.
 - `scaffold` / `init-project` aliases for `new`.
 
 #### CLI â€” command-specific help
-- `DbEpoch <command> --help` now shows options specific to that command, plus the global options (without duplication).
+- `dbsh <command> --help` now shows options specific to that command, plus the global options (without duplication).
 
 #### CLI â€” onboarding screen
-- `DbEpoch` (no arguments) now shows a "Quick start" panel with the three most common commands before the full help table.
+- `dbsh` (no arguments) now shows a "Quick start" panel with the three most common commands before the full help table.
 
 #### Multi-database provider support
 - `IDatabaseProvider` interface with four implementations:
@@ -145,12 +145,12 @@ All notable changes to the DbEpoch project will be documented in this file.
 
 ### Changed
 
-#### Renamed from "DatabaseMigrationPlatform" (dbpilot) to "DbEpoch"
-- Solution: `DbEpoch.sln`
-- Source projects: `DbEpoch.Core`, `DbEpoch.Engine`, `DbEpoch.Infrastructure`, `DbEpoch.CLI`
-- Test project: `DbEpoch.Engine.Tests`
-- Tool command: `DbEpoch` (was `migration`)
-- Package: `DbEpoch` (was `dbpilot`)
+#### Renamed from "DatabaseMigrationPlatform" (dbpilot) to "dbsh"
+- Solution: `dbsh.sln`
+- Source projects: `dbsh.Core`, `dbsh.Engine`, `dbsh.Infrastructure`, `dbsh.CLI`
+- Test project: `dbsh.Engine.Tests`
+- Tool command: `dbsh` (was `migration`)
+- Package: `dbsh` (was `dbpilot`)
 - All namespaces, directories, and project references updated.
 
 #### Configuration
@@ -172,10 +172,10 @@ All notable changes to the DbEpoch project will be documented in this file.
 
 ### Fixed
 
-- `DbEpoch <command> --help` now correctly shows command-specific help (was showing global help for all commands).
+- `dbsh <command> --help` now correctly shows command-specific help (was showing global help for all commands).
 - Help output no longer duplicates global options when showing command-specific help.
 - JSON output is now emitted cleanly without decorative UI text.
-- Migration template files generate correct `{{NAME}}` placeholders (used by `DbEpoch create`).
+- Migration template files generate correct `{{NAME}}` placeholders (used by `dbsh create`).
 
 ### Security
 

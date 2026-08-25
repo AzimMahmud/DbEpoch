@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <RootNamespace>DbEpoch.Core</RootNamespace>
-    <Description>Domain model, enums, entities and abstractions for the database migration platform.</Description>
-  </PropertyGroup>
-
-</Project>

@@ -1,6 +1,6 @@
 # Multi-Database Setup
 
-DbEpoch supports four databases. The only thing that changes is the connection string and the `provider` setting.
+dbsh supports four databases. The only thing that changes is the connection string and the `provider` setting.
 
 ## Supported providers
 
@@ -16,7 +16,7 @@ Switch providers by changing the `provider` field in `migration.json` or using `
 ## PostgreSQL
 
 ```bash
-DbEpoch migrate -c "Host=localhost;Port=5432;Database=myapp;Username=postgres;Password=secret"
+dbsh migrate -c "Host=localhost;Port=5432;Database=myapp;Username=postgres;Password=secret"
 ```
 
 ```json
@@ -28,7 +28,7 @@ PostgreSQL uses database schemas for module isolation: `"module".table_name`.
 ## SQL Server
 
 ```bash
-DbEpoch migrate -c "Server=localhost;Database=myapp;User Id=sa;Password=secret;TrustServerCertificate=True"
+dbsh migrate -c "Server=localhost;Database=myapp;User Id=sa;Password=secret;TrustServerCertificate=True"
 ```
 
 ```json
@@ -40,7 +40,7 @@ SQL Server uses database schemas for module isolation: `[module].[table_name]`.
 ## MySQL
 
 ```bash
-DbEpoch migrate -c "Server=localhost;Database=myapp;User=root;Password=secret"
+dbsh migrate -c "Server=localhost;Database=myapp;User=root;Password=secret"
 ```
 
 ```json
@@ -52,7 +52,7 @@ MySQL does not support schemas. Module isolation uses table-name prefixes: `modu
 ## SQLite
 
 ```bash
-DbEpoch migrate -c "Data Source=./myapp.db"
+dbsh migrate -c "Data Source=./myapp.db"
 ```
 
 ```json
@@ -66,7 +66,7 @@ SQLite does not support schemas. Module isolation uses table-name prefixes: `mod
 Override the provider at runtime without changing config:
 
 ```bash
-DbEpoch migrate -c "..." -p sqlserver
+dbsh migrate -c "..." -p sqlserver
 ```
 
 ## Provider-specific SQL notes

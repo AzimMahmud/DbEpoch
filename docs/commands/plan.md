@@ -7,9 +7,9 @@ Compute and display the pending execution plan. Alias: `dry-run`.
 ## Usage
 
 ```bash
-DbEpoch plan
-DbEpoch plan --environment production
-DbEpoch plan --json
+dbsh plan
+dbsh plan --environment production
+dbsh plan --json
 ```
 
 ## What it shows

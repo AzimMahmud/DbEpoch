@@ -2,18 +2,18 @@
     [string]$Runtime = "win-x64",
     [string]$Framework = "net10.0",
     [string]$Output = $(Join-Path $PSScriptRoot "dist"),
-    [string]$ExeName = "DbEpoch.exe",
+    [string]$ExeName = "dbsh.exe",
     [switch]$Clean
 )
 
-$project = Join-Path $PSScriptRoot "src\DbEpoch.CLI\DbEpoch.CLI.csproj"
+$project = Join-Path $PSScriptRoot "src\dbsh.CLI\dbsh.CLI.csproj"
 
 if ($Clean -and (Test-Path $Output)) {
     Remove-Item -LiteralPath $Output -Recurse -Force
     Write-Host "Cleaned $Output"
 }
 
-Write-Host "Publishing DbEpoch ($Runtime, $Framework)..." -ForegroundColor Cyan
+Write-Host "Publishing dbsh ($Runtime, $Framework)..." -ForegroundColor Cyan
 
 dotnet publish $project `
     --configuration Release `
@@ -53,4 +53,4 @@ if ($LASTEXITCODE -eq 0) {
 # linux-x64, linux-arm64, linux-musl-x64
 # osx-x64, osx-arm64
 #
-# DbEpoch targets net10.0 only â€” -Framework has no other valid value here.
+# dbsh targets net10.0 only â€” -Framework has no other valid value here.

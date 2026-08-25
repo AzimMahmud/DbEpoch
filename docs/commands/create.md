@@ -8,25 +8,25 @@ Scaffold a new migration script from a template.
 
 ```bash
 # Schema migration with timestamp version
-DbEpoch create --name CreateUsersTable --type schema --author jane
+dbsh create --name CreateUsersTable --type schema --author jane
 
 # Schema migration with sequence version (001, 002...)
-DbEpoch create --name AddEmailColumn --type schema --sequence
+dbsh create --name AddEmailColumn --type schema --sequence
 
 # Data migration
-DbEpoch create --name SeedRoles --type data --author jane
+dbsh create --name SeedRoles --type data --author jane
 
 # Patch migration
-DbEpoch create --name FixIndexes --type patch
+dbsh create --name FixIndexes --type patch
 
 # Rollback script
-DbEpoch create --name CreateUsersTable --type rollback
+dbsh create --name CreateUsersTable --type rollback
 
 # Repeatable script
-DbEpoch create --name RefreshUserView --type repeatable
+dbsh create --name RefreshUserView --type repeatable
 
 # With metadata
-DbEpoch create --name CreateOrders --type schema --author jane --description "Orders and order_items tables"
+dbsh create --name CreateOrders --type schema --author jane --description "Orders and order_items tables"
 ```
 
 ## Options

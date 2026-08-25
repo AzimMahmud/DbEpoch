@@ -1,6 +1,6 @@
 # Configuration
 
-DbEpoch uses a two-tier configuration: a global `migration.json` file and per-environment overrides.
+dbsh uses a two-tier configuration: a global `migration.json` file and per-environment overrides.
 
 ## Global config
 
@@ -107,12 +107,12 @@ All `${VAR}` tokens in configuration files are expanded from environment variabl
 
 ```bash
 export DB_CONNECTION_STRING="Host=localhost;Database=myapp;Username=postgres"
-DbEpoch migrate
+dbsh migrate
 ```
 
 ## Connection string resolution order
 
-When `DbEpoch migrate` runs, the connection string is resolved in this order:
+When `dbsh migrate` runs, the connection string is resolved in this order:
 
 1. `--connection-string` CLI flag (highest priority)
 2. `DB_CONNECTION_STRING` environment variable
@@ -124,7 +124,7 @@ Each step is skipped if the value is not set or empty. The first non-empty value
 ## Validating your config
 
 ```bash
-DbEpoch info
+dbsh info
 ```
 
 Shows your current configuration, resolved provider, available environments, and file paths.

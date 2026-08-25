@@ -75,7 +75,7 @@ jobs:
           global-json-file: global.json
 
       - name: Publish (${{ matrix.rid }})
-        run: dotnet publish src/DbEpoch.CLI \
+        run: dotnet publish src/dbsh.CLI \
           --configuration Release \
           --framework ${{ env.PUBLISH_FRAMEWORK }} \
           --runtime ${{ matrix.rid }} \
@@ -87,21 +87,21 @@ jobs:
       - name: Rename binary
         shell: bash
         run: |
-          mv ./publish/${{ matrix.rid }}/DbEpoch${{ matrix.ext }} ./DbEpoch${{ matrix.ext }}
+          mv ./publish/${{ matrix.rid }}/dbsh${{ matrix.ext }} ./dbsh${{ matrix.ext }}
 
       - name: Compress (zip)
         if: matrix.compress == 'zip'
-        run: Compress-Archive -Path ./DbEpoch.exe -DestinationPath ./DbEpoch-${{ matrix.asset }}.zip
+        run: Compress-Archive -Path ./dbsh.exe -DestinationPath ./dbsh-${{ matrix.asset }}.zip
 
       - name: Compress (tar.gz)
         if: matrix.compress == 'tar.gz'
-        run: tar -czf ./DbEpoch-${{ matrix.asset }}.tar.gz ./DbEpoch${{ matrix.ext }}
+        run: tar -czf ./dbsh-${{ matrix.asset }}.tar.gz ./dbsh${{ matrix.ext }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DbEpoch-${{ matrix.asset }}
-          path: ./DbEpoch-${{ matrix.asset }}.*
+          name: dbsh-${{ matrix.asset }}
+          path: ./dbsh-${{ matrix.asset }}.*
           if-no-files-found: error
 
   publish-nuget:
@@ -134,7 +134,7 @@ jobs:
 
       - name: Pack
         if: steps.nuget.outputs.enabled == 'true'
-        run: dotnet pack src/DbEpoch.CLI \
+        run: dotnet pack src/dbsh.CLI \
           --configuration Release \
           --output ./nupkg \
           -p:IncludeSymbols=true \
@@ -176,7 +176,7 @@ jobs:
           # install scripts so consumers can verify integrity end-to-end.
           (
             shopt -s nullglob
-            for f in DbEpoch-*.zip DbEpoch-*.tar.gz; do
+            for f in dbsh-*.zip dbsh-*.tar.gz; do
               [ -f "$f" ] && sha256sum "$f"
             done
           ) > ./SHA256SUMS
@@ -191,7 +191,7 @@ jobs:
         run: |
           TAG="${RELEASE_TAG}"
           cat <<EOF > ./release-notes.md
-          # DbEpoch $TAG
+          # dbsh $TAG
 
           ## Installation
 
@@ -206,25 +206,25 @@ jobs:
           The install scripts automatically verify the downloaded archive against
           \`SHA256SUMS\` published alongside this release.
 
-          > **.NET global tool** (\`dotnet tool install --global DbEpoch\`) will be available once the package is published to NuGet.
+          > **.NET global tool** (\`dotnet tool install --global dbsh\`) will be available once the package is published to NuGet.
 
-          > **macOS users:** the first time you run \`DbEpoch\`, Gatekeeper may
+          > **macOS users:** the first time you run \`dbsh\`, Gatekeeper may
           > quarantine the binary. Remove the quarantine attribute with:
           > \`\`\`bash
-          > xattr -d com.apple.quarantine "$(which DbEpoch)"
+          > xattr -d com.apple.quarantine "$(which dbsh)"
           > \`\`\`
 
           ## Downloads
 
           | Platform | Package |
           |----------|--------|
-          | Windows x64 | \`DbEpoch-windows-x64.zip\` |
-          | Windows ARM64 | \`DbEpoch-windows-arm64.zip\` |
-          | Linux x64 | \`DbEpoch-linux-x64.tar.gz\` |
-          | Linux ARM64 | \`DbEpoch-linux-arm64.tar.gz\` |
-          | Linux musl x64 (Alpine) | \`DbEpoch-linux-musl-x64.tar.gz\` |
-          | macOS x64 | \`DbEpoch-macos-x64.tar.gz\` |
-          | macOS ARM64 | \`DbEpoch-macos-arm64.tar.gz\` |
+          | Windows x64 | \`dbsh-windows-x64.zip\` |
+          | Windows ARM64 | \`dbsh-windows-arm64.zip\` |
+          | Linux x64 | \`dbsh-linux-x64.tar.gz\` |
+          | Linux ARM64 | \`dbsh-linux-arm64.tar.gz\` |
+          | Linux musl x64 (Alpine) | \`dbsh-linux-musl-x64.tar.gz\` |
+          | macOS x64 | \`dbsh-macos-x64.tar.gz\` |
+          | macOS ARM64 | \`dbsh-macos-arm64.tar.gz\` |
 
           ## Verifying integrity
 
@@ -247,13 +247,13 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
-          name: DbEpoch ${{ env.RELEASE_TAG }}
+          name: dbsh ${{ env.RELEASE_TAG }}
           body_path: ./release-notes.md
           draft: false
           prerelease: false
           files: |
             ./install.sh
             ./install.ps1
-            ./release-artifacts/DbEpoch-*.zip
-            ./release-artifacts/DbEpoch-*.tar.gz
+            ./release-artifacts/dbsh-*.zip
+            ./release-artifacts/dbsh-*.tar.gz
             ./release-artifacts/SHA256SUMS

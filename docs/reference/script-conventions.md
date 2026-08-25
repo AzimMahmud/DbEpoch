@@ -1,6 +1,6 @@
 # Script Conventions
 
-DbEpoch uses Flyway-style naming for migration scripts.
+dbsh uses Flyway-style naming for migration scripts.
 
 ## File patterns
 
@@ -68,9 +68,9 @@ Optional metadata in the SQL file:
 
 ## Checksums
 
-DbEpoch computes a SHA-256 checksum for each script. The checksum is computed after normalizing line endings to LF. This ensures cross-platform consistency.
+dbsh computes a SHA-256 checksum for each script. The checksum is computed after normalizing line endings to LF. This ensures cross-platform consistency.
 
-If a previously-applied script is edited in place, the checksum changes, and `DbEpoch migrate` will refuse to deploy (checksum drift detection). You must either:
+If a previously-applied script is edited in place, the checksum changes, and `dbsh migrate` will refuse to deploy (checksum drift detection). You must either:
 
 1. Create a new migration instead of editing existing ones, or
-2. Use `DbEpoch repair` to clear the history, then re-apply
+2. Use `dbsh repair` to clear the history, then re-apply

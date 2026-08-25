@@ -8,22 +8,22 @@ Apply pending migrations to the target environment. Aliases: `deploy`, `apply`.
 
 ```bash
 # Interactive (asks for confirmation)
-DbEpoch migrate --connection-string "Host=localhost;Database=myapp;Username=postgres"
+dbsh migrate --connection-string "Host=localhost;Database=myapp;Username=postgres"
 
 # Non-interactive (for automation)
-DbEpoch migrate --connection-string "$DB_CONNECTION_STRING" --yes
+dbsh migrate --connection-string "$DB_CONNECTION_STRING" --yes
 
 # Specify environment (uses per-environment config)
-DbEpoch migrate --environment production --yes
+dbsh migrate --environment production --yes
 
 # Override batch size
-DbEpoch migrate --batch-size 5
+dbsh migrate --batch-size 5
 
 # Bypass deployment window check
-DbEpoch migrate --environment production --force
+dbsh migrate --environment production --force
 
 # With approval gating
-DbEpoch migrate --environment production --approver jane@corp.com --yes
+dbsh migrate --environment production --approver jane@corp.com --yes
 ```
 
 ## Options
@@ -52,7 +52,7 @@ Also accepts [global options](/reference/global-options).
 For environments with `requireApproval: true`, you must provide an approver:
 
 ```bash
-DbEpoch migrate --environment production --approver jane@corp.com
+dbsh migrate --environment production --approver jane@corp.com
 ```
 
 Without `--approver`, the command fails with a clear message.
@@ -66,11 +66,11 @@ For environments with a configured `deploymentWindow`, the command checks:
 
 ```bash
 # Outside the window -> blocked
-DbEpoch migrate --environment production
+dbsh migrate --environment production
 # Error: Outside the configured deployment window.
 
 # Override with --force
-DbEpoch migrate --environment production --force
+dbsh migrate --environment production --force
 ```
 
 Times are evaluated against local time using invariant culture — `Mon`, `Tuesday`, or `TUESDAY` all match.
@@ -80,12 +80,12 @@ Times are evaluated against local time using invariant culture — `Mon`, `Tuesd
 - The error is recorded in `__migration_history`
 - The transaction for that single script is rolled back
 - If `stopOnFailure` is `true` (default), the deployment stops immediately
-- Run `DbEpoch repair` to clear the failed state, then retry
+- Run `dbsh repair` to clear the failed state, then retry
 
 ## JSON output
 
 ```bash
-DbEpoch migrate --json
+dbsh migrate --json
 ```
 
 ```json

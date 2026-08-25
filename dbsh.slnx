@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="src/dbsh.Core/dbsh.Core.csproj" />
+  <Project Path="src/dbsh.Engine/dbsh.Engine.csproj" />
+  <Project Path="src/dbsh.Infrastructure/dbsh.Infrastructure.csproj" />
+  <Project Path="src/dbsh.CLI/dbsh.CLI.csproj" />
+  <Project Path="tests/dbsh.Engine.Tests/dbsh.Engine.Tests.csproj" />
+</Solution>
