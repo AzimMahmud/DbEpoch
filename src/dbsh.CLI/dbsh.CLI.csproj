@@ -17,7 +17,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/AzimMahmud/dbsh</PackageProjectUrl>
+    <PackageProjectUrl>https://dbsh.azim.me</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AzimMahmud/dbsh</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
