@@ -11,7 +11,7 @@ export default {
         const img = document.querySelector('.VPNavBar .logo img') as HTMLImageElement
         if (!img) return
         const isDark = document.documentElement.classList.contains('dark')
-        img.src = '/dbsh/icon.png'
+        img.src = '/icon.png'
       }
 
       // Run on load
