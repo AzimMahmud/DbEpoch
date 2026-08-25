@@ -99,7 +99,8 @@ download_release() {
     trap 'rm -rf "$workdir"' EXIT
 
     info "Downloading dbsh for ${platform}..."
-    curl -fsSL "$url" -o "$workdir/dbsh.tar.gz" || err "Download failed: $url"
+    curl -fsSL# --retry 3 --retry-all-errors --connect-timeout 30 --max-time 600 -o "$workdir/dbsh.tar.gz" "$url" \
+        || err "Download failed: $url"
     ok "Downloaded"
 
     # Best-effort checksum verification: if SHA256SUMS is published alongside the
@@ -107,7 +108,7 @@ download_release() {
     # documents checksums as required for trust, so failure to fetch is reported
     # loudly rather than silently skipped.
     local expected
-    expected="$(curl -fsSL "$sums_url" 2>/dev/null | grep -E "dbsh-${platform}\.tar\.gz" | awk '{print $1}' || true)"
+    expected="$(curl -fsSL --connect-timeout 20 --max-time 60 "$sums_url" 2>/dev/null | grep -E "dbsh-${platform}\.tar\.gz" | awk '{print $1}' || true)"
     if [ -n "$expected" ]; then
         local actual
         actual="$(cd "$workdir" && command -v sha256sum >/dev/null 2>&1 && sha256sum dbsh.tar.gz | awk '{print $1}' || shasum -a 256 dbsh.tar.gz | awk '{print $1}')"
