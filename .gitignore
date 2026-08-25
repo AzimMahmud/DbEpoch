@@ -46,6 +46,9 @@ Database/Reports/*
 !Database/Artifacts/.gitkeep
 !Database/Reports/.gitkeep
 
+# Release artifacts
+release-v2.1.0/
+
 # VitePress / Node
 node_modules/
 docs/.vitepress/cache/
