@@ -1,13 +1,13 @@
-# dbsh v2.1.2
+# dbsh v2.1.3
 
 ## Installation
 
 ```bash
 # Linux / macOS
-curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.2/install.sh | bash
+curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.3/install.sh | bash
 
 # Windows
-powershell -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/download/v2.1.2/install.ps1 | iex"
+powershell -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/download/v2.1.3/install.ps1 | iex"
 ```
 
 The install scripts automatically verify the downloaded archive against `SHA256SUMS` published alongside this release.
@@ -33,7 +33,7 @@ The install scripts automatically verify the downloaded archive against `SHA256S
 Every archive is checksummed in `SHA256SUMS` (attached to this release). The install scripts verify it automatically; to verify manually:
 
 ```bash
-curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.2/SHA256SUMS | sha256sum -c -
+curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.3/SHA256SUMS | sha256sum -c -
 ```
 
 ## Changelog
@@ -42,4 +42,4 @@ curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.2/SHA256SUM
 - Updated release packaging with proper UTF-8 encoding for cross-platform compatibility
 - Improved install script display for better terminal rendering
 
-See [CHANGELOG.md](https://github.com/AzimMahmud/dbsh/blob/v2.1.2/CHANGELOG.md) for details.
+See [CHANGELOG.md](https://github.com/AzimMahmud/dbsh/blob/v2.1.3/CHANGELOG.md) for details.
