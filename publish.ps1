@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$Runtime = "win-x64",
     [string]$Framework = "net10.0",
     [string]$Output = $(Join-Path $PSScriptRoot "dist"),

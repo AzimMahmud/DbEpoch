@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 # dbsh â€“ official install script
 # Usage: curl -fsSL https://github.com/AzimMahmud/dbsh/releases/latest/download/install.sh | bash
 #   or:  bash <(curl -fsSL https://github.com/AzimMahmud/dbsh/releases/latest/download/install.sh)
