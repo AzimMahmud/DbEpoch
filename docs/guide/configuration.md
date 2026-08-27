@@ -40,7 +40,7 @@ dbsh uses a two-tier configuration: a global `migration.json` file and per-envir
 | Option | Default | Description |
 |--------|---------|-------------|
 | `version` | `1.0.0` | Configuration schema version |
-| `database.provider` | — | Database engine: `postgresql`, `sqlserver`, `mysql`, or `sqlite` |
+| `database.provider` | — | Database engine: `postgresql`, `sqlserver`, `mysql`, `sqlite`, `oracle`, `cockroachdb`, `yugabyte`, or `aurora` |
 | `database.connectionString` | — | Connection string (supports `${VAR}` expansion) |
 | `scripts.path` | `./Database/Migrations` | Relative path to migration scripts |
 | `scripts.pattern` | `*.sql` | File glob for migration scripts |

@@ -4,7 +4,7 @@ layout: home
 hero:
   name: dbsh
   text: Database migrations that ship
-  tagline: A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, and SQLite. Beautiful CLI, zero magic, production-tested patterns.
+  tagline: A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, SQLite, Oracle, CockroachDB, YugabyteDB, and Aurora. Beautiful CLI, zero magic, production-tested patterns.
   image:
     src: /logo.png
     alt: dbsh
@@ -25,7 +25,7 @@ features:
     details: Plain .sql files. No embedded DSL, no XML, no surprises. You write SQL, dbsh tracks and applies it.
   - icon: 🗄️
     title: Multi-database
-    details: One tool, four engines. PostgreSQL, SQL Server, MySQL, and SQLite. Switch providers without changing your workflow.
+    details: One tool, eight engines. PostgreSQL, SQL Server, MySQL, SQLite, Oracle, CockroachDB, YugabyteDB, and Aurora. Switch providers without changing your workflow.
   - icon: 🔒
     title: Safe by design
     details: Distributed locks, approval gates, deployment windows, and audit trails. Production-grade safety built in.

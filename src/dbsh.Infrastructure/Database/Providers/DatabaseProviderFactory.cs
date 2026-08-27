@@ -18,10 +18,15 @@ public static class DatabaseProviderFactory
             "sqlserver" or "mssql" or "sql-server" or "sql server" => new SqlServerProvider(),
             "mysql" or "mariadb" or "maria" => new MySqlProvider(),
             "sqlite" => new SqliteProvider(),
+            "cockroachdb" or "crdb" => new PostgreSqlProvider(),
+            "yugabyte" or "yugabytedb" => new PostgreSqlProvider(),
+            "aurora" or "aurora-postgresql" => new PostgreSqlProvider(),
+            "aurora-mysql" => new MySqlProvider(),
+            "oracle" or "oracledb" or "odp.net" => new OracleProvider(),
             "" => new PostgreSqlProvider(),
             _ => throw new UnsupportedProviderException(
                 $"Unknown database provider '{providerName}'. " +
-                "Supported providers: postgresql, sqlserver, mysql, sqlite.")
+                "Supported providers: postgresql, sqlserver, mysql, sqlite, cockroachdb, yugabyte, aurora, oracle.")
         };
     }
 }
