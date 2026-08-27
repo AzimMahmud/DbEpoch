@@ -3,6 +3,10 @@
  * Brand: teal-blue gradient palette derived from the logo
  */
 
+/* ===========================
+   BRAND TOKENS
+   =========================== */
+
 :root {
   /* Brand colors */
   --vp-c-brand-1: #2563eb;
@@ -91,7 +95,10 @@
   color: var(--vp-c-brand-1);
 }
 
-/* Button accents */
+/* ===========================
+   BUTTONS
+   =========================== */
+
 .VPButton.brand {
   background: var(--vp-c-brand-1);
   border-color: var(--vp-c-brand-1);
@@ -102,14 +109,20 @@
   border-color: var(--vp-c-brand-2);
 }
 
-/* Hero logo image */
+/* ===========================
+   HERO
+   =========================== */
+
 .VPHero .VPImage {
   border-radius: 16px;
   max-width: 280px;
   height: auto;
 }
 
-/* Feature cards */
+/* ===========================
+   FEATURE CARDS
+   =========================== */
+
 .VPFeature {
   border: 1px solid var(--vp-c-divider);
   transition: border-color 0.25s, box-shadow 0.25s;
@@ -119,22 +132,287 @@
   box-shadow: 0 4px 24px var(--vp-c-brand-soft);
 }
 
-/* Sidebar active link */
+/* ===========================
+   SIDEBAR
+   =========================== */
+
 .VPSidebarItem.is-active > .item > .indicator {
   background-color: var(--vp-c-brand-1);
 }
 
-/* Code blocks */
+/* ===========================
+   CODE BLOCKS
+   =========================== */
+
 .dark :root {
   --vp-code-block-bg: #0d1117;
 }
 
-/* Search box */
+/* ===========================
+   SEARCH
+   =========================== */
+
 .dark .VPSearch .VPInput {
   border-color: #30363d;
 }
 
-/* Footer */
+/* ===========================
+   FOOTER
+   =========================== */
+
 .VPFooter {
   border-top: 1px solid var(--vp-c-divider);
+}
+
+/* ===========================
+   DOC CONTENT
+   =========================== */
+
+/* Ensure images in doc content are responsive */
+.vp-doc img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ===========================
+   RESPONSIVE: TABLET (< 960px)
+   =========================== */
+
+@media (max-width: 959px) {
+  /* Reduce hero image size on tablet */
+  .VPHero .VPImage {
+    max-width: 200px;
+  }
+
+  /* Tighten nav title */
+  .VPNavBar .title {
+    font-size: 16px;
+  }
+
+  /* Ensure sidebar doesn't overflow */
+  .VPSidebar {
+    max-width: 280px;
+  }
+
+  /* Stack feature cards in 2 columns on tablet */
+  .VPFeature {
+    margin-bottom: 0;
+  }
+}
+
+/* ===========================
+   RESPONSIVE: MOBILE (< 640px)
+   =========================== */
+
+@media (max-width: 639px) {
+  /* --- Hero section --- */
+  .VPHero .VPImage {
+    max-width: 160px;
+    border-radius: 12px;
+  }
+
+  .VPHero .name {
+    font-size: 32px !important;
+    line-height: 1.2;
+  }
+
+  .VPHero .text {
+    font-size: 18px !important;
+    line-height: 1.3;
+  }
+
+  .VPHero .tagline {
+    font-size: 14px !important;
+    line-height: 1.5;
+    padding: 0 16px;
+  }
+
+  .VPHero .actions {
+    padding: 0 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .VPHero .actions .VPButton {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  /* --- Feature cards: single column --- */
+  .VPFeature {
+    margin-bottom: 12px;
+  }
+
+  .VPFeature .title {
+    font-size: 16px !important;
+  }
+
+  .VPFeature .details {
+    font-size: 14px !important;
+    line-height: 1.6;
+  }
+
+  /* --- Nav adjustments --- */
+  .VPNavBar .title {
+    font-size: 15px;
+    letter-spacing: -0.3px;
+  }
+
+  .VPNavBar .logo,
+  .VPNavBar .logo img {
+    height: 24px;
+  }
+
+  /* --- Doc content --- */
+  .vp-doc h1 {
+    font-size: 24px;
+    line-height: 1.3;
+  }
+
+  .vp-doc h2 {
+    font-size: 20px;
+    line-height: 1.35;
+  }
+
+  .vp-doc h3 {
+    font-size: 17px;
+    line-height: 1.4;
+  }
+
+  .vp-doc p {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* --- Code blocks: allow horizontal scroll --- */
+  .vp-doc div[class*='language-'] {
+    border-radius: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .vp-doc pre {
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* --- Code groups on mobile --- */
+  .vp-doc .tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .vp-doc .tabs .tab {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  /* --- Tables: horizontal scroll wrapper --- */
+  .vp-doc .vp-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: block;
+  }
+
+  .vp-doc table {
+    min-width: 100%;
+    font-size: 14px;
+  }
+
+  .vp-doc th,
+  .vp-doc td {
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+
+  /* --- Blockquotes / tips --- */
+  .vp-doc .custom-block {
+    padding: 12px 16px;
+    border-radius: 8px;
+  }
+
+  .vp-doc .custom-block-title {
+    font-size: 14px;
+  }
+
+  /* --- Lists --- */
+  .vp-doc ul,
+  .vp-doc ol {
+    padding-left: 20px;
+    font-size: 15px;
+  }
+
+  /* --- Sidebar mobile adjustments --- */
+  .VPSidebar {
+    padding-top: 16px;
+  }
+
+  /* --- Footer --- */
+  .VPFooter {
+    padding: 24px 16px;
+    text-align: center;
+  }
+
+  .VPFooter .message,
+  .VPFooter .copyright {
+    font-size: 13px;
+  }
+}
+
+/* ===========================
+   RESPONSIVE: SMALL MOBILE (< 420px)
+   =========================== */
+
+@media (max-width: 419px) {
+  .VPHero .name {
+    font-size: 26px !important;
+  }
+
+  .VPHero .text {
+    font-size: 16px !important;
+  }
+
+  .VPHero .tagline {
+    font-size: 13px !important;
+    padding: 0 12px;
+  }
+
+  .VPHero .VPImage {
+    max-width: 120px;
+  }
+
+  .VPFeature .title {
+    font-size: 15px !important;
+  }
+
+  .VPFeature .details {
+    font-size: 13px !important;
+  }
+
+  .vp-doc h1 {
+    font-size: 22px;
+  }
+
+  .vp-doc h2 {
+    font-size: 18px;
+  }
+
+  .vp-doc p,
+  .vp-doc ul,
+  .vp-doc ol {
+    font-size: 14px;
+  }
+
+  .vp-doc pre {
+    font-size: 12px;
+    padding: 12px;
+  }
+
+  .vp-doc th,
+  .vp-doc td {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
 }

@@ -1,6 +1,5 @@
 import DefaultTheme from 'vitepress/theme'
 import './custom.css'
-import { watch } from 'vue'
 
 export default {
   extends: DefaultTheme,
@@ -10,7 +9,6 @@ export default {
       const swapLogo = () => {
         const img = document.querySelector('.VPNavBar .logo img') as HTMLImageElement
         if (!img) return
-        const isDark = document.documentElement.classList.contains('dark')
         img.src = '/icon.png'
       }
 

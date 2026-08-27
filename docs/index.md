@@ -6,7 +6,7 @@ hero:
   text: Database migrations that ship
   tagline: A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, and SQLite. Beautiful CLI, zero magic, production-tested patterns.
   image:
-    src: /icon.png
+    src: /logo.png
     alt: dbsh
   actions:
     - theme: brand
@@ -33,8 +33,8 @@ features:
     title: CI-friendly
     details: Every command supports --json output and deterministic exit codes. Plug it into any CI/CD pipeline.
   - icon: 📴
-    details: Validate, plan, and scaffold without a database connection. Use --in-memory for offline workflows.
     title: Works offline
+    details: Validate, plan, and scaffold without a database connection. Use --in-memory for offline workflows.
   - icon: 🔍
     title: Checksum integrity
     details: SHA-256 checksums detect when previously-applied scripts are edited. No silent drift in production.
