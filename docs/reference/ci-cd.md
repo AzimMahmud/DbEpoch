@@ -20,6 +20,24 @@ dbsh status --json
 
 Exit codes: `0` = success, `1` = error.
 
+## Install dbsh in CI
+
+::: code-group
+
+```bash [curl (Linux/macOS)]
+curl -fsSL https://github.com/AzimMahmud/dbsh/releases/latest/download/install.sh | bash
+```
+
+```powershell [PowerShell (Windows)]
+powershell -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/latest/download/install.ps1 | iex"
+```
+
+```bash [.NET tool]
+dotnet tool install --global dbsh
+```
+
+:::
+
 ## GitHub Actions
 
 ```yaml
@@ -34,12 +52,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-      - run: dotnet build dbsh.slnx -c Release
-      - run: dotnet test dbsh.slnx -c Release --no-build
-      - run: dotnet run --project src/dbsh.CLI -- validate --json
+      - run: curl -fsSL https://github.com/AzimMahmud/dbsh/releases/latest/download/install.sh | bash
+      - run: dbsh validate --json
 
   deploy-dev:
     needs: validate
@@ -47,10 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-      - run: dotnet run --project src/dbsh.CLI -- migrate -e development --yes --json
+      - run: curl -fsSL https://github.com/AzimMahmud/dbsh/releases/latest/download/install.sh | bash
+      - run: dbsh migrate -e development --yes --json
         env:
           DB_CONNECTION_STRING: ${{ secrets.DEV_DB_CONNECTION_STRING }}
 ```
@@ -59,13 +71,36 @@ jobs:
 
 ```yaml
 steps:
-  - script: dotnet run --project src/dbsh.CLI -- validate --json
+  - script: curl -fsSL https://github.com/AzimMahmud/dbsh/releases/latest/download/install.sh | bash
+    displayName: 'Install dbsh'
+
+  - script: dbsh validate --json
     displayName: 'Validate migrations'
 
-  - script: dotnet run --project src/dbsh.CLI -- migrate -e development --yes
+  - script: dbsh migrate -e development --yes
     displayName: 'Deploy to dev'
     env:
       DB_CONNECTION_STRING: $(DEV_DB_CONNECTION_STRING)
+```
+
+## GitLab CI
+
+```yaml
+dbsh-validate:
+  stage: validate
+  before_script:
+    - curl -fsSL https://github.com/AzimMahmud/dbsh/releases/latest/download/install.sh | bash
+  script:
+    - dbsh validate --json
+
+dbsh-deploy:
+  stage: deploy
+  before_script:
+    - curl -fsSL https://github.com/AzimMahmud/dbsh/releases/latest/download/install.sh | bash
+  script:
+    - dbsh migrate -e development --yes --json
+  variables:
+    DB_CONNECTION_STRING: $DEV_DB_CONNECTION_STRING
 ```
 
 ## Best practices
@@ -90,7 +125,7 @@ steps:
 Use these in CI conditionals:
 
 ```yaml
-- run: dotnet run --project src/dbsh.CLI -- validate --json
+- run: dbsh validate --json
   id: validate
 
 - run: echo "Validation passed"
