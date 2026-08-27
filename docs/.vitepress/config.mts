@@ -4,7 +4,7 @@ export default defineConfig({
   title: 'dbsh',
   description: 'Database migrations that ship. A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, and SQLite.',
 
-  base: '/dbsh/',
+  base: '/',
 
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/icon.png' }]
