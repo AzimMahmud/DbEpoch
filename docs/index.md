@@ -4,7 +4,10 @@ layout: home
 hero:
   name: dbsh
   text: Database migrations that ship
-  tagline: A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, and SQLite. Beautiful CLI, zero magic, production-tested patterns.
+  tagline: A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, SQLite, Oracle, CockroachDB, YugabyteDB, and Aurora. Beautiful CLI, zero magic, production-tested patterns.
+  image:
+    src: /logo.png
+    alt: dbsh
   actions:
     - theme: brand
       text: Get Started
@@ -18,21 +21,21 @@ hero:
 
 features:
   - icon: 📝
-    title: SQL First
-    details: Plain SQL files. No DSL, no XML, no surprises. You write SQL, dbsh tracks and applies it.
+    title: SQL-first
+    details: Plain .sql files. No embedded DSL, no XML, no surprises. You write SQL, dbsh tracks and applies it.
   - icon: 🗄️
-    title: Multi-Database
-    details: One tool, four engines. PostgreSQL, SQL Server, MySQL, and SQLite. Switch providers without changing workflow.
+    title: Multi-database
+    details: One tool, eight engines. PostgreSQL, SQL Server, MySQL, SQLite, Oracle, CockroachDB, YugabyteDB, and Aurora. Switch providers without changing your workflow.
   - icon: 🔒
-    title: Safe by Design
-    details: Distributed locks, approval gates, deployment windows, and audit trails. Production-grade from day one.
+    title: Safe by design
+    details: Distributed locks, approval gates, deployment windows, and audit trails. Production-grade safety built in.
   - icon: ⚡
-    title: CI/CD Ready
-    details: Every command supports --json output and deterministic exit codes. Plug it into any pipeline.
+    title: CI-friendly
+    details: Every command supports --json output and deterministic exit codes. Plug it into any CI/CD pipeline.
   - icon: 📴
-    title: Works Offline
-    details: Validate, plan, and scaffold without a database connection. Use --in-memory for local dev.
+    title: Works offline
+    details: Validate, plan, and scaffold without a database connection. Use --in-memory for offline workflows.
   - icon: 🔍
-    title: Checksum Integrity
-    details: SHA-256 checksums detect when applied scripts are edited. No silent drift in production.
+    title: Checksum integrity
+    details: SHA-256 checksums detect when previously-applied scripts are edited. No silent drift in production.
 ---

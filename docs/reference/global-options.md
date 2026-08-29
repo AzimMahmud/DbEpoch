@@ -7,7 +7,7 @@ These options are available on every `dbsh` command.
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--environment <NAME>` | `-e` | Target environment (default: `local`) |
-| `--provider <NAME>` | `-p` | Database provider: `postgresql`, `sqlserver`, `mysql`, `sqlite` |
+| `--provider <NAME>` | `-p` | Database provider: `postgresql`, `sqlserver`, `mysql`, `sqlite`, `oracle`, `cockroachdb`, `yugabyte`, `aurora` |
 | `--connection-string <CONN>` | `-c` | Override connection string |
 | `--base-path <PATH>` | `-C` | Path to the repository root (config base) |
 | `--in-memory` | `-i` | Force offline in-memory mode (no database) |
