@@ -1,10 +1,10 @@
 #!/usr/bin/env pwsh
-# dbsh â€“ official Windows install script
+# dbsh – official Windows install script
 # Usage:
 #   powershell -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/latest/download/install.ps1 | iex"
 #   pwsh -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/latest/download/install.ps1 | iex"
 #
-# Uninstall (download first â€” a switch like -Uninstall can't be passed through `iwr | iex`):
+# Uninstall (download first — a switch like -Uninstall can't be passed through `iwr | iex`):
 #   iwr -Uri https://github.com/AzimMahmud/dbsh/releases/latest/download/install.ps1 -OutFile install.ps1
 #   .\install.ps1 -Uninstall
 
@@ -18,16 +18,16 @@ param(
 $ErrorActionPreference = "Stop"
 
 function Info($Message) { Write-Host "  > $Message" -ForegroundColor Cyan }
-function Ok($Message)   { Write-Host "  âœ“ $Message" -ForegroundColor Green }
-function Warn($Message) { Write-Host "  âš  $Message" -ForegroundColor Yellow }
-function Err($Message)  { Write-Host "  âœ— $Message" -ForegroundColor Red; exit 1 }
+function Ok($Message)   { Write-Host "  ✓ $Message" -ForegroundColor Green }
+function Warn($Message) { Write-Host "  ⚠ $Message" -ForegroundColor Yellow }
+function Err($Message)  { Write-Host "  ✗ $Message" -ForegroundColor Red; exit 1 }
 
-# â”€â”€ uninstall â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ││ uninstall ││││││││││││││││││││││││││││││││││││││││││││││││││││││││││││
 if ($Uninstall) {
     Write-Host ""
-    Write-Host "  â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®" -ForegroundColor Cyan
-    Write-Host "  â”‚  dbsh â€” database migration tool   â”‚" -ForegroundColor Cyan
-    Write-Host "  â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯" -ForegroundColor Cyan
+    Write-Host "  ┌││││││││││││││││││││││││││││││││││││││┐" -ForegroundColor Cyan
+    Write-Host "  │  dbsh — database migration tool   │" -ForegroundColor Cyan
+    Write-Host "  └││││││││││││││││││││││││││││││││││││││┘" -ForegroundColor Cyan
     Write-Host ""
 
     if (Test-Path $InstallDir) {
@@ -54,7 +54,7 @@ if ($Uninstall) {
     exit 0
 }
 
-# â”€â”€ architecture detection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ││ architecture detection ││││││││││││││││││││││││││││││││││││││││││││││││
 $arch = switch ([Environment]::ProcessorArchitecture) {
     "X64"   { "x64" }
     "Arm64" { "arm64" }
@@ -62,7 +62,7 @@ $arch = switch ([Environment]::ProcessorArchitecture) {
 }
 $platform = "windows-$arch"
 
-# â”€â”€ download URL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ││ download URL ││││││││││││││││││││││││││││││││││││││││││││││││││││││││││
 # Strip an optional leading "v" so "v1.0.0" and "1.0.0" both work.
 $Version = $Version.TrimStart("v", "V")
 if ($Version -eq "latest") {
@@ -73,11 +73,11 @@ if ($Version -eq "latest") {
 $url = "$base/dbsh-$platform.zip"
 $sumsUrl = "$base/SHA256SUMS"
 
-# â”€â”€ download â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ││ download ││││││││││││││││││││││││││││││││││││││││││││││││││││││││││││││
 Write-Host ""
-Write-Host "  â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®" -ForegroundColor Cyan
-Write-Host "  â”‚  dbsh â€” database migration tool   â”‚" -ForegroundColor Cyan
-Write-Host "  â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯" -ForegroundColor Cyan
+Write-Host "  ┌││││││││││││││││││││││││││││││││││││││┐" -ForegroundColor Cyan
+Write-Host "  │  dbsh — database migration tool   │" -ForegroundColor Cyan
+Write-Host "  └││││││││││││││││││││││││││││││││││││││┘" -ForegroundColor Cyan
 Write-Host ""
 
 Info "Detected: $platform"
@@ -91,7 +91,7 @@ try {
 }
 Ok "Downloaded"
 
-# â”€â”€ integrity check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ││ integrity check ││││││││││││││││││││││││││││││││││││││││││││││││││││││
 $assetName = "dbsh-$platform.zip"
 $expectedHash = $null
 try {
@@ -116,7 +116,7 @@ if ($expectedHash) {
     Warn "SHA256SUMS not found at $sumsUrl; skipping integrity verification."
 }
 
-# â”€â”€ extract â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ││ extract │││││││││││││││││││││││││││││││││││││││││││││││││││││││││││││││
 Info "Extracting..."
 if (Test-Path $InstallDir) {
     Remove-Item -LiteralPath $InstallDir -Recurse -Force -ErrorAction SilentlyContinue
@@ -130,7 +130,7 @@ try {
 Remove-Item -LiteralPath $zip -Force -ErrorAction SilentlyContinue
 Ok "Extracted to $InstallDir"
 
-# â”€â”€ add to PATH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ││ add to PATH │││││││││││││││││││││││││││││││││││││││││││││││││││││││││││
 $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($currentPath -notlike "*$InstallDir*") {
     $newPath = "$InstallDir;$currentPath"
@@ -142,7 +142,7 @@ if ($currentPath -notlike "*$InstallDir*") {
     Info "$InstallDir already on PATH"
 }
 
-# â”€â”€ verify â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ││ verify ││││││││││││││││││││││││││││││││││││││││││││││││││││││││││││││││
 $exe = Join-Path $InstallDir "dbsh.exe"
 if (Test-Path $exe) {
     $version = & $exe --version 2>&1 | Select-Object -First 1

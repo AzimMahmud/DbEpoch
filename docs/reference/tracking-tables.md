@@ -62,9 +62,9 @@ Append-only audit trail of every action.
 
 The tracking table DDL differs between providers:
 
-| Concern | PostgreSQL | SQL Server | MySQL | SQLite | Oracle |
-|---------|-----------|------------|-------|--------|--------|
-| UUID column | `UUID` | `UNIQUEIDENTIFIER` | `CHAR(36)` | `TEXT` | `RAW(16)` |
-| Boolean column | `BOOLEAN` | `BIT` | `TINYINT(1)` | `INTEGER` (0/1) | `NUMBER(1)` (0/1) |
-| Timestamp column | `TIMESTAMPTZ` | `DATETIME2` | `DATETIME` | `TEXT` | `TIMESTAMP` |
-| ID default | `gen_random_uuid()` | `NEWID()` | C# Guid | C# Guid | `SYS_GUID()` |
+| Concern | PostgreSQL | SQL Server | MySQL | SQLite | Oracle | CockroachDB | YugabyteDB | Aurora |
+|---------|-----------|------------|-------|--------|--------|-------------|------------|--------|
+| UUID column | `UUID` | `UNIQUEIDENTIFIER` | `CHAR(36)` | `TEXT` | `RAW(16)` | `UUID` | `UUID` | depends on engine |
+| Boolean column | `BOOLEAN` | `BIT` | `TINYINT(1)` | `INTEGER` (0/1) | `NUMBER(1)` (0/1) | `BOOLEAN` | `BOOLEAN` | depends on engine |
+| Timestamp column | `TIMESTAMPTZ` | `DATETIME2` | `DATETIME` | `TEXT` | `TIMESTAMP` | `TIMESTAMPTZ` | `TIMESTAMPTZ` | depends on engine |
+| ID default | `gen_random_uuid()` | `NEWID()` | C# Guid | C# Guid | `SYS_GUID()` | `gen_random_uuid()` | `gen_random_uuid()` | depends on engine |

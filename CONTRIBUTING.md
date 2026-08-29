@@ -42,8 +42,8 @@ tests/
 ## Making changes
 
 1. Fork and create a feature branch from `main`.
-2. Make your changes. Keep them focused â€” one change per PR.
-3. Run `dotnet build` and `dotnet test` â€” both must pass cleanly.
+2. Make your changes. Keep them focused — one change per PR.
+3. Run `dotnet build` and `dotnet test` — both must pass cleanly.
 4. If adding a new command, add it to the help table and docs.
 5. Open a PR against `main`.
 

@@ -28,4 +28,4 @@ Run `dbsh init` once per database, before your first `dbsh migrate`. You don't n
 
 - The schema name comes from `tracking.schema` in `migration.json` (default: `public`)
 - Table names come from `tracking.tableName` (default: `__migration_history`)
-- DDL is engine-specific: UUID, boolean, and timestamp types differ between PostgreSQL, SQL Server, MySQL, SQLite, and Oracle
+- DDL is engine-specific: UUID, boolean, and timestamp types differ between PostgreSQL, SQL Server, MySQL, SQLite, Oracle, CockroachDB, YugabyteDB, and Aurora

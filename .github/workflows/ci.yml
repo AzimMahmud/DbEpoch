@@ -67,7 +67,7 @@ jobs:
           path: ./TestResults/**/coverage.cobertura.xml
           if-no-files-found: warn
 
-  # Real-database tests (tests/dbsh.Engine.Tests/Integration/) â€” needs Docker,
+  # Real-database tests (tests/dbsh.Engine.Tests/Integration/) — needs Docker,
   # so it runs here rather than in the cross-OS build matrix.
   integration-tests:
     runs-on: ubuntu-latest

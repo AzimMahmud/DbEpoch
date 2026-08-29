@@ -28,7 +28,7 @@ Test count: 116 unit/SQLite tests across 13 test classes, plus 54 Docker-backed 
 
 ## Lint / Format
 
-No separate lint step â€” `TreatWarningsAsErrors` serves as the gate. The build is the lint.
+No separate lint step — `TreatWarningsAsErrors` serves as the gate. The build is the lint.
 
 ## Project structure
 

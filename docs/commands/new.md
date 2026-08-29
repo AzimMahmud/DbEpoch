@@ -80,7 +80,7 @@ The example migration (`V001__Example_Users.sql`) is generated with correct SQL 
 
 ## Modular monoliths
 
-When prompted, you can enter comma-separated module names. Each module gets its own subfolder under `Database/Migrations/` with schema-based isolation (PostgreSQL/SQL Server/Oracle) or table-prefix naming (MySQL/SQLite).
+When prompted, you can enter comma-separated module names. Each module gets its own subfolder under `Database/Migrations/` with schema-based isolation (PostgreSQL, SQL Server, Oracle, CockroachDB, YugabyteDB) or table-prefix naming (MySQL, SQLite, Aurora-MySQL).
 
 ## After scaffolding
 

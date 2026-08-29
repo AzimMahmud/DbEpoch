@@ -48,9 +48,9 @@ if ($LASTEXITCODE -eq 0) {
     exit 1
 }
 
-# â”€â”€ Supported runtimes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ││ Supported runtimes ││││││││││││││││││││││││││││││││││
 # win-x64, win-arm64
 # linux-x64, linux-arm64, linux-musl-x64
 # osx-x64, osx-arm64
 #
-# dbsh targets net10.0 only â€” -Framework has no other valid value here.
+# dbsh targets net10.0 only — -Framework has no other valid value here.

@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: 'dbsh',
-  description: 'Database migrations that ship. A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, SQLite, Oracle, CockroachDB, YugabyteDB, and Aurora.',
+  description: 'Database migrations that ship. A Flyway-style migration tool for PostgreSQL, SQL Server, MySQL, SQLite, Oracle, CockroachDB, YugabyteDB, and Aurora. Beautiful CLI, zero magic, production-tested patterns.',
 
   base: '/',
 

@@ -4,8 +4,8 @@
 
 | Version | Supported |
 |---------|-----------|
-| 2.x     | âœ… |
-| 1.x     | âœ… |
+| 2.x     | ✓ |
+| 1.x     | ✓ |
 
 ## Reporting a vulnerability
 
@@ -37,4 +37,4 @@ Vulnerabilities will be disclosed after a fix is released.
 - **Supply chain.** Dependabot monitors NuGet and GitHub Actions dependencies weekly. CodeQL runs `security-and-quality` analysis on every push/PR to `main` and on a weekly schedule.
 - **Build integrity.** CI builds run with `TreatWarningsAsErrors` (zero warnings). Release binaries are self-contained and deterministic (`ContinuousIntegrationBuild` is set in CI).
 - **Locking.** Distributed locks prevent concurrent migrations to the same environment, avoiding race conditions during deploys.
-- **Audit trail.** Every migration action is logged to an append-only `__migration_audit` table â€” who ran what, when, and the result.
+- **Audit trail.** Every migration action is logged to an append-only `__migration_audit` table — who ran what, when, and the result.

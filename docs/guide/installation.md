@@ -22,11 +22,13 @@ These scripts detect your OS and architecture, download the correct pre-built bi
 
 | Platform | Download |
 |----------|----------|
-| Windows x64 | [`dbsh-windows-x64.zip`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-windows-x64.zip) (~40 MB) |
-| Linux x64 | [`dbsh-linux-x64.tar.gz`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-linux-x64.tar.gz) (~40 MB) |
-| Linux arm64 | [`dbsh-linux-arm64.tar.gz`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-linux-arm64.tar.gz) (~40 MB) |
-| macOS x64 | [`dbsh-macos-x64.tar.gz`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-macos-x64.tar.gz) (~40 MB) |
-| macOS arm64 | [`dbsh-macos-arm64.tar.gz`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-macos-arm64.tar.gz) (~40 MB) |
+| Windows x64 | [`dbsh-windows-x64.zip`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-windows-x64.zip) (~38 MB) |
+| Windows ARM64 | [`dbsh-windows-arm64.zip`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-windows-arm64.zip) (~37 MB) |
+| Linux x64 | [`dbsh-linux-x64.tar.gz`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-linux-x64.tar.gz) (~38 MB) |
+| Linux ARM64 | [`dbsh-linux-arm64.tar.gz`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-linux-arm64.tar.gz) (~36 MB) |
+| Linux musl x64 (Alpine) | [`dbsh-linux-musl-x64.tar.gz`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-linux-musl-x64.tar.gz) (~38 MB) |
+| macOS x64 | [`dbsh-macos-x64.tar.gz`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-macos-x64.tar.gz) (~38 MB) |
+| macOS ARM64 | [`dbsh-macos-arm64.tar.gz`](https://github.com/AzimMahmud/dbsh/releases/latest/download/dbsh-macos-arm64.tar.gz) (~36 MB) |
 
 Extract and place `dbsh` (or `dbsh.exe` on Windows) anywhere on your `PATH`.
 

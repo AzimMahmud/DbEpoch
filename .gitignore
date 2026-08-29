@@ -48,6 +48,7 @@ Database/Reports/*
 
 # Release artifacts
 release-v2.1.0/
+release-notes.md
 
 # VitePress / Node
 node_modules/

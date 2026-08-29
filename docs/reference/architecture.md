@@ -33,7 +33,7 @@ dbsh/
     ┌──────────────┴────────────────────────┴───────────────┐
     │                  Infrastructure                       │
     │  Providers/                                           │
-    │    PostgreSql · SqlServer · MySql · Sqlite · Oracle    │
+    │    PostgreSql · SqlServer · MySql · Sqlite · Oracle     │
     │  Relational{Tracker, LockManager, Executor, Audit}    │
     │  FileSystemConfigLoader                               │
     └───────────────────────────────────────────────────────┘
