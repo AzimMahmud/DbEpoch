@@ -102,7 +102,7 @@ export default defineConfig({
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright 2024-present Azim Mahmud'
+      copyright: 'Copyright 2025-present Azim Mahmud'
     }
   }
 })

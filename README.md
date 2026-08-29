@@ -17,7 +17,7 @@ A Flyway-style migration tool for **PostgreSQL**, **SQL Server**, **MySQL**, and
 
 <br>
 
-[Documentation](https://azimmahmud.github.io/dbsh/) · [Report Bug](https://github.com/AzimMahmud/dbsh/issues) · [Request Feature](https://github.com/AzimMahmud/dbsh/issues)
+[Documentation](https://dbsh.azim.me/) · [Report Bug](https://github.com/AzimMahmud/dbsh/issues) · [Request Feature](https://github.com/AzimMahmud/dbsh/issues)
 
 </div>
 
@@ -93,17 +93,17 @@ dotnet tool install --global dbsh
 
 | Command | Description | DB Required |
 |---------|-------------|:-----------:|
-| [`new`](https://azimmahmud.github.io/dbsh/commands/new) | Scaffold a complete project | No |
-| [`create`](https://azimmahmud.github.io/dbsh/commands/create) | Create a migration script | No |
-| [`validate`](https://azimmahmud.github.io/dbsh/commands/validate) | Check scripts for errors | No |
-| [`plan`](https://azimmahmud.github.io/dbsh/commands/plan) | Preview execution plan | No |
-| [`info`](https://azimmahmud.github.io/dbsh/commands/info) | Show configuration | No |
-| [`init`](https://azimmahmud.github.io/dbsh/commands/init) | Create tracking tables | Yes |
-| [`migrate`](https://azimmahmud.github.io/dbsh/commands/migrate) | Apply pending migrations | Yes |
-| [`status`](https://azimmahmud.github.io/dbsh/commands/status) | Show migration status | Yes |
-| [`rollback`](https://azimmahmud.github.io/dbsh/commands/rollback) | Undo migrations | Yes |
-| [`repair`](https://azimmahmud.github.io/dbsh/commands/repair) | Fix failed migrations | Yes |
-| [`history`](https://azimmahmud.github.io/dbsh/commands/history) | View audit trail | Yes |
+| [`new`](https://dbsh.azim.me/commands/new) | Scaffold a complete project | No |
+| [`create`](https://dbsh.azim.me/commands/create) | Create a migration script | No |
+| [`validate`](https://dbsh.azim.me/commands/validate) | Check scripts for errors | No |
+| [`plan`](https://dbsh.azim.me/commands/plan) | Preview execution plan | No |
+| [`info`](https://dbsh.azim.me/commands/info) | Show configuration | No |
+| [`init`](https://dbsh.azim.me/commands/init) | Create tracking tables | Yes |
+| [`migrate`](https://dbsh.azim.me/commands/migrate) | Apply pending migrations | Yes |
+| [`status`](https://dbsh.azim.me/commands/status) | Show migration status | Yes |
+| [`rollback`](https://dbsh.azim.me/commands/rollback) | Undo migrations | Yes |
+| [`repair`](https://dbsh.azim.me/commands/repair) | Fix failed migrations | Yes |
+| [`history`](https://dbsh.azim.me/commands/history) | View audit trail | Yes |
 
 Run `dbsh <command> --help` for command-specific options.
 
@@ -130,7 +130,7 @@ dbsh uses a two-tier JSON configuration:
 }
 ```
 
-Per-environment overrides in `Database/Config/environments/<name>.json` with `${VAR}` expansion for secrets. See the [Configuration Guide](https://azimmahmud.github.io/dbsh/guide/configuration) for details.
+Per-environment overrides in `Database/Config/environments/<name>.json` with `${VAR}` expansion for secrets. See the [Configuration Guide](https://dbsh.azim.me/guide/configuration) for details.
 
 ## Supported Databases
 
@@ -143,7 +143,7 @@ Per-environment overrides in `Database/Config/environments/<name>.json` with `${
 
 ## Documentation
 
-Full documentation is available at **[azimmahmud.github.io/dbsh](https://azimmahmud.github.io/dbsh/)**.
+Full documentation is available at **[dbsh.azim.me](https://dbsh.azim.me/)**.
 
 ## Building from Source
 

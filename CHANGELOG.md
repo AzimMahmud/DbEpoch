@@ -4,6 +4,38 @@ All notable changes to the dbsh project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.3] - 2026-08-26
+
+### Fixed
+
+- **Unicode encoding** - fixed broken UTF-8 characters in install scripts (box-drawing characters, em dashes, status icons) that caused rendering issues on many terminals.
+- **Cross-platform compatibility** - updated install.sh and install.ps1 to use ASCII-compatible box-drawing characters and status icons for better terminal rendering across different platforms.
+- **Release packaging** - improved archive generation to include properly encoded install scripts in all release packages.
+
+### Changed
+
+- **Status icons** - replaced Unicode checkmark/warning symbols with ASCII-friendly `[OK]`, `[!]`, `[ERROR]` indicators for maximum compatibility.
+
+## [2.1.2] - 2026-08-25
+
+### Fixed
+
+- **Unicode encoding** - fixed broken UTF-8 characters in install scripts (box-drawing characters, em dashes, status icons) that caused rendering issues on many terminals.
+- **Cross-platform compatibility** - updated install.sh and install.ps1 to use ASCII-compatible box-drawing characters and status icons for better terminal rendering across different platforms.
+- **Release packaging** - improved archive generation to include properly encoded install scripts in all release packages.
+
+### Changed
+
+- **Status icons** - replaced Unicode checkmark/warning symbols with ASCII-friendly `[OK]`, `[!]`, `[ERROR]` indicators for maximum compatibility.
+
+## [2.1.1] - 2026-08-25
+
+### Changed
+
+- **Custom domain** - documentation site now served from `https://dbsh.azim.me/` (root base `/`) instead of the GitHub Pages project path.
+- **`CNAME` file** - added to the published docs root so the custom domain persists across deploys.
+- **Favicon** - browser tab icon path fixed to `/icon.png` after the base-path change.
+
 ## [2.1.0] - 2026-08-24
 
 ### Added
