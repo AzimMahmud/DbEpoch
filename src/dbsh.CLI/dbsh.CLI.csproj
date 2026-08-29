@@ -5,9 +5,9 @@
     <RootNamespace>dbsh.CLI</RootNamespace>
     <AssemblyName>dbsh</AssemblyName>
     <Description>dbsh - a database-agnostic migration tool for .NET (PostgreSQL, SQL Server, MySQL, SQLite).</Description>
-    <Version>2.1.0</Version>
-    <FileVersion>2.1.0.0</FileVersion>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <Version>2.1.3</Version>
+    <FileVersion>2.1.3.0</FileVersion>
+    <AssemblyVersion>2.1.3.0</AssemblyVersion>
 
     <PackAsTool>true</PackAsTool>
     <DebugType>none</DebugType>
@@ -17,7 +17,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/AzimMahmud/dbsh</PackageProjectUrl>
+    <PackageProjectUrl>https://dbsh.azim.me</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AzimMahmud/dbsh</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
-    <None Include="..\..\.github\assets\icon.png" Pack="true" PackagePath="\" />
+    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
