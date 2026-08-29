@@ -4,6 +4,12 @@ All notable changes to the dbsh project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.4] - 2026-08-29
+
+### Fixed
+
+- **Documentation accuracy** — updated all docs and CLI help text to list all 8 supported databases (PostgreSQL, SQL Server, MySQL, SQLite, Oracle, CockroachDB, YugabyteDB, Aurora). Previously only 4 were listed in README, architecture, tracking tables, and `--provider` help.
+
 ## [2.1.3] - 2026-08-26
 
 ### Fixed

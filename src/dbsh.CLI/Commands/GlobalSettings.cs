@@ -13,7 +13,7 @@ public abstract class GlobalSettings : CommandSettings
     public string Environment { get; set; } = "local";
 
     [CommandOption("-p|--provider")]
-    [Description("Database provider: postgresql | sqlserver | mysql | sqlite")]
+    [Description("Database provider: postgresql | sqlserver | mysql | sqlite | oracle | cockroachdb | yugabyte | aurora")]
     public string? Provider { get; set; }
 
     [CommandOption("-c|--connection-string")]

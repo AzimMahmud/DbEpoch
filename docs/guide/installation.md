@@ -56,7 +56,7 @@ cd dbsh
 
 ```bash
 dbsh --version
-# -> dbsh v2.1.3
+# -> dbsh v2.1.4
 # -> database migrations for .NET
 ```
 

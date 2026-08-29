@@ -33,7 +33,7 @@ dbsh/
     ┌──────────────┴────────────────────────┴───────────────┐
     │                  Infrastructure                       │
     │  Providers/                                           │
-    │    PostgreSql · SqlServer · MySql · Sqlite            │
+    │    PostgreSql · SqlServer · MySql · Sqlite · Oracle    │
     │  Relational{Tracker, LockManager, Executor, Audit}    │
     │  FileSystemConfigLoader                               │
     └───────────────────────────────────────────────────────┘
@@ -73,6 +73,7 @@ Database-specific implementations and file system access.
 | `SqlServerProvider` | SQL Server via Microsoft.Data.SqlClient. Schema-based module isolation. Lock: `MERGE ... WITH (HOLDLOCK)` |
 | `MySqlProvider` | MySQL via MySqlConnector. Table-prefix module isolation. Lock: `INSERT ... ON DUPLICATE KEY UPDATE` |
 | `SqliteProvider` | SQLite via Microsoft.Data.Sqlite. Table-prefix module isolation. Lock: `INSERT ... ON CONFLICT DO UPDATE` |
+| `OracleProvider` | Oracle via Oracle.ManagedDataAccess.Core. Schema-based module isolation. Lock: `MERGE` |
 | `RelationalMigrationTracker` | Provider-agnostic history tracking using `System.Data.Common` |
 | `RelationalMigrationLockManager` | Row-based distributed lock with lease expiry |
 | `FileSystemConfigLoader` | Loads `migration.json` and `environments/*.json`, expands `${VAR}` tokens |

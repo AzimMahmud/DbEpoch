@@ -36,7 +36,7 @@ No separate lint step â€” `TreatWarningsAsErrors` serves as the gate. The b
 |---------|---------------|
 | `dbsh.Core` | Entities, enums, value objects, interfaces. Zero dependencies. |
 | `dbsh.Engine` | `ScriptParser`, `MigrationExecutor`, in-memory test doubles. |
-| `dbsh.Infrastructure` | 4 database providers (PostgreSQL, SqlServer, MySQL, SQLite), relational implementations, `FileSystemConfigLoader`. |
+| `dbsh.Infrastructure` | 5 database providers (PostgreSQL, SqlServer, MySQL, SQLite, Oracle), relational implementations, `FileSystemConfigLoader`. |
 | `dbsh.CLI` | `dbsh` executable using `Spectre.Console.Cli` 0.49.1. |
 
 ## Key conventions

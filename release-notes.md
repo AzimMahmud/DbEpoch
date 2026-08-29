@@ -1,13 +1,13 @@
-# dbsh v2.1.3
+# dbsh v2.1.4
 
 ## Installation
 
 ```bash
 # Linux / macOS
-curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.3/install.sh | bash
+curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.4/install.sh | bash
 
 # Windows
-powershell -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/download/v2.1.3/install.ps1 | iex"
+powershell -c "iwr -Uri https://github.com/AzimMahmud/dbsh/releases/download/v2.1.4/install.ps1 | iex"
 ```
 
 The install scripts automatically verify the downloaded archive against `SHA256SUMS` published alongside this release.
@@ -33,13 +33,18 @@ The install scripts automatically verify the downloaded archive against `SHA256S
 Every archive is checksummed in `SHA256SUMS` (attached to this release). The install scripts verify it automatically; to verify manually:
 
 ```bash
-curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.3/SHA256SUMS | sha256sum -c -
+curl -fsSL https://github.com/AzimMahmud/dbsh/releases/download/v2.1.4/SHA256SUMS | sha256sum -c -
 ```
 
 ## Changelog
 
-- Fixed Unicode encoding issues in install scripts (box-drawing characters, em dashes, status icons)
-- Updated release packaging with proper UTF-8 encoding for cross-platform compatibility
-- Improved install script display for better terminal rendering
+### Documentation
 
-See [CHANGELOG.md](https://github.com/AzimMahmud/dbsh/blob/v2.1.3/CHANGELOG.md) for details.
+- Updated README to list all 8 supported databases (added Oracle, CockroachDB, YugabyteDB, Aurora)
+- Updated architecture docs to include OracleProvider in the Infrastructure layer
+- Updated tracking tables DDL reference with Oracle column types (RAW(16), NUMBER(1), TIMESTAMP, SYS_GUID())
+- Updated VitePress site description and nav version badge
+- Updated `--provider` CLI help text to list all supported providers
+- Updated `dbsh init` and `dbsh new` docs to mention Oracle for schema-based module isolation
+
+See [CHANGELOG.md](https://github.com/AzimMahmud/dbsh/blob/v2.1.4/CHANGELOG.md) for details.

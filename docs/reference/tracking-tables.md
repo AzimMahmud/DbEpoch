@@ -62,9 +62,9 @@ Append-only audit trail of every action.
 
 The tracking table DDL differs between providers:
 
-| Concern | PostgreSQL | SQL Server | MySQL | SQLite |
-|---------|-----------|------------|-------|--------|
-| UUID column | `UUID` | `UNIQUEIDENTIFIER` | `CHAR(36)` | `TEXT` |
-| Boolean column | `BOOLEAN` | `BIT` | `TINYINT(1)` | `INTEGER` (0/1) |
-| Timestamp column | `TIMESTAMPTZ` | `DATETIME2` | `DATETIME` | `TEXT` |
-| ID default | `gen_random_uuid()` | `NEWID()` | C# Guid | C# Guid |
+| Concern | PostgreSQL | SQL Server | MySQL | SQLite | Oracle |
+|---------|-----------|------------|-------|--------|--------|
+| UUID column | `UUID` | `UNIQUEIDENTIFIER` | `CHAR(36)` | `TEXT` | `RAW(16)` |
+| Boolean column | `BOOLEAN` | `BIT` | `TINYINT(1)` | `INTEGER` (0/1) | `NUMBER(1)` (0/1) |
+| Timestamp column | `TIMESTAMPTZ` | `DATETIME2` | `DATETIME` | `TEXT` | `TIMESTAMP` |
+| ID default | `gen_random_uuid()` | `NEWID()` | C# Guid | C# Guid | `SYS_GUID()` |

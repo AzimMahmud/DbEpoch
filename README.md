@@ -6,7 +6,7 @@
 
 **Database migrations that ship.**
 
-A Flyway-style migration tool for **PostgreSQL**, **SQL Server**, **MySQL**, and **SQLite**.
+A Flyway-style migration tool for **PostgreSQL**, **SQL Server**, **MySQL**, **SQLite**, **Oracle**, **CockroachDB**, **YugabyteDB**, and **Aurora**.
 
 [![CI](https://github.com/AzimMahmud/dbsh/actions/workflows/ci.yml/badge.svg)](https://github.com/AzimMahmud/dbsh/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/AzimMahmud/dbsh?include_prereleases&color=success)](https://github.com/AzimMahmud/dbsh/releases)
@@ -32,7 +32,7 @@ dbsh is a SQL-first database migration tool for .NET. You write plain `.sql` fil
 ## Features
 
 - **SQL-first** — Plain `.sql` files. No embedded DSL, no XML, no surprises.
-- **Multi-database** — PostgreSQL, SQL Server, MySQL, and SQLite. Switch providers without changing your workflow.
+- **Multi-database** — PostgreSQL, SQL Server, MySQL, SQLite, Oracle, CockroachDB, YugabyteDB, and Aurora. Switch providers without changing your workflow.
 - **Safe by design** — Distributed locks, approval gates, deployment windows, and audit trails.
 - **CI-friendly** — Every command supports `--json` output and deterministic exit codes.
 - **Works offline** — Validate, plan, and scaffold without a database connection.
@@ -140,6 +140,10 @@ Per-environment overrides in `Database/Config/environments/<name>.json` with `${
 | SQL Server | 2016+ | `sqlserver` |
 | MySQL / MariaDB | 8+ / 10.5+ | `mysql` |
 | SQLite | 3 | `sqlite` |
+| Oracle | 19+ | `oracle` |
+| CockroachDB | 22+ | `cockroachdb` |
+| YugabyteDB | 2.14+ | `yugabyte` |
+| Amazon Aurora | — | `aurora` |
 
 ## Documentation
 
