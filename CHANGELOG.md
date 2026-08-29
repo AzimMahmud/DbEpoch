@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to the dbsh project will be documented in this file.
 
